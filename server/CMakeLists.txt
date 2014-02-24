@@ -1,0 +1,7 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+enable_testing ()
+
+ADD_SUBDIRECTORY ("src") 
+
+ADD_SUBDIRECTORY ("test") 

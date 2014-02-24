@@ -1,0 +1,56 @@
+
+
+
+For comparison, in Tomcat:
+* Server -> multiple Services -> multiple Connector
+* Service -> may have an Engine (Container) -> may have multiple Hosts (Container)
+* Each Engine is associated with a Service. 
+* Each Container contains a set of Valves throughout the request is precessed (and transformed into a response)
+* A Context (Container) is created for each web-app
+
+Now, this seems very flexible, but it may be a little too flexible. In fact 99% of the applications are using the same 
+Tomcat configuration and I don't believe it is worth the cost of complicating the things around.
+
+Proposal:
+
+* IDEA:: All resources should and will be shared. 
+The purpose of an application server is to put toghether resources for multiple applications.
+A non-shared install of the application can still be achieved by simply adding special resources for that application.
+All we have to provide is a way to map resources used in the application and those declared at the server level.
+
+* REQ:: Resource types
+ 1/ Mail resources (async thread pool)
+ 2/ Temporary files resources (async thread pool, used at uploads)
+ 3/ General async tasks (repetitive and CRON-like). Optional, since they can be implemented at the application level.
+ 4/ SQL pools (connections). Break it down to types of supported servers
+
+* REQ:: Application programming interface
+ 1/ Filter
+ 2/ Servlet
+ 3/ Session, HttpRequest, HttpResponse, lifecycle listeners, etc
+ 4/ Access to the server defined resources (via aliases - mechanism to map an alias to a resource at the server 
+level, or direct by names)
+ 5/ Basic transactional support for SQL
+ 6/ Streamable IO on servlets ...
+ 
+* IDEA:: arch
+
+Geryon Server = Listeners + Dispatchers + Executors + Applications + Resources 
+
+Listeners = Linked to a certain ip protocol (plain tcp / ssl / udp / etc). You can specify here the dispatcher(s) 
+to be used, if non-standard. The translation from data to request will not happen at this level. At this level we do 
+not care about carried-over protocol (e.g. http, https) we're only concerned with IO. 
+
+ProtocolDispatcher = responsibility is to dispatch the buffers (raw data) to the protocol handlers (protocol handlers can be chained!)
+Note: an automated routing mechanism may be added to the server.
+
+Worker Thread Pool = decrypt, interpret via protocol handlers the request and execution of the request (if request is completely
+interpreted calls in the ApplicationDispatcher) creates the result, call protocol handlers again to pack the response (encrypt).
+Protocols can be chained (i.e. https -> chained over http).
+So, when the buffer is taken by the thread, it is interpreted using the correct protocol handler. If the response is complete, it
+calls the ApplicationDispatcher, else returns next operation to be performed (READ, CLOSE). ApplicationDispatcher executes the
+request, creates the response, and the control is returned to the ProtocolDispatcher (WRITE, CLOSE, READ)
+
+ApplicationDispatcher = selects the application to pass the request over. Again, before passing down the request, it should
+go through a chain of command, so we can intercept requests and log them, etc.
+
