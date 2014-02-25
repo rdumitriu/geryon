@@ -133,4 +133,4 @@ private:
 }
 }
 
-#endif //__LOG_HPP__
+#endif //LOG_HPP_

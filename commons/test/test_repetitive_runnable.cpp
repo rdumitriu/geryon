@@ -8,8 +8,8 @@ using namespace std;
 using namespace geryon::mt;
 
 
-int global_cycles;
-int second_global;
+volatile int global_cycles;
+volatile int second_global;
 
 
 void testFunct(int i, int j) {
@@ -42,7 +42,7 @@ int main(int argn, const char * argv []) {
     rr.stop();
 
     cout << "Global cycles:" << global_cycles << endl;
-    if(global_cycles != 2) {
+    if(global_cycles != 2 && global_cycles != 3) {
         cout << "FAILED ! (1)" << endl;
     }
     cout << "second_global = " << second_global << endl;

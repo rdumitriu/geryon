@@ -118,7 +118,7 @@ public:
 
 private:
     u_int32_t sleepTime;
-    bool mustStop;
+    volatile bool mustStop;
     std::mutex mutex;
     std::condition_variable cond;
     std::function<void()> f;

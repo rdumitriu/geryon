@@ -7,6 +7,7 @@ SET (commonslib_SRC
 
      ../include/http_types.hpp
 
+     ../include/conversions.hpp
      ../include/log.hpp
      log.cpp
 	)
