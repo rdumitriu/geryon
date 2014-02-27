@@ -6,6 +6,7 @@ SET (commonslib_SRC
      ../include/thread_pool.hpp
 
      ../include/http_types.hpp
+     http_types.cpp
 
      ../include/conversions.hpp
      ../include/log.hpp

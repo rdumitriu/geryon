@@ -18,6 +18,7 @@ namespace geryon { namespace util {
 
 ///
 /// \brief Different conversions, to hide out our dependency on boost
+/// (where we can)
 ///
 
 

@@ -1,8 +1,8 @@
 /*
- * Log.cpp
+ * log.cpp
  *
  *  Created on: Mar 10, 2011
- *      Author: rdumitriu
+ *      Author: rdumitriu at gmail dot com
  */
 #include <stdio.h>
 #include <string>

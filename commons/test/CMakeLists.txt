@@ -23,6 +23,9 @@ SET (test_rrunnable_SRC
 SET (test_thrpool_SRC
     test_thread_pool.cpp)
 
+SET (test_http_message_SRC
+    test_http_message.cpp)
+
 
 ADD_EXECUTABLE(testlog ${testlog_SRC})
 INCLUDE_DIRECTORIES ("../include")
@@ -43,6 +46,10 @@ TARGET_LINK_LIBRARIES (test_rrunnable  ${MLIB})
 ADD_EXECUTABLE(test_thrpool ${test_thrpool_SRC})
 INCLUDE_DIRECTORIES ("../include")
 TARGET_LINK_LIBRARIES (test_thrpool  ${MLIB})
+
+ADD_EXECUTABLE(test_http_message ${test_http_message_SRC})
+INCLUDE_DIRECTORIES ("../include")
+TARGET_LINK_LIBRARIES (test_http_message  ${MLIB})
 
 
 ADD_TEST(testlog1 testlog)
@@ -71,5 +78,10 @@ SET_TESTS_PROPERTIES (test_rrunnable1
 
 ADD_TEST(test_thrpool1 test_thrpool)
 SET_TESTS_PROPERTIES (test_thrpool1
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "FAILED.*")
+
+ADD_TEST(test_http_message1 test_http_message)
+SET_TESTS_PROPERTIES (test_http_message1
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "FAILED.*")

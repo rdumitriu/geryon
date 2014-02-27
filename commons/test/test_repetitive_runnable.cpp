@@ -42,7 +42,7 @@ int main(int argn, const char * argv []) {
     rr.stop();
 
     cout << "Global cycles:" << global_cycles << endl;
-    if(global_cycles != 2 && global_cycles != 3) {
+    if(global_cycles != 2 && global_cycles != 3 ) {
         cout << "FAILED ! (1)" << endl;
     }
     cout << "second_global = " << second_global << endl;
