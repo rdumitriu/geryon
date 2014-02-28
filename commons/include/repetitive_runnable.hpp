@@ -30,7 +30,7 @@ public:
     /// \param _c the function or the object instance to be run
     ///
     template<typename _Callable, typename... _Args>
-    explicit RepetitiveRunnable(u_int32_t _sleepTime, _Callable _c, _Args ..._args)
+    explicit RepetitiveRunnable(unsigned int _sleepTime, _Callable _c, _Args ..._args)
                     : sleepTime(_sleepTime), mustStop(false),
                       f(std::bind(_c, _args...)), p_t(NULL) {
     }
@@ -117,7 +117,7 @@ public:
     }
 
 private:
-    u_int32_t sleepTime;
+    unsigned int sleepTime;
     volatile bool mustStop;
     std::mutex mutex;
     std::condition_variable cond;

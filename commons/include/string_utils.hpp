@@ -13,6 +13,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace geryon { namespace util {
 
@@ -73,6 +74,15 @@ inline std::string formatISODateTime(const std::time_t & t) {
     return ss.str();
 }
 
+///
+/// \brief startsWith
+/// \param s the string
+/// \param begin the string to be searched
+/// \return true if the
+///
+inline bool startsWith(const std::string & s, const std::string & begin) {
+    return boost::starts_with(s, begin);
+}
 
 } }
 

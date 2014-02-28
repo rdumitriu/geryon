@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "http_types.hpp"
+#include "log.hpp"
 
 using namespace std;
 using namespace geryon;
@@ -17,10 +18,19 @@ public:
         headers.insert(std::make_pair(h.name, h));
         contentLength = 1234;
         contentType = "bogus";
+
+        //cookie fun
+        HttpHeader hc;
+        hc.name = "Cookie";
+        hc.values.push_back("firstcookie=acc=1&lgn=user; path=/path/to/cookie/heaven; httpOnly");
+        hc.values.push_back("anothercookie=value; path=/");
+        headers.insert(std::make_pair(hc.name, hc));
     }
 };
 
 int main(int argn, const char * argv []) {
+    geryon::util::Log::configureBasic(geryon::util::Log::DEBUG);
+
     TestBase test;
 
     cout << "Testing the base behaviour" << endl;
@@ -59,6 +69,28 @@ int main(int argn, const char * argv []) {
         cout << "FAILED : basic attrs, should not be here!" << endl;
     }
 
+    //cookie test
+    HttpCookie c1;
+    if(!test.hasCookie("firstcookie")) {
+        cout << "FAILED : no 1st cookie ?!? (1)" << endl;
+    }
+    cout << "Getting cookie 1" << endl;
+    if(!test.getCookie("firstcookie", c1)) {
+        cout << "FAILED : no 1st cookie ?!? (2)" << endl;
+    } else {
+        if(c1.value != "acc=1&lgn=user" ) {
+            cout << "FAILED : 1st value (3) :" << c1.value << endl;
+        }
+        if(!c1.httpOnly) {
+            cout << "FAILED : 1st value (4)" << endl;
+        }
+        if(c1.path != "/path/to/cookie/heaven") {
+            cout << "FAILED : 1st value (5) :" << c1.path << endl;
+        }
+    }
+    if(!test.getCookie("anothercookie", c1)) {
+        cout << "FAILED : no 2nd cookie ?!?" << endl;
+    }
 
     return 0;
 }

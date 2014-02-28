@@ -8,7 +8,7 @@ SET (commonslib_SRC
      ../include/http_types.hpp
      http_types.cpp
 
-     ../include/conversions.hpp
+     ../include/string_utils.hpp
      ../include/log.hpp
      log.cpp
 	)

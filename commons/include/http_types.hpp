@@ -62,7 +62,7 @@ struct HttpCookie {
     ///max age, in seconds.
     long maxAge;
     //expires, as time.
-    std::chrono::system_clock::time_point expires;
+    std::time_t expires;
     ///set this to true if you don't want Javascript to play with the cookie
     bool httpOnly;
     ///Secure flag
@@ -71,7 +71,7 @@ struct HttpCookie {
     std::string extension;
     
     ///Constructor: no version, no path, no max age, nothing
-    HttpCookie() : maxAge(-1), expires(std::chrono::system_clock::from_time_t(0)), httpOnly(false), secure(false) {}
+    HttpCookie() : maxAge(-1), expires(0L), httpOnly(false), secure(false) {}
 
     ///
     /// \brief Is this a valid cookie ?
@@ -79,7 +79,7 @@ struct HttpCookie {
     ///
     bool isValid() {
         return (name.length() && value.length() &&
-                    (maxAge < 0 || expires.time_since_epoch() == std::chrono::system_clock::duration::zero()));
+                    (maxAge < 0 || expires == 0L));
     }
 };
 
@@ -219,6 +219,19 @@ public:
     /// \return true if the cookie is parsed, false otherwise
     ///
     bool getCookie(const std::string & cookieName, HttpCookie &cookie);
+
+    ///
+    /// \brief Checks for cookie existence.
+    ///
+    /// Parses a header and returns the exploded cookie structure.\n\n
+    ///
+    /// Only the first cookie found is returned. For advanced cookie manipulation, please work directly with the header.
+    ///
+    ///
+    /// \param cookieName the cookie name
+    /// \return true if the cookie is parsed, false otherwise
+    ///
+    bool hasCookie(const std::string & cookieName);
     
     ///
     /// \brief Puts an attribute value.
@@ -282,6 +295,9 @@ protected:
     std::size_t contentLength;
     ///Content-Type header, the value
     std::string contentType;
+private:
+    ///Expanded cookies, per request basis
+    std::map<std::string, HttpCookie> cookies;
 };
 
 
