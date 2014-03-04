@@ -7,9 +7,17 @@
 
 #include "http_types.hpp"
 #include "string_utils.hpp"
+
+#include "session.hpp"
+
 #include "log.hpp"
 
 namespace geryon {
+
+/* ====================================================================
+ * Messages
+ * ================================================================== */
+
 
     namespace detail {
 

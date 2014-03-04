@@ -231,7 +231,7 @@ public:
     void putAttribute(const std::string & name, const T & obj) {
         auto p = attributes.find(name);
         if(p != attributes.end()) {
-            removeAttribute(name);
+            attributes.erase(p);
         }
         attributes.insert(std::make_pair(name, obj));
     }
