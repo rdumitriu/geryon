@@ -2,12 +2,13 @@
 /// \file session_listener.hpp
 ///
 ///  Created on: March 4, 2014
-///      Author: rdumitriu
+///      Author: rdumitriu at gmail.com
 ///
 #ifndef SESSION_LISTENER_HPP_
 #define SESSION_LISTENER_HPP_
  
 #include <string>
+#include <boost/any.hpp>
 
 #include "appconfig_aware.hpp"
 

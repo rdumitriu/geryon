@@ -9,7 +9,7 @@
 #include <sstream>
 #include <cstdlib>
 
-#include <chrono>
+#include "string_utils.hpp"
 
 #include "log.hpp"
 
@@ -124,8 +124,7 @@ std::string Log::currentTimestampAsString() {
 	//serialize it
     std::chrono::time_point<std::chrono::system_clock> curr = std::chrono::system_clock::now();
     std::time_t curr_t = std::chrono::system_clock::to_time_t(curr);
-    ss << std::ctime(&curr_t);
-	return ss.str();
+    return formatISODateTime(curr_t);
 }
 
 }

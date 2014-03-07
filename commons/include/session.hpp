@@ -2,7 +2,7 @@
 /// Session.hpp
 ///
 ///  Created on: Dec 08, 2011, re-worked on 1st of March, 2014
-///      Author: rdumitriu
+///      Author: rdumitriu at gmail.com
 ///
 #ifndef SESSION_HPP_
 #define SESSION_HPP_
@@ -25,6 +25,8 @@ namespace geryon {
 /// So it's ok to do
 /// @code
 /// session.put("object-key", std::move(x));
+/// long lx = 1;
+/// if(!session.get("my-key", lx)) { ... }
 /// @endcode
 /// ... where x is a copyable object.\n\n
 /// The session is thread safe, but values stored inside are NOT! You have to remember that multiple threads may
@@ -32,15 +34,18 @@ namespace geryon {
 /// you have pointers inside your session.
 ///
 class Session : public ApplicationConfigAware {
-public:
+protected:
     ///
     /// \brief Constructor
+    ///
+    /// You cannot construct a session directly.
     ///
     /// \param _pApplication the pointer to the application object
     ///
     explicit Session(ApplicationModule * const _pApplication)
             : ApplicationConfigAware(_pApplication),
               timeStamp(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())) {}
+public:
     ///
     /// \brief Destructor.
     ///
@@ -103,7 +108,8 @@ public:
     /// changes; however, the values are not. After return, anybody may alter that value from session.
     ///
     /// \param name the name of the value
-    /// \return the value
+    /// \param obj the object to store the value
+    /// \return true if the object was found in session
     ///
     template <typename T>
     bool get(const std::string & name, T & obj) const {

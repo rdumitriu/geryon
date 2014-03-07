@@ -2,7 +2,7 @@
 /// \file servlet.hpp
 ///
 ///  Created on: Dec 08, 2011, refactored on 1st of March 2014
-///      Author: rdumitriu
+///      Author: rdumitriu at gmail.com
 ///
 #ifndef SERVLET_HPP_
 #define SERVLET_HPP_
@@ -60,6 +60,13 @@ public:
     /// Here is where you usually initialize your servlet.
     ///
     virtual void init() {}
+
+    ///
+    /// \brief Called just before stop.
+    ///
+    /// Here is where you usually clean it up.
+    ///
+    virtual void done() {}
 
     ///
     /// \brief Executes the requests

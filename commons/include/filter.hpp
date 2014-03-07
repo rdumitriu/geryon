@@ -2,7 +2,7 @@
 /// \file filter.hpp
 ///
 ///  Created on: Dec 08, 2011, refactored on 2nd of March 2014
-///      Author: rdumitriu
+///      Author: rdumitriu at gmail.com
 ///
 #ifndef FILTER_HPP_
 #define FILTER_HPP_
@@ -61,6 +61,13 @@ public:
     /// \param app the application
     ///
     virtual void init() {}
+
+    ///
+    /// \brief Called just before stop.
+    ///
+    /// Here is where you usually clean it up.
+    ///
+    virtual void done() {}
 
     ///
     /// \brief Actual filtering routine.

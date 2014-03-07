@@ -2,7 +2,7 @@
 /// \file appconfig_aware.hpp
 ///
 ///  Created on: Dec 08, 2011
-///      Author: rdumitriu
+///      Author: rdumitriu at gmail.com
 ///
 #ifndef APPCONFIG_AWARE_HPP_
 #define APPCONFIG_AWARE_HPP_

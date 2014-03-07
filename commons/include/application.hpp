@@ -2,7 +2,7 @@
 /// \file application.hpp
 ///
 ///  Created on: Dec 08, 2011
-///      Author: rdumitriu
+///      Author: rdumitriu at gmail.com
 ///
 #ifndef APPLICATION_HPP_
 #define APPLICATION_HPP_
@@ -18,13 +18,10 @@
 
 namespace geryon {
 
-// ::TODO:: contains the pools, the config, etc
-//
-class ApplicationContext {
-
-};
-
+//FWDs
 class ApplicationModule;
+class ApplicationModuleContainer;
+
 ///
 /// \brief Signals the start / end of the application module.
 ///
@@ -69,10 +66,9 @@ public:
 ///
 /// Take care: when destroyed, this objects destroys all servlets, filters, and listeners as well. So don't worry
 /// about deletes.
-/// ::TODO:: add configuration in HERE !!!
 ///
 class ApplicationModule {
-protected:
+public:
     ///
     /// \brief The basic application block.
     ///
@@ -83,7 +79,6 @@ protected:
     ///
     ApplicationModule(const std::string & _key, ApplicationModule * const _parent = NULL)
                         : key(_key), parent(_parent), status(ApplicationModule::INIT) {}
-public:
 
     ///Destructor
     virtual ~ApplicationModule();
@@ -182,6 +177,7 @@ protected:
     inline ApplicationModule * getParent() const { return parent; }
 
     friend class Session;
+    friend class ApplicationModuleContainer; //that's funny
 
     ///Perf: To avoid copying values, use this just before notifying
     virtual bool mustNotifyForSessions();
@@ -215,13 +211,24 @@ public:
     ApplicationModuleContainer(const std::string & _key, ApplicationModule * const _parent = NULL)
                                                                             : ApplicationModule(_key, _parent) {}
 
-    virtual ~ApplicationModuleContainer() {}
+    virtual ~ApplicationModuleContainer();
 
     ///Called by the container. By default, notifies all the configured listeners of the module.
     virtual void start();
 
     ///Called by the container. By default, notifies all the configured listeners of the module.
     virtual void stop();
+
+    //::TODO:: start / stop modules individually. At some point in time, soon
+
+    ///
+    /// \brief Adds a module
+    /// \param module the module pointer
+    ///
+    void addModule(ApplicationModule * const module) {
+        module->parent = this;
+        modules.push_back(module);
+    }
 
 protected:
     ///Perf: To avoid copying values, use this just before notifying
@@ -239,243 +246,27 @@ protected:
     ///Notify: session value removed
     virtual void notifySessionValueRemoved(Session * const pSes, const std::string & name);
 
+    std::vector<ApplicationModule *> modules;
 };
 
+///
+/// \brief Application
+///
+/// By convention, an application is the root of all
+///
 typedef ApplicationModuleContainer Application;
-typedef ApplicationModuleContainer Plugin;
-    
-///**
-// * \brief The application part exposed to filters, servlets and listeners.
-// *
-// * Part of the application behavior is defined here. You should note that this
-// * class does not provide any execution method (to avoid calling execute
-// * inadverdently).
-// *
-// * The class defines the basics for an application to take shape: listeners,
-// * the pools (via the configuration), servlets and filters.
-// *
-// * All servlets and filters will be relative to the base path of the application.
-// * If the user fills in the configuration property 'mount.path' it will
-// * have precedence over the configured mount requested by the programmer.
-// */
-//class Application {
-//public:
-//    /**
-//     * \brief Constructor.
-//     *
-//     * \param path the base path of the application.
-//     * \param configFile the config file of the application
-//     */
-//    Application(const std::string & path, const std::string & configFile);
-    
-//    /**
-//     * \brief Destructor.
-//     *
-//     * Responsible for re-collecting all the memory occupied by
-//     * servlets, filters, listeners.
-//     */
-//    virtual ~Application();
-    
-//    /**
-//     * \brief Mounted path of the application (base path).
-//     *
-//     * Gets the path mapped on this application.
-//     *
-//     * Each path must start with a '/' and end with one i.e. '/myapp/'. If not
-//     * automatic correction will take place.
-//     * \return the path
-//     */
-//    const std::string & getPath() const;
-    
-//    /**
-//     * \brief The configuration.
-//     *
-//     * Gets the configuration for this application.
-//     *
-//     * \return the configuration reference.
-//     */
-//    ApplicationConfig & getConfig();
-
-//    /**
-//     * \brief This object's lifecycle listener.
-//     *
-//     * Adds a listener on the application lifecycle.
-//     *
-//     * Listeners on the lifecycle of the application are owned by this object.
-//     * Once added, the listener will be destroyed by the application destructor
-//     *
-//     * \param listener the listener address (MUST be pointer, MUST be allocated
-//     * with 'new')
-//     */
-//    void addLifecycleListener(ApplicationLifecycleListener * listener);
-    
-//    /**
-//     * \brief Session lifecycle listener.
-//     *
-//     * Adds a listener on the session lifecycle.
-//     *
-//     * Listeners on the lifecycle of the session are owned by this object.
-//     * Once added, the listener will be destroyed by the application destructor
-//     *
-//     * \param listener the listener address (MUST be pointer, MUST be allocated
-//     * with 'new')
-//     */
-//    void addSessionListener(SessionLifecycleListener * listener);
-    
-//    /**
-//     * \brief Filters.
-//     *
-//     * Adds a filter into the application.
-//     *
-//     * Filters intercept the request and they are able to interrupt the
-//     * processing of a request.
-//     * Filters are added on the application and they are owned by the
-//     * application object.
-//     * \param filter the filter pointer (allocated with 'new')
-//     */
-//    void addFilter(Filter * filter);
-    
-//    /**
-//     * \brief Servlets.
-//     *
-//     * Adds a servlet into the application.
-//     *
-//     * Servlets are the main processing units.
-//     * Servlets are added on the application and they are owned by the
-//     * application object, and subsequently destroyed by the current application
-//     * object.\n\n
-//     * Servlet path may contain a regex expression; it will be concatenated to the
-//     * base path and then created a regex; the regex must start with "REGEX:"
-//     * for us to be able to detect this is a regex expression.
-//     * \param servlet the servlet pointer (allocated with 'new')
-//     */
-//    void addServlet(Servlet * servlet);
-
-//protected:
-//    ///Notify: session created
-//    void notifySessionCreated(Session & ses);
-//    ///Notify: session value added
-//    void notifySessionValueAdded(Session & ses, const std::string & name, ValueHolder *pData);
-//    ///Notify: session value modified
-//    void notifySessionValueChanged(Session & ses, const std::string & name, ValueHolder *pData);
-//    ///Notify: session value removed
-//    void notifySessionValueRemoved(Session & ses, const std::string & name);
-//    ///Notify: session value destroyed
-//    void notifySessionDestroyed(Session & ses);
-//    ///Notify: application created
-//    void notifyApplicationStarted();
-//    ///Notify: application killed
-//    void notifyApplicationStopped();
-//    ///Gets the servlet mapped on the path
-//    Servlet * getServlet(const std::string & path) const;
-    
-//    friend class Session;
-
-//    ///Application lifecycle listeners
-//    std::vector<ApplicationLifecycleListener *> m_appLifecycleListeners;
-//    ///Session lifecycle listeners
-//    std::vector<SessionLifecycleListener *> m_sessLifecycleListeners;
-//    ///Filters
-//    std::vector<Filter *> m_filters;
-//    ///Servlets : part 1: direct mapped servlets
-//    std::map<std::string, Servlet *> m_servlets;
-//    ///Servlets : part 2: regex mapped servlets (slower)
-//    std::vector<agrade::yahsrv::internal::RegexServletHolder *> m_regexServlets;
-    
-//    ///The path, in the form '/path_name/'
-//    std::string m_path;
-//    ///Config: the config of the application
-//    ApplicationConfig m_config;
-//private:
-//    /// Non-copyable
-//    Application(const Application & copy) = delete;
-
-//    /// Non-copyable
-//    Application & operator= (const Application & other) = delete;
-//};
-
-//}
-
-
-///**
-// * \brief The plugin adds behavior.
-// *
-// * Programmers will add listeners, servlets, filters then configure the
-// * application to copy everything inside it.\n
-// * All servlets and filters will be relative to the base path of the
-// * application, as usual.
-// */
-//class Plugin {
-//public:
-//    /**
-//     * \brief Constructor.
-//     */
-//    Plugin();
-    
-//    /**
-//     * \brief Destructor.
-//     *
-//     * Responsible for re-collecting all the memory occupied by
-//     * servlets, filters, listeners, if after the wiring remains any.
-//     */
-//    virtual ~Plugin();
-
-//    /**
-//     * \brief Application lifecycle listener.
-//     *
-//     * Adds a listener on the application lifecycle.
-//     * \param listener the listener address (MUST be pointer, MUST be allocated
-//     * with 'new')
-//     */
-//    void addLifecycleListener(ApplicationLifecycleListener * listener);
-    
-//    /**
-//     * \brief Session lifecycle listener.
-//     *
-//     * Adds a listener on the session lifecycle.
-//     *
-//     * \param listener the listener address (MUST be pointer, MUST be allocated
-//     * with 'new')
-//     */
-//    void addSessionListener(SessionLifecycleListener * listener);
-    
-//    /**
-//     * \brief Filters.
-//     *
-//     * Adds a filter.
-//     *
-//     * \param filter the filter pointer (allocated with 'new')
-//     */
-//    void addFilter(Filter * filter);
-    
-//    /**
-//     * \brief Servlets.
-//     *
-//     * Adds a servlet into the plugin.
-//     *
-//     * Servlets are the main processing units.
-//     *
-//     * \param servlet the servlet pointer (allocated with 'new')
-//     */
-//    void addServlet(Servlet * servlet);
-
-//private:
-//    friend class ServerApplication;
-
-//    /// Non-copyable
-//    Plugin(const Plugin & copy) = delete;
-//    /// Non-copyable
-//    Plugin & operator = (const Plugin & other) = delete;
-    
-//    ///Application lifecycle listeners
-//    std::vector<ApplicationLifecycleListener *> m_appLifecycleListeners;
-//    ///Session lifecycle listeners
-//    std::vector<SessionLifecycleListener *> m_sessLifecycleListeners;
-//    ///Filters
-//    std::vector<Filter *> m_filters;
-//    ///Servlets
-//    std::vector<Servlet *> m_servlets;
-//};
+///
+/// \brief Plugin
+///
+/// By convention, a plugin is a simple module
+///
+typedef ApplicationModule Plugin;
+///
+/// \brief PluginContainer
+///
+/// By convention, the plugin container can accomodate other plugins.
+///
+typedef ApplicationModuleContainer PluginContainer;
 
 }
 

@@ -2,7 +2,7 @@
 /// \file http_types.hpp
 ///
 ///  Created on: Jul 7, 2011, refactored to geryon (and corrected bugs) on 24 Feb 2014
-///      Author: rdumitriu
+///      Author: rdumitriu at gmail.com
 ///
 
 #ifndef HTTP_TYPES_HPP_
