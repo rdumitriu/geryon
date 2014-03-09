@@ -15,6 +15,7 @@ SET (commonslib_SRC
     ../include/appconfig_aware.hpp
     ../include/session_listener.hpp
     ../include/session.hpp
+    session.cpp
     ../include/filter.hpp
     ../include/servlet.hpp
     servlet.cpp

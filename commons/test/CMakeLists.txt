@@ -36,6 +36,11 @@ ADD_EXECUTABLE(test_session test_session.cpp)
 INCLUDE_DIRECTORIES ("../include")
 TARGET_LINK_LIBRARIES (test_session  ${MLIB})
 
+ADD_EXECUTABLE(test_app test_app.cpp)
+INCLUDE_DIRECTORIES ("../include")
+TARGET_LINK_LIBRARIES (test_app  ${MLIB})
+
+
 ADD_TEST(testlog1 testlog)
 SET_TESTS_PROPERTIES (testlog1
                       PROPERTIES
@@ -72,5 +77,10 @@ SET_TESTS_PROPERTIES (test_http_message1
 
 ADD_TEST(test_session test_session)
 SET_TESTS_PROPERTIES (test_session
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "FAILED.*")
+
+ADD_TEST(test_app test_app)
+SET_TESTS_PROPERTIES (test_app
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "FAILED.*")

@@ -90,12 +90,10 @@ public:
             attributes.insert(std::make_pair(name, obj));
         }
         // Free from locks!
-        if(getApplicationModule()->mustNotifyForSessions()) {
-            if(upd) {
-                getApplicationModule()->notifySessionValueChanged(this, name, oldObj, obj);
-            } else {
-                getApplicationModule()->notifySessionValueAdded(this, name, obj);
-            }
+        if(upd) {
+            notifySessionValueChanged(name, oldObj, obj);
+        } else {
+            notifySessionValueAdded(name, obj);
         }
     }
 
@@ -112,7 +110,7 @@ public:
     /// \return true if the object was found in session
     ///
     template <typename T>
-    bool get(const std::string & name, T & obj) const {
+    bool get(const std::string & name, T & obj) {
         try {
             std::lock_guard<std::mutex> _(mutex);
             updateTimeStamp();
@@ -145,8 +143,8 @@ public:
             }
         }
         // Free from locks!
-        if(ret && getApplicationModule()->mustNotifyForSessions()) {
-            getApplicationModule()->notifySessionValueRemoved(this, name);
+        if(ret) {
+            notifySessionValueRemoved(name);
         }
         return ret;
     }
@@ -164,9 +162,7 @@ public:
             attributes.clear();
         }
         // Free from locks !
-        if(getApplicationModule()->mustNotifyForSessions()) {
-            getApplicationModule()->notifySessionInvalidated(this);
-        }
+        notifySessionInvalidated();
     }
     
 protected:
@@ -177,6 +173,12 @@ protected:
     inline void updateTimeStamp() {
         timeStamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     }
+
+private:
+    void notifySessionValueAdded(const std::string & name, const boost::any & val);
+    void notifySessionValueChanged(const std::string & name, const boost::any & oldval, const boost::any & newval);
+    void notifySessionInvalidated();
+    void notifySessionValueRemoved(const std::string & name);
 };
 
 }

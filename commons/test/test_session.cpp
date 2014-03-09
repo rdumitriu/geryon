@@ -76,9 +76,46 @@ int main(int argn, const char * argv []) {
     _Session ses(&app);
     app.notifySessionCreated(&ses);
 
+    ses.put("avalue", std::string("buhuhu"));
+    ses.put("bvalue", 10);
+    std::string valStr;
+    if(!ses.get("avalue", valStr)) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: avalue should exist (1)" << endl;
+    } else if("buhuhu" != valStr) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: valStr='" << valStr << "' but it should be 'buhuhu'" << endl;
+    }
+    int x;
+    if(!ses.get("bvalue", x)) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: bvalue should exist" << endl;
+    } else if( x != 10) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: x='" << x << "' but it should be '10'" << endl;
+    }
+    if(ses.get("cvalue", x)) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: cvalue should NOT exist" << endl;
+    }
+
+    ses.put("avalue", std::string("bbb"));
+    if(!ses.get("avalue", valStr)) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: avalue should exist (2)" << endl;
+    } else if("bbb" != valStr) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: valStr='" << valStr << "' but it should be 'bbb'" << endl;
+    }
+
+    ses.remove("bvalue");
+
+    ses.invalidate();
 
 
     app.notifySessionDestroyed(&ses);
     app.stop();
+
+    //Now the listener should all be 1
+    if(listener->_init != 1 && listener->_added != 1 && listener->_modified != 1 &&
+       listener->_removed != 1 && listener->_invalidated != 1 && listener->_done != 1) {
+        LOG(geryon::util::Log::ERROR) << "FAILED: Listener values [IAMRID]="
+                                      << listener->_init << listener->_added << listener->_modified
+                                      << listener->_removed << listener->_invalidated << listener->_done << endl;
+    }
+
     return 0;
 }
