@@ -1,4 +1,9 @@
-
+/**
+ * \file http_types.cpp
+ *
+ *  Created on: Feb 25, 2014
+ *      Author: rdumitriu at gmail dot com
+ */
 #include "filter.hpp"
 #include "servlet.hpp"
 #include "session.hpp"
@@ -13,6 +18,13 @@ namespace geryon {
 /* ====================================================================
  * ApplicationModule
  * ================================================================== */
+
+ApplicationModule::ApplicationModule(const std::string & _key, const std::string & configFile, ApplicationModule * const _parent)
+                    : key(_key), parent(_parent), status(ApplicationModule::INIT) {
+    if(configFile != "") {
+        //::TODO:: parse options
+    }
+}
 
 ApplicationModule::~ApplicationModule() {
     for(auto p : servlets) { delete (p); }

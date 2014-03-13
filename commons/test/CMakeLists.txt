@@ -16,6 +16,10 @@ ADD_EXECUTABLE(testconv test_conversions.cpp)
 INCLUDE_DIRECTORIES ("../include")
 TARGET_LINK_LIBRARIES (testconv ${MLIB})
 
+ADD_EXECUTABLE(testprops test_properties.cpp)
+INCLUDE_DIRECTORIES ("../include")
+TARGET_LINK_LIBRARIES (testprops  ${MLIB})
+
 ADD_EXECUTABLE(test_monitor_queue test_monitor_queue.cpp)
 INCLUDE_DIRECTORIES ("../include")
 TARGET_LINK_LIBRARIES (test_monitor_queue  ${MLIB})
@@ -54,6 +58,11 @@ ADD_TEST(testconv1 testconv)
 SET_TESTS_PROPERTIES (testconv1
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "FAILED:.*")
+
+ADD_TEST(testprops1 testprops ${CMAKE_CURRENT_SOURCE_DIR}/props.properties)
+SET_TESTS_PROPERTIES (testprops1
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "FAILED")
 
 ADD_TEST(test_monitor_queue1 test_monitor_queue)
 SET_TESTS_PROPERTIES (test_monitor_queue1

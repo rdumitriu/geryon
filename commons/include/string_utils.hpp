@@ -84,6 +84,17 @@ inline bool startsWith(const std::string & s, const std::string & begin) {
     return boost::starts_with(s, begin);
 }
 
+///
+/// \brief Trim a string on both sides
+///
+/// In place trim.
+///
+/// \param s the string
+///
+inline void trim(std::string & s) {
+    boost::trim(s);
+}
+
 } }
 
 #endif //LOG_HPP_

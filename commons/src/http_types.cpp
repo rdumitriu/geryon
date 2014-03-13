@@ -1,5 +1,5 @@
-/*
- * http_types.cpp
+/**
+ * \file http_types.cpp
  *
  *  Created on: Feb 25, 2014
  *      Author: rdumitriu at gmail dot com

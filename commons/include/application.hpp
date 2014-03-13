@@ -1,7 +1,7 @@
 ///
 /// \file application.hpp
 ///
-///  Created on: Dec 08, 2011
+///  Created on: Dec 08, 2011, remodified
 ///      Author: rdumitriu at gmail.com
 ///
 #ifndef APPLICATION_HPP_
@@ -75,10 +75,12 @@ public:
     /// We want an application be composed from multiple modules, but these share the same behavior
     ///
     /// \param _key the key of the module
+    /// \param _configFile the configuration file
     /// \param _parent the parent
     ///
-    ApplicationModule(const std::string & _key, ApplicationModule * const _parent = NULL)
-                        : key(_key), parent(_parent), status(ApplicationModule::INIT) {}
+    ApplicationModule(const std::string & _key,
+                      const std::string & _configFile = "",
+                      ApplicationModule * const _parent = NULL);
 
     ///Destructor
     virtual ~ApplicationModule();
@@ -208,8 +210,10 @@ protected:
 ///
 class ApplicationModuleContainer : public ApplicationModule {
 public:
-    ApplicationModuleContainer(const std::string & _key, ApplicationModule * const _parent = NULL)
-                                                                            : ApplicationModule(_key, _parent) {}
+    ApplicationModuleContainer(const std::string & _key,
+                               const std::string & _configFile = "",
+                               ApplicationModule * const _parent = NULL)
+                                        : ApplicationModule(_key, _configFile, _parent) {}
 
     virtual ~ApplicationModuleContainer();
 
@@ -242,7 +246,8 @@ protected:
     ///Notify: session value added
     virtual void notifySessionValueAdded(Session * const pSes, const std::string & name, const boost::any & newVal);
     ///Notify: session value modified
-    virtual void notifySessionValueChanged(Session * const pSes, const std::string & name, const boost::any & oldVal, const boost::any & newVal);
+    virtual void notifySessionValueChanged(Session * const pSes, const std::string & name,
+                                           const boost::any & oldVal, const boost::any & newVal);
     ///Notify: session value removed
     virtual void notifySessionValueRemoved(Session * const pSes, const std::string & name);
 
