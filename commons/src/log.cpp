@@ -54,7 +54,7 @@ std::ostringstream& Log::get(LogLevel level) {
 
 
 void Log::configureNone() {
-	sink = NULL;
+    sink = 0;
 	logLevel = FATAL;
 }
 

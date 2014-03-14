@@ -21,12 +21,12 @@ PropertiesFile::PropertiesFile(const std::string & file) {
 	loadFromFile(file);
 }
 
-const bool PropertiesFile::hasProperty(const std::string & key) const {
+bool PropertiesFile::hasProperty(const std::string & key) const {
     std::map<std::string, std::string>::const_iterator p = props.find(key);
     return (p != props.end());
 }
 
-const std::string PropertiesFile::property(const std::string & key) const {
+std::string PropertiesFile::property(const std::string & key) const {
 	std::map<std::string, std::string>::const_iterator p = props.find(key);
 	if(p == props.end()) {
         return "";
@@ -34,7 +34,7 @@ const std::string PropertiesFile::property(const std::string & key) const {
 	return p->second;
 }
 
-const std::string PropertiesFile::property(const std::string & key, const std::string & defValue) const {
+std::string PropertiesFile::property(const std::string & key, const std::string & defValue) const {
     std::map<std::string, std::string>::const_iterator p = props.find(key);
     if(p == props.end()) {
         return defValue;

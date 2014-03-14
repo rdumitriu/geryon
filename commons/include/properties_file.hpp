@@ -31,6 +31,12 @@ public:
     explicit PropertiesFile(const std::string & file);
 
     ///
+    /// \brief Constructor - empty
+    /// The constructor, creates an empty props. You need to call load manually
+    ///
+    PropertiesFile() {}
+
+    ///
     /// Destructor
     ///
     virtual ~PropertiesFile() {}
@@ -40,7 +46,7 @@ public:
     /// \param key the key
     /// \return true if the property is in there
     ///
-    const bool hasProperty(const std::string & key) const;
+    bool hasProperty(const std::string & key) const;
 
     ///
     /// \brief Gets a property
@@ -48,7 +54,7 @@ public:
     /// \param key the key
     /// \return the value of the property
     ///
-    const std::string property(const std::string & key) const;
+    std::string property(const std::string & key) const;
 
     ///
     /// \brief property
@@ -56,7 +62,7 @@ public:
     /// \param defValue
     /// \return
     ///
-    const std::string property(const std::string & key, const std::string & defValue) const;
+    std::string property(const std::string & key, const std::string & defValue) const;
 
     ///
     /// \brief Gets a property
@@ -64,7 +70,7 @@ public:
     /// \param defValue the default value
     ///
     template<typename T>
-    const T property(const std::string & key, const T & defValue) const {
+    T property(const std::string & key, const T & defValue) const {
         std::map<std::string, std::string>::const_iterator p = props.find(key);
         if(p == props.end()) {
             return defValue;
@@ -72,9 +78,14 @@ public:
         return convertTo(p->second, defValue);
     }
 
+    ///
+    /// \brief Loads from a file the props
+    /// \param file the file
+    ///
+    void loadFromFile(const std::string & file);
 
 private:
-    void loadFromFile(const std::string & file);
+
 
 	std::map<std::string, std::string> props;
 };

@@ -15,7 +15,7 @@ class ApplicationModule;
 class ApplicationConfigAware {
 protected:
     /// Constructor
-    ApplicationConfigAware(ApplicationModule * const _pApp = NULL) : pApplicationModule(_pApp){}
+    ApplicationConfigAware(ApplicationModule * const _pApp = 0) : pApplicationModule(_pApp){}
 public:
     ///Destructor
     virtual ~ApplicationConfigAware() {}

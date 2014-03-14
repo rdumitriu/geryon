@@ -20,30 +20,35 @@ namespace geryon {
  * ================================================================== */
 
 ApplicationModule::ApplicationModule(const std::string & _key, const std::string & configFile, ApplicationModule * const _parent)
-                    : key(_key), parent(_parent), status(ApplicationModule::INIT) {
-    if(configFile != "") {
-        //::TODO:: parse options
-    }
+                    : key(_key), config(configFile), parent(_parent), status(ApplicationModule::INIT) {
 }
 
 ApplicationModule::~ApplicationModule() {
-    for(auto p : servlets) { delete (p); }
-    for(auto p : filters) { delete (p); }
-    for(auto p : sessionListeners) { delete (p); }
-    for(auto p : moduleListeners) { delete (p); }
+    for(auto p : servlets) {
+        delete (p);
+    }
+    for(auto p : filters) {
+        delete (p);
+    }
+    for(auto p : sessionListeners) {
+        delete (p);
+    }
+    for(auto p : moduleListeners) {
+        delete (p);
+    }
 }
 
 void ApplicationModule::start() {
     if(status == ApplicationModule::STARTED) {
         return;
     }
-    for(auto p : filters) {
+    for(auto p : moduleListeners) {
+        p->init();
+    }
+    for(const auto p : filters) {
         p->init();
     }
     for(auto p : servlets) {
-        p->init();
-    }
-    for(auto p : moduleListeners) {
         p->init();
     }
     status = ApplicationModule::STARTED;
@@ -54,10 +59,10 @@ void ApplicationModule::stop() {
     if(status != ApplicationModule::STARTED) {
         return;
     }
-    for(auto p : filters) {
+    for(auto p : servlets) {
         p->done();
     }
-    for(auto p : servlets) {
+    for(auto p : filters) {
         p->done();
     }
     for(auto p : moduleListeners) {

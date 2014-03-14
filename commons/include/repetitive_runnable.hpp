@@ -32,7 +32,7 @@ public:
     template<typename _Callable, typename... _Args>
     explicit RepetitiveRunnable(unsigned int _sleepTime, _Callable _c, _Args ..._args)
                     : sleepTime(_sleepTime), mustStop(false),
-                      f(std::bind(_c, _args...)), p_t(NULL) {
+                      f(std::bind(_c, _args...)), p_t(0) {
     }
 
     ///
@@ -41,7 +41,7 @@ public:
     /// It only copies the parameters, never the the dynamic aspects
     ///
     explicit RepetitiveRunnable(const RepetitiveRunnable & copy)
-                    : sleepTime(copy.sleepTime), mustStop(false), f(copy.f), p_t(NULL) {
+                    : sleepTime(copy.sleepTime), mustStop(false), f(copy.f), p_t(0) {
     }
 
     ///
@@ -89,7 +89,7 @@ public:
             });
         } catch( ... ) {
             delete p_t;
-            p_t = NULL;
+            p_t = 0;
             throw;
         }
     }

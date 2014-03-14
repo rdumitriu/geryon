@@ -16,6 +16,8 @@
 #include "session_listener.hpp"
 #include "session.hpp"
 
+#include "application_config.hpp"
+
 namespace geryon {
 
 //FWDs
@@ -80,7 +82,7 @@ public:
     ///
     ApplicationModule(const std::string & _key,
                       const std::string & _configFile = "",
-                      ApplicationModule * const _parent = NULL);
+                      ApplicationModule * const _parent = 0);
 
     ///Destructor
     virtual ~ApplicationModule();
@@ -101,6 +103,9 @@ public:
 
     ///Gets the key of the module
     inline std::string getKey() const { return key; }
+
+    ///Gets the configuration of this module
+    inline const ApplicationConfig & getConfig() { return config; }
 
     ///Called by the container. By default, notifies all the configured listeners of the module.
     virtual void start();
@@ -197,6 +202,7 @@ protected:
     virtual void notifySessionValueRemoved(Session * const pSes, const std::string & name);
 
     std::string key;
+    ApplicationConfig config;
     ApplicationModule * parent;
     Status status;
     std::vector<Filter *> filters;
@@ -212,7 +218,7 @@ class ApplicationModuleContainer : public ApplicationModule {
 public:
     ApplicationModuleContainer(const std::string & _key,
                                const std::string & _configFile = "",
-                               ApplicationModule * const _parent = NULL)
+                               ApplicationModule * const _parent = 0)
                                         : ApplicationModule(_key, _configFile, _parent) {}
 
     virtual ~ApplicationModuleContainer();
