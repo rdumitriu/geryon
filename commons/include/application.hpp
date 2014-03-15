@@ -20,6 +20,24 @@
 
 namespace geryon {
 
+///
+/// \brief The application exception
+///
+class ApplicationException : public std::runtime_error {
+public:
+    ///
+    /// \brief Constructor.
+    ///
+    /// \param msg the error message
+    ///
+    explicit ApplicationException(const std::string & msg) : std::runtime_error(msg) {}
+
+    ///
+    /// \brief Destructor
+    ///
+    virtual ~ApplicationException() throw() {}
+};
+
 //FWDs
 class ApplicationModule;
 class ApplicationModuleContainer;

@@ -18,6 +18,7 @@ SET (commonslib_SRC
     ../include/application_config.hpp
     application_config.cpp
     ../include/appconfig_aware.hpp
+    appconfig_aware.cpp
     ../include/session_listener.hpp
     ../include/session.hpp
     session.cpp

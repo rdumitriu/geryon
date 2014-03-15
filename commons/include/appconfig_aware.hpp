@@ -10,6 +10,7 @@
 namespace geryon {
 
 class ApplicationModule;
+class ApplicationConfig;
 
 /// Base class to carry over the config
 class ApplicationConfigAware {
@@ -35,6 +36,13 @@ public:
     /// \return the application module \b where is is defined \b.
     ///
     inline ApplicationModule * getApplicationModule() const { return pApplicationModule; }
+
+
+    ///
+    /// \brief Returns the configuration for the current module
+    /// \return the current config.
+    ///
+    const ApplicationConfig & getModuleConfig() const;
 
 private:
     friend class ApplicationModule;
