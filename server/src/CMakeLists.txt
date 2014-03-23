@@ -11,7 +11,16 @@ CONFIGURE_FILE (
 )
 
 SET (geryon_SRC
-     main.cpp
+    ../include/os_utils.hpp
+    os_utils.cpp
+
+    ../include/tcp_connection.hpp
+    tcp_connection.cpp
+    ../include/tcp_protocol_handler.hpp
+    ../include/tcp_server.hpp
+    tcp_server.cpp
+
+    main.cpp
      )
 
 ADD_EXECUTABLE(geryon ${geryon_SRC})

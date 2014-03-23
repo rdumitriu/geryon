@@ -18,7 +18,7 @@ SET(AGRADE_INSTALL_PROFILES "profiles")
 SET(AGRADE_INSTALL_TMPLPROFILE "${AGRADE_INSTALL_PROFILES}/template")
 
 #-Weffc++
-SET( AGRADE_GLOBAL_CXX_FLAGS "-Wall -Wold-style-cast -Woverloaded-virtual -Wl,-E -std=c++0x" )
+SET( AGRADE_GLOBAL_CXX_FLAGS "-g -Wall -Wold-style-cast -Woverloaded-virtual -Wl,-E -std=c++0x" )
 
 
 ADD_DEFINITIONS(-D_DEBUG -D_GLIBCXX_USE_NANOSLEEP)
@@ -51,7 +51,7 @@ set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 
-FIND_PACKAGE(Boost REQUIRED COMPONENTS date_time signals system filesystem)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options date_time signals system filesystem)
 
 INCLUDE_DIRECTORIES ("${Boost_INCLUDE_DIR}")
 

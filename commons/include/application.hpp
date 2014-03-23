@@ -16,27 +16,10 @@
 #include "session_listener.hpp"
 #include "session.hpp"
 
+#include "appexception.hpp"
 #include "application_config.hpp"
 
 namespace geryon {
-
-///
-/// \brief The application exception
-///
-class ApplicationException : public std::runtime_error {
-public:
-    ///
-    /// \brief Constructor.
-    ///
-    /// \param msg the error message
-    ///
-    explicit ApplicationException(const std::string & msg) : std::runtime_error(msg) {}
-
-    ///
-    /// \brief Destructor
-    ///
-    virtual ~ApplicationException() throw() {}
-};
 
 //FWDs
 class ApplicationModule;

@@ -15,6 +15,7 @@ SET (commonslib_SRC
     ../include/http_types.hpp
     http_types.cpp
 
+    ../include/appexception.hpp
     ../include/application_config.hpp
     application_config.cpp
     ../include/appconfig_aware.hpp

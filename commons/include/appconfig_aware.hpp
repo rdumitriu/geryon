@@ -7,6 +7,8 @@
 #ifndef APPCONFIG_AWARE_HPP_
 #define APPCONFIG_AWARE_HPP_
 
+#include "appexception.hpp"
+
 namespace geryon {
 
 class ApplicationModule;
@@ -42,7 +44,7 @@ public:
     /// \brief Returns the configuration for the current module
     /// \return the current config.
     ///
-    const ApplicationConfig & getModuleConfig() const;
+    const ApplicationConfig & getModuleConfig() const throw(ApplicationException);
 
 private:
     friend class ApplicationModule;
