@@ -12,10 +12,10 @@
 #include <boost/array.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "tcp_protocol_handler.hpp"
 
 namespace geryon { namespace server {
 
-class TCPProtocolHandler;
 /**
  * \brief TCP Connection class.
  *
@@ -39,6 +39,17 @@ public:
 	/// Call this to start the protocol
     virtual void doCommunication();
 
+    ///Schedule another read. We're asynchronous.
+    void readMore();
+    ///Schedule another write. We're asynchronous.
+    void writeMore();
+
+    ///Gracefully initiate close
+    void requestClose();
+
+    ///Closes the socket (abruptly).
+    void close();
+
 	///Need the socket? Here it is...
     boost::asio::ip::tcp::socket& tcpSocket();
 private:
@@ -59,26 +70,9 @@ private:
 	/// The socket
     boost::asio::ip::tcp::socket socket;
 
-protected:
-
-	///Schedule another read. We're asynchronous.
-	void readMore();
-	///Schedule another write. We're asynchronous.
-	void writeMore();
-    
-    ///Gracefully initiate close
-    void requestClose();
-    
-	///Closes the socket (abruptly).
-	void close();
-    
-    ///Async data handler, called after each read ?!?
-	virtual void processReadData(std::size_t nBytes) = 0;
-    ///Async data writer, called after each write ?!?
-	virtual void processWrittenData(std::size_t nBytes) = 0;
-
-private:
     TCPProtocolHandler * protocolHandler;
+
+    void handleNextEvent(TCPProtocolHandler::Operation op);
 };
 
 } }  /* namespace */

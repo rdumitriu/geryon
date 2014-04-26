@@ -1,5 +1,5 @@
 /*
- * TCPConnection.cpp
+ * tcp_connection.cpp
  *
  *  Created on: Aug 13, 2011
  *      Author: rdumitriu
@@ -25,6 +25,7 @@ TCPConnection::~TCPConnection() {
 }
 
 void TCPConnection::doCommunication() {
+    protocolHandler->init();
     if(protocolHandler->isClientInitiated()) {
 		readMore();
 	} else {
@@ -46,7 +47,8 @@ void TCPConnection::readHandler(const boost::system::error_code& e,
                                       << socket.remote_endpoint().address().to_string();
 		return;
 	}
-    protocolHandler->read(nBytes);
+    TCPProtocolHandler::Operation op = protocolHandler->read(nBytes);
+    handleNextEvent(op);
 }
 
 void TCPConnection::writeHandler(const boost::system::error_code& e,
@@ -59,11 +61,26 @@ void TCPConnection::writeHandler(const boost::system::error_code& e,
                                       << socket.remote_endpoint().address().to_string();
 		return;
 	}
-    protocolHandler->write(nBytes);
+    TCPProtocolHandler::Operation op = protocolHandler->write(nBytes);
+    handleNextEvent(op);
 }
 
 void TCPConnection::closeHandler(const boost::system::error_code& e) {
     close();
+}
+
+void TCPConnection::handleNextEvent(TCPProtocolHandler::Operation op) {
+    switch(op) {
+        case TCPProtocolHandler::CLOSE:
+            requestClose();
+            break;
+        case TCPProtocolHandler::READ:
+            readMore();
+            break;
+        case TCPProtocolHandler::WRITE:
+            writeMore();
+            break;
+    }
 }
 
 void TCPConnection::readMore() {
@@ -84,7 +101,7 @@ void TCPConnection::writeMore() {
                                                     shared_from_this(),
                                                     boost::asio::placeholders::error,
                                                     boost::asio::placeholders::bytes_transferred)));
-    LOG(geryon::util::Log::DEBUG) << "writeMore() called, read requested";
+    LOG(geryon::util::Log::DEBUG) << "writeMore() called, write requested";
 }
 
 void TCPConnection::requestClose() {
@@ -100,6 +117,7 @@ void TCPConnection::requestClose() {
 void TCPConnection::close() {
     boost::system::error_code ignored_ec;
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    protocolHandler->done();
 }
 
 } }  /* namespace */

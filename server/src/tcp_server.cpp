@@ -58,7 +58,7 @@ void TCPServer::operator()() {
 		delete [] threads;
         LOG(geryon::util::Log::DEBUG) << "Deallocated thread pool, size = " << thrpool_sz;
 	} catch(...) {
-        LOG(geryon::util::Log::FATAL) << "Forced exit for the thread pool, getting out.";
+        LOG(geryon::util::Log::FATAL) << "Server >>" << serverName << ": Forced exit for the thread pool, getting out.";
 		delete [] threads;
 		throw;
 	}
@@ -77,7 +77,7 @@ void TCPServer::acceptConnection(const boost::system::error_code& e) {
         acceptedConnection->doCommunication(); //start the madness here!
 		prepareNextConnection();
 	} else {
-        LOG(geryon::util::Log::ERROR) << "Problem executing acceptConnection(), error code:"
+        LOG(geryon::util::Log::ERROR) << "Server >>" << serverName << ": Problem executing acceptConnection(), error code:"
                                       << e.value() << " [" << e.message() << "]";
 	}
 }
@@ -88,7 +88,11 @@ void TCPServer::stop() {
 
 TCPServer::~TCPServer() {
     LOG(geryon::util::Log::INFO) << "Server >>" << serverName << "<< bound on " << bindAddress
-                                 << ", port:" << bindPort << " just ended.";
+                                 << ", port:" << bindPort << " stopped.";
 }
+
+//TCPConnection * TCPServer::createTCPConnection(boost::asio::io_service & iosrvc) {
+//    return new TCPConnection(iosrvc, new TCPProtocolHandler()); //::TODO:: test only
+//}
 
 } } /* namespace */

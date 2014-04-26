@@ -14,11 +14,23 @@ SET (geryon_SRC
     ../include/os_utils.hpp
     os_utils.cpp
 
+    ../include/mem_buf.hpp
+    mem_buf.cpp
+
     ../include/tcp_connection.hpp
     tcp_connection.cpp
     ../include/tcp_protocol_handler.hpp
+    tcp_protocol_handler.cpp
     ../include/tcp_server.hpp
     tcp_server.cpp
+
+#    ../include/http_server.hpp
+#    http_server.cpp
+
+#    ../include/http_protocol_handler.hpp
+#    http_protocol_handler.cpp
+
+#    ../include/http_request_parser.hpp
 
     main.cpp
      )
