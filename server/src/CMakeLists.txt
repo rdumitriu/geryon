@@ -17,12 +17,26 @@ SET (geryon_SRC
     ../include/mem_buf.hpp
     mem_buf.cpp
 
+    ../include/server_global_structs.hpp
+    server_global_structs.cpp
+
+    ../include/tcp_protocol.hpp
+
     ../include/tcp_connection.hpp
     tcp_connection.cpp
+    ../include/tcp_connection_manager.hpp
+    tcp_connection_manager.cpp
     ../include/tcp_protocol_handler.hpp
     tcp_protocol_handler.cpp
     ../include/tcp_server.hpp
     tcp_server.cpp
+    ../include/tcp_st_server.hpp
+    tcp_st_server.cpp
+    ../include/tcp_mt_server.hpp
+    tcp_mt_server.cpp
+
+    ../include/gadm_protocol.hpp
+    gadm_protocol.cpp
 
 #    ../include/http_server.hpp
 #    http_server.cpp

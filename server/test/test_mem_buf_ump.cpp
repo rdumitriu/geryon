@@ -14,9 +14,6 @@ void test1(geryon::server::GUniformMemoryPool & pool) {
     if(!buff.buffer()) {
         LOG(geryon::util::Log::ERROR) << "ERROR: buffer itself";
     }
-    if(buff.marker()) {
-        LOG(geryon::util::Log::ERROR) << "ERROR: marker";
-    }
     char * pointer = buff.buffer();
     pool.release(buff);
 
@@ -39,11 +36,31 @@ void test1(geryon::server::GUniformMemoryPool & pool) {
     pool.release(buff3);
 }
 
+//positive test
+void test2(geryon::server::GUniformMemoryPool & pool) {
+    geryon::server::GBuffer buffs[MAX_BUFFS];
+    for(int i = 0; i < MAX_BUFFS; i++) {
+        buffs[i] = pool.acquire();
+    }
+    //we have everything allocated, so let's try to allocate more
+    try {
+        geryon::server::GBuffer neverbe = pool.acquire();
+        LOG(geryon::util::Log::ERROR) << "ERROR: should not reach here! (1)";
+    } catch(std::bad_alloc & err) {
+        LOG(geryon::util::Log::INFO) << "Good, we failed correctly.";
+    }
+    for(int i = 0; i < MAX_BUFFS; i++) {
+         pool.release(buffs[i]);
+    }
+}
+
 int main(int argn, const char * argv []) {
     geryon::server::GUniformMemoryPool pool(BUF_SZ, 1, MAX_BUFFS);
 
     if(argn == 1 || argv[1][0] == '1') {
         test1(pool);
+    } else if(argv[1][0] == '2') {
+        test2(pool);
     }
 
     return 0;

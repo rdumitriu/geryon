@@ -10,24 +10,32 @@
 
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
-#include <boost/enable_shared_from_this.hpp>
+
+#include <deque>
+#include <mutex>
 
 #include "tcp_protocol_handler.hpp"
+#include "tcp_connection_manager.hpp"
 
 namespace geryon { namespace server {
+
+typedef boost::asio::mutable_buffers_1 asioBuffer;
 
 /**
  * \brief TCP Connection class.
  *
- * Actually, we handle here the protocol itself, in an asynchronous way for both receives and sends. Close happens when
- * no asynchronous operations were requested anymore.
+ * The connections represents the 'bridge' between the protocol itself and the server. This is the last time we hear
+ * about asio, the rest should not have asio dependencies at all.
+ *
+ * Reads and writes are asynchronous. Only the protocol handler is allowed to read and write on the connection.
  */
-class TCPConnection :
-            public boost::enable_shared_from_this<TCPConnection> {
+class TCPConnection {
 public:
-	///Constructor
-	TCPConnection(boost::asio::io_service& io_service,
-                  TCPProtocolHandler * const pProtocolHandler);
+    ///Constructor
+    TCPConnection(boost::asio::ip::tcp::socket && _socket,
+                  boost::asio::io_service & io_service,
+                  TCPConnectionManager & _connectionManager,
+                  std::shared_ptr<TCPProtocolHandler> pProtocolHandler);
     ///Destructor
     virtual ~TCPConnection();
 
@@ -36,43 +44,77 @@ public:
     /// Non-copyable
     TCPConnection & operator = (const TCPConnection & other) = delete;
 
-	/// Call this to start the protocol
-    virtual void doCommunication();
-
-    ///Schedule another read. We're asynchronous.
-    void readMore();
-    ///Schedule another write. We're asynchronous.
-    void writeMore();
-
-    ///Gracefully initiate close
-    void requestClose();
+    /// Call this to start the protocol
+    void start();
 
     ///Closes the socket (abruptly).
-    void close();
+    void stop();
 
-	///Need the socket? Here it is...
-    boost::asio::ip::tcp::socket& tcpSocket();
+    inline boost::asio::ip::tcp::socket & tcpSocket() { return socket; }
+
+    inline boost::asio::io_service::strand & ioStrand() { return strand; }
+
+    inline TCPConnectionManager & connectionManager() { return rConnectionManager; }
+
+    inline std::shared_ptr<TCPProtocolHandler> & protocolHandler() { return pProtocolHandler; }
+
+protected:
+    friend class TCPProtocolHandler;
+    ///
+    /// \brief Schedule a read.
+    ///
+    /// Calling with invalid buffer will close the connection
+    ///
+    /// \param readBuffer the buffer where to read into
+    /// \return true if schedule suceeded
+    ///
+    bool scheduleRead(GBufferHandler && readBuffer);
+
+    ///
+    /// \brief Schedule a write
+    ///
+    /// Calling with invalid buffer will close the connection
+    ///
+    /// \param writeBuffer the buffer to write from.
+    /// \return true if write was scheduled
+    ///
+    bool scheduleWrite(GBufferHandler && writeBuffer);
+
+    ///
+    /// \brief Reschedule a write.
+    ///
+    /// Should only be called internally, never from outside
+    ///
+    /// \return true if reschedule succeeded.
+    ///
+    bool rescheduleWrite();
+
+
+    virtual void scheduleASIORead() = 0;
+    virtual void scheduleASIOWrite(bool reschedule = false) = 0;
+    virtual void scheduleASIOClose() = 0;
+
+    /// The read buffer
+    GBufferHandler readBuffer;
+
+    /// The write buffers (may accumulate!)
+    std::deque<GBufferHandler> writeBuffers;
+
 private:
-
-	/// Handler for READ
-	void readHandler(const boost::system::error_code& e,
-				     std::size_t bytes_transferred);
-
-	/// Handler for WRITE
-	void writeHandler(const boost::system::error_code& e,
-					  std::size_t bytes_transferred);
-    /// Handler for CLOSE
-    void closeHandler(const boost::system::error_code& e);
-
-	/// Strand (mutex)
+    /// Strand (mutex for asio, if needed)
     boost::asio::io_service::strand strand;
 
-	/// The socket
+    /// The socket
     boost::asio::ip::tcp::socket socket;
 
-    TCPProtocolHandler * protocolHandler;
+    /// Connection manager
+    TCPConnectionManager & rConnectionManager;
 
-    void handleNextEvent(TCPProtocolHandler::Operation op);
+    /// The protocol handler.
+    std::shared_ptr<TCPProtocolHandler> pProtocolHandler;
+
+    /// Protects the read and write buffers
+    std::mutex mutex;
 };
 
 } }  /* namespace */

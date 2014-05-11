@@ -1,5 +1,5 @@
-/*
- * TCPServer.h
+/**
+ * \file tcp_server.hpp
  *
  *  Created on: Aug 13, 2011
  *      Author: rdumitriu
@@ -10,18 +10,19 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/asio.hpp>
 
-namespace geryon { namespace server {
+#include "tcp_protocol.hpp"
+#include "tcp_connection_manager.hpp"
 
-class TCPConnection;
+
+namespace geryon { namespace server {
 
 /// The pure TCP server
 class TCPServer {
 public:
     TCPServer(const std::string & _srvName, const std::string & _bindAddress,
-              const std::string & _bindPort, std::size_t _thread_pool_size);
+              const std::string & _bindPort, TCPProtocol & _proto);
 
     /// Destructor
     virtual ~TCPServer();
@@ -31,16 +32,16 @@ public:
     ///Non-copyable
     TCPServer & operator = (const TCPServer & other) = delete;
 
-	///the run loop
-    void operator ()();
+    ///\brief The run loop. You must invoke this for the magic to begin
+    virtual void run () = 0;
 
-	///stops the server
+    ///\brief Stops brutally the server
     void stop();
 
+    inline TCPProtocol & protocol() { return proto; }
+
 protected:
-	///You must rewrite this to create a connection.
-    virtual TCPConnection * createTCPConnection(boost::asio::io_service & iosrvc) = 0;
-private:
+    virtual TCPConnectionManager & connectionManager() = 0;
 
     /// The io_service used to perform asynchronous operations.
     boost::asio::io_service iosrvc;
@@ -48,21 +49,21 @@ private:
     /// Acceptor used to listen for incoming connections.
     boost::asio::ip::tcp::acceptor acceptor;
 
-    ///The next accepted connection
-    boost::shared_ptr<TCPConnection> acceptedConnection;
+    /// The signal_set is used to register for process termination notifications.
+    boost::asio::signal_set ssignals;
 
-	///accept handler (asynchronous)
-	void acceptConnection(const boost::system::error_code& e);
-
-	void prepareNextConnection();
+    ///The next accepted connection socket
+    boost::asio::ip::tcp::socket socket;
 
     std::string serverName;
     std::string bindAddress;
     std::string bindPort;
 
-	/// The number of threads that will call io_service::run().
-    std::size_t thrpool_sz;
+    TCPProtocol & proto;
+private:
+    void accept();
 
+    void await_stop_signal();
 };
 
 } }  /* namespace */

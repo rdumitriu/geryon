@@ -7,47 +7,83 @@
 #ifndef TCPPROTOCOLHANDLER_HPP_
 #define TCPPROTOCOLHANDLER_HPP_
 
+#include <deque>
+
 #include <boost/asio.hpp>
+
+#include "mem_buf.hpp"
+#include "tcp_connection.hpp"
 
 namespace geryon { namespace server {
 
-typedef boost::asio::mutable_buffers_1 asioBuffer;
-
-/**
- * \brief The protocol handler
- *
- * The protocol handler, a class representing the interaction protocol between the client and the server
- */
+class TCPConnection;
+///
+/// \brief The protocol handler
+///
+/// The protocol handler, a class representing the interaction protocol between the client and the server. At the very
+/// primary level it deals with input/output buffers, accepts the reads from connection and writes to it.
+///
 class TCPProtocolHandler {
 public:
-    enum Operation { READ, WRITE, CLOSE };
-    ///The constructor
-    explicit TCPProtocolHandler(bool _clientInitiated = true) : clientInitiated(_clientInitiated) {}
-    ///Destructor
+    /// \brief The constructor
+    explicit TCPProtocolHandler(GMemoryPool & _rMemoryPool) : rMemoryPool(_rMemoryPool), pConnection(0) {}
+    /// \brief Destructor
     virtual ~TCPProtocolHandler() {}
+
+    ///Non-copyable
+    TCPProtocolHandler(const TCPProtocolHandler& other) = delete;
+    ///Non-copyable
+    TCPProtocolHandler & operator = (const TCPProtocolHandler &other) = delete;
     
-    ///Called just before the protocol is used
-    virtual void init() {}
+    /// \brief Called just before the protocol is used
+    virtual void init(TCPConnection & _rConnection) {
+        pConnection = &_rConnection;
+    }
+
+    ///
+    /// \brief We read the bytes, this is where we process them.
+    ///
+    /// The current marker in the buffers shows where to start.
+    ///
+    /// \param currentBuffer the current buffer
+    /// \param nBytes the number of bytes needing processing
+    /// \return the next op
+    ///
+    virtual void handleRead(GBufferHandler && currentBuffer, std::size_t nBytes) = 0;
     
-    ///True if the protocol starts on the client side, false if server sends first the data
-    inline bool isClientInitiated() const { return clientInitiated; }
-
-    ///Called by the connection when we read the bytes
-    virtual Operation read(std::size_t nBytes) = 0; //TODO:: implement
-
-    ///The read buffer
-    virtual asioBuffer readBuffer() = 0; //TODO:: implement
-
-    ///Called by the connection when we wrote the bytes
-    virtual Operation write(std::size_t nBytes) = 0; //TODO:: implement
-
-    ///The write buffer
-    virtual asioBuffer writeBuffer() = 0; //TODO:: implement
-    
-    ///called just before exit time
+    /// \brief Called just before exit time
     virtual void done() {}
+
+protected:
+    /// \brief Schedule a read (asynchronously)
+    bool requestRead(GBufferHandler && readBuffer);
+
+    /// \brief Writes the data on the wire (asynchronously).
+    /// \return true if the write succeeded, false otherwise
+    bool requestWrite(GBufferHandler && writeBuffer);
+
+    /// \brief Communication breakdown (asynchronously).
+    bool requestClose();
+
+
+    /// \brief Gets the memory pool pointer
+    inline GMemoryPool & getMemoryPool() { return rMemoryPool; }
+
+    /// \brief Returns the read hint. Default implementation returns 0 (no hint)
+    virtual std::size_t getReadSizeHint() { return 0; }
+
+    /// \brief Returns the write hint. Default implementation returns 0 (no hint)
+    virtual std::size_t getWriteSizeHint() { return 0; }
+
+    /// \brief get connection
+    inline TCPConnection & getConnection() { return *(pConnection); }
+
 private:
-    bool clientInitiated;
+    /// \brief The memory pool pointer
+    GMemoryPool & rMemoryPool;
+
+    /// \brief The connection this handler belongs to
+    TCPConnection * pConnection;
 };
     
 } } /* namespace */
