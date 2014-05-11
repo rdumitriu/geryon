@@ -63,7 +63,7 @@ void GAdmTCPProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::si
 
     LOG(geryon::util::Log::DEBUG) << "Command is >>" << command << "<<";
     if("close" == command) {
-        LOG(geryon::util::Log::DEBUG) << "Disconnected from administrative interface";
+        LOG(geryon::util::Log::DEBUG) << "Disconnected from administrative interface (cmd)";
         requestClose();
     } else if("help" == command) {
         LOG(geryon::util::Log::DEBUG) << "Gadm :: Help";
@@ -85,7 +85,7 @@ void GAdmTCPProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::si
 }
 
 void GAdmTCPProtocolHandler::done() {
-    LOG(geryon::util::Log::DEBUG) << "Disconnected from administrative interface";
+    LOG(geryon::util::Log::DEBUG) << "Disconnected from administrative interface (done)";
 }
 
 } /*namespace detail */

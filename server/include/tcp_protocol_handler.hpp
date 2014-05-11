@@ -56,14 +56,14 @@ public:
 
 protected:
     /// \brief Schedule a read (asynchronously)
-    bool requestRead(GBufferHandler && readBuffer);
+    void requestRead(GBufferHandler && readBuffer);
 
     /// \brief Writes the data on the wire (asynchronously).
     /// \return true if the write succeeded, false otherwise
-    bool requestWrite(GBufferHandler && writeBuffer);
+    void requestWrite(GBufferHandler && writeBuffer);
 
     /// \brief Communication breakdown (asynchronously).
-    bool requestClose();
+    void requestClose();
 
 
     /// \brief Gets the memory pool pointer

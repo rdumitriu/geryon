@@ -21,7 +21,8 @@ TCPConnection::TCPConnection(boost::asio::ip::tcp::socket && _socket,
                         : strand(io_service),
                           socket(std::move(_socket)),
                           rConnectionManager(_connectionManager),
-                          pProtocolHandler(_protocolHandler) {
+                          pProtocolHandler(_protocolHandler),
+                          asioOperationInProgress(false) {
 }
 
 TCPConnection::~TCPConnection() {
@@ -32,10 +33,8 @@ void TCPConnection::start() {
         protocolHandler()->init(*this);
     } catch( std::runtime_error & e) {
         LOG(geryon::util::Log::ERROR) << "Failed to initialize properly the protocol handler! Error was :" << e.what();
-        stop(); //::TODO:: shouldn't be through connMgr ?
     } catch( ... ) {
         LOG(geryon::util::Log::ERROR) << "Failed to initialize properly the protocol handler!";
-        stop(); //::TODO:: shouldn't be through connMgr ?
     }
 }
 
@@ -54,47 +53,73 @@ void TCPConnection::stop() {
     }
 }
 
-bool TCPConnection::scheduleRead(GBufferHandler && _readBuffer) {
+void TCPConnection::scheduleRead(GBufferHandler && _readBuffer) {
+    detail::TCPConnectionCommandPtr ptr = std::make_shared<detail::TCPConnectionCommand>();
+    ptr->command = detail::TCPConnectionCommand::READ;
+    ptr->bufferHandler = std::move(_readBuffer);
+
     std::unique_lock<std::mutex> _(mutex);
-    if(readBuffer.isValid()) {
-        //read already in progress
-        LOG(geryon::util::Log::ERROR) << "Protocol error, read already in progress?!";
-        return false;
+
+    commands.push_back(ptr);
+    if(!asioOperationInProgress) {
+        scheduleNextOperation();
     }
-    readBuffer = std::move(_readBuffer);
-    //ok, we must request a read
-    GBuffer buff = readBuffer.get();
-    if(buff.size() == buff.marker()) {
-        //read buffer is full ?!?
-        LOG(geryon::util::Log::ERROR) << "Protocol error, read buffer is full?!";
-        return false;
-    }
-    scheduleASIORead();
-    LOG(geryon::util::Log::DEBUG) << "Read will be scheduled.";
-    return true;
 }
 
 
-bool TCPConnection::scheduleWrite(GBufferHandler && _writeBuffer) {
+void TCPConnection::scheduleWrite(GBufferHandler && _writeBuffer) {
+    detail::TCPConnectionCommandPtr ptr = std::make_shared<detail::TCPConnectionCommand>();
+    ptr->command = detail::TCPConnectionCommand::WRITE;
+    ptr->bufferHandler = std::move(_writeBuffer);
+
     std::unique_lock<std::mutex> _(mutex);
-    writeBuffers.push_back(std::move(_writeBuffer));
-    scheduleASIOWrite(false);
-    LOG(geryon::util::Log::DEBUG) << "Write will be scheduled.";
-    return true;
+
+    commands.push_back(ptr);
+    if(!asioOperationInProgress) {
+        scheduleNextOperation();
+    }
 }
 
-bool TCPConnection::rescheduleWrite() {
+void TCPConnection::scheduleClose() {
+    detail::TCPConnectionCommandPtr ptr = std::make_shared<detail::TCPConnectionCommand>();
+    ptr->command = detail::TCPConnectionCommand::CLOSE;
+
     std::unique_lock<std::mutex> _(mutex);
-    if(!writeBuffers.empty()) {
-        writeBuffers.pop_front(); //get rid of the front buffer
+
+    commands.push_back(ptr);
+    if(!asioOperationInProgress) {
+        scheduleNextOperation();
     }
-    //more work to do ?
-    if(!writeBuffers.empty()) {
-        LOG(geryon::util::Log::DEBUG) << "Write will be re-scheduled.";
-        scheduleASIOWrite(true);
-        return true;
+}
+
+void TCPConnection::rescheduleASIO() {
+    std::unique_lock<std::mutex> _(mutex);
+    if(commands.empty()) {
+        // WTH ?!?
+        return;
     }
-    return false;
+    commands.pop_front();
+    asioOperationInProgress = false; //reset flag
+    scheduleNextOperation();
+}
+
+void TCPConnection::scheduleNextOperation() {
+    if(commands.empty()) {
+        return;
+    }
+    asioOperationInProgress = true;
+    switch(commands.front()->command) {
+        case detail::TCPConnectionCommand::READ:
+            scheduleASIORead();
+            break;
+        case detail::TCPConnectionCommand::WRITE:
+            scheduleASIOWrite();
+            break;
+        case detail::TCPConnectionCommand::CLOSE:
+        default:
+            scheduleASIOClose();
+            break;
+    }
 }
 
 } }  /* namespace */

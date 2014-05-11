@@ -29,7 +29,7 @@ public:
 
 private:
     virtual void scheduleASIORead();
-    virtual void scheduleASIOWrite(bool reschedule);
+    virtual void scheduleASIOWrite();
     virtual void scheduleASIOClose();
 };
 
@@ -56,14 +56,17 @@ private:
 void STTCPConnection::scheduleASIORead() {
     auto self(shared_from_this()); //make sure we live long enough to complete the handler !
 
-    GBuffer gbuff = readBuffer.get();
-    if(!gbuff.isValid()) { //invalid, close requested
-        LOG(geryon::util::Log::DEBUG) << "Invalid buffer on read, close request";
+
+    if(commands.empty() || !commands.front()->bufferHandler.isValid() ||
+       commands.front()->command != detail::TCPConnectionCommand::READ) {
+        LOG(geryon::util::Log::DEBUG) << "Invalid entry in ASIORead, forcing close";
         scheduleASIOClose();
         return;
     }
+
+    GBuffer gbuff = commands.front()->bufferHandler.get();
     if(gbuff.size() == gbuff.marker()) { //full, most probably error, let's close it
-        LOG(geryon::util::Log::DEBUG) << "Full buffer provided on read, close request";
+        LOG(geryon::util::Log::DEBUG) << "Full buffer provided on ASIO Read, forcing close";
         scheduleASIOClose();
         return;
     }
@@ -74,8 +77,9 @@ void STTCPConnection::scheduleASIORead() {
                                 [this, self](boost::system::error_code ec, std::size_t nBytes) {
         if (!ec) {
             LOG(geryon::util::Log::DEBUG) << "In read handler";
-            GBufferHandler localbuff(std::move(readBuffer));
+            GBufferHandler localbuff(std::move(commands.front()->bufferHandler));
             protocolHandler()->handleRead(std::move(localbuff), nBytes);
+            rescheduleASIO();
         } else if (ec != boost::asio::error::operation_aborted) {
             connectionManager().stop(shared_from_this());
         }
@@ -83,27 +87,19 @@ void STTCPConnection::scheduleASIORead() {
 
 }
 
-void STTCPConnection::scheduleASIOWrite(bool reschedule) {
+void STTCPConnection::scheduleASIOWrite() {
     auto self(shared_from_this()); //make sure we live long enough to complete the handler !
-    if(writeBuffers.empty()) { //that's a protocol error !
-        LOG(geryon::util::Log::DEBUG) << "Empty buffers at write time (zero)";
+
+    if(commands.empty() || !commands.front()->bufferHandler.isValid() ||
+       commands.front()->command != detail::TCPConnectionCommand::WRITE) {
+        LOG(geryon::util::Log::DEBUG) << "Invalid entry in ASIOWrite, forcing close";
         scheduleASIOClose();
         return;
-    }
-    //if we have already a write in progress, we must not proceed further
-    if(!(writeBuffers.size() == 1 || reschedule)) {
-        LOG(geryon::util::Log::DEBUG) << "Not first buffer or not rescheduled.";
-        return; //continue only if ((first write in a serie of writes) OR (reschedule))
     }
 
-    GBuffer gbuff = writeBuffers.front().get();
-    if(!gbuff.isValid()) { //invalid, close requested
-        LOG(geryon::util::Log::DEBUG) << "Invalid buffer provided for write. Requesting close";
-        scheduleASIOClose();
-        return;
-    }
+    GBuffer gbuff = commands.front()->bufferHandler.get();
     if(gbuff.marker() == 0) { //empty? most probably error, let's close it
-        LOG(geryon::util::Log::DEBUG) << "Empty buffer provided for write. Requesting close";
+        LOG(geryon::util::Log::DEBUG) << "Empty buffer provided for ASIO Write, forcing close";
         scheduleASIOClose();
         return;
     }
@@ -111,12 +107,13 @@ void STTCPConnection::scheduleASIOWrite(bool reschedule) {
     asioBuffer asiob(gbuff.buffer(), gbuff.marker());
 
     boost::asio::async_write(tcpSocket(), asiob,
-                             [this, self](boost::system::error_code ec, std::size_t) {
+                             [this, self](boost::system::error_code ec, std::size_t nBytes) {
         if (!ec) {
             //must remove the first buffer and reschedule write
             LOG(geryon::util::Log::DEBUG) << "In write handler";
-            rescheduleWrite();
-        } if (ec != boost::asio::error::operation_aborted) {
+            rescheduleASIO();
+        } else if (ec != boost::asio::error::operation_aborted) {
+            LOG(geryon::util::Log::DEBUG) << "In write handler, error x=" << ec << " nb=" << nBytes;
             connectionManager().stop(shared_from_this());
         }
     });

@@ -12,17 +12,16 @@
 namespace geryon { namespace server {
 
 
-bool TCPProtocolHandler::requestRead(GBufferHandler && readBuffer) {
-    return getConnection().scheduleRead(std::move(readBuffer));
+void TCPProtocolHandler::requestRead(GBufferHandler && readBuffer) {
+    getConnection().scheduleRead(std::move(readBuffer));
 }
 
-bool TCPProtocolHandler::requestWrite(GBufferHandler && writeBuffer) {
-    return getConnection().scheduleWrite(std::move(writeBuffer));
+void TCPProtocolHandler::requestWrite(GBufferHandler && writeBuffer) {
+    getConnection().scheduleWrite(std::move(writeBuffer));
 }
 
-bool TCPProtocolHandler::requestClose() {
-    GBufferHandler invalid;
-    return getConnection().scheduleWrite(std::move(invalid));
+void TCPProtocolHandler::requestClose() {
+    getConnection().scheduleClose();
 }
 
 } }
