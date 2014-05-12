@@ -9,9 +9,9 @@
 
 namespace geryon {
 
-void Servlet::execute(HttpRequest * const request, HttpResponse * const reply) {
-    LOG(geryon::util::Log::DEBUG) << "Executing servlet for path :" << request->getURIPath();
-    switch(request->getMethodCode()) {
+void Servlet::execute(HttpRequest & request, HttpResponse & reply) {
+    LOG(geryon::util::Log::DEBUG) << "Executing servlet for path :" << request.getURIPath();
+    switch(request.getMethodCode()) {
         case HttpRequest::GET:
             doGet(request, reply);
             break;
@@ -34,8 +34,8 @@ void Servlet::execute(HttpRequest * const request, HttpResponse * const reply) {
             doOptions(request, reply);
             break;
         default:
-            reply->setStatus(HttpResponse::HttpStatusCode::SC_METHOD_NOT_ALLOWED);
-            reply->getOutputStream().flush();
+            reply.setStatus(HttpResponse::HttpStatusCode::SC_METHOD_NOT_ALLOWED);
+            reply.getOutputStream().flush();
             break;
     }
 }

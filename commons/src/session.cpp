@@ -10,26 +10,26 @@
 namespace geryon {
 
 void Session::notifySessionValueAdded(const std::string & name, const boost::any & val) {
-    if(getApplicationModule()->mustNotifyForSessions()) {
-        getApplicationModule()->notifySessionValueAdded(this, name, val);
+    if(getApplicationModule().mustNotifyForSessions()) {
+        getApplicationModule().notifySessionValueAdded(*this, name, val);
     }
 }
 
 void Session::notifySessionValueChanged(const std::string & name, const boost::any & oldval, const boost::any & newval) {
-    if(getApplicationModule()->mustNotifyForSessions()) {
-        getApplicationModule()->notifySessionValueChanged(this, name, oldval, newval);
+    if(getApplicationModule().mustNotifyForSessions()) {
+        getApplicationModule().notifySessionValueChanged(*this, name, oldval, newval);
     }
 }
 
 void Session::notifySessionValueRemoved(const std::string & name) {
-    if(getApplicationModule()->mustNotifyForSessions()) {
-        getApplicationModule()->notifySessionValueRemoved(this, name);
+    if(getApplicationModule().mustNotifyForSessions()) {
+        getApplicationModule().notifySessionValueRemoved(*this, name);
     }
 }
 
 void Session::notifySessionInvalidated() {
-    if(getApplicationModule()->mustNotifyForSessions()) {
-        getApplicationModule()->notifySessionInvalidated(this);
+    if(getApplicationModule().mustNotifyForSessions()) {
+        getApplicationModule().notifySessionInvalidated(*this);
     }
 }
 

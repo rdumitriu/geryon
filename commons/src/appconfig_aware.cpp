@@ -17,5 +17,12 @@ const ApplicationConfig & ApplicationConfigAware::getModuleConfig() const throw(
     throw ApplicationException("There's no application module configured. Out of here.");
 }
 
+ApplicationModule & ApplicationConfigAware::getApplicationModule() const throw(ApplicationException) {
+    if(pApplicationModule) {
+        return *pApplicationModule;
+    }
+    throw ApplicationException("There's no application module configured. Out of here.");
+}
+
 }
 

@@ -74,60 +74,60 @@ public:
     /// This is where the request is processed. The default behavior is to call one of the @code doXXX() @endcode
     /// methods depending on the method of the request.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void execute(HttpRequest * const pRequest, HttpResponse * const pReply);
+    virtual void execute(HttpRequest & request, HttpResponse & reply);
 
     ///
     /// \brief Executes the requests - GET
     ///
     /// Implement this for GET. The default implementation does nothing.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void doGet(HttpRequest * const pRequest, HttpResponse * const pReply) {}
+    virtual void doGet(HttpRequest & request, HttpResponse & reply) {}
 
     ///
     /// \brief Executes the requests - HEAD
     ///
     /// Implement this for HEAD. The default implementation does nothing.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void doHead(HttpRequest * const pRequest, HttpResponse * const pReply) {}
+    virtual void doHead(HttpRequest & request, HttpResponse & reply) {}
 
     ///
     /// \brief Executes the requests - POST
     ///
     /// Implement this for POST. The default implementation does nothing.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void doPost(HttpRequest * const pRequest, HttpResponse * const pReply) {}
+    virtual void doPost(HttpRequest & request, HttpResponse & reply) {}
 
     ///
     /// \brief Executes the requests - PUT
     ///
     /// Implement this for PUT. The default implementation does nothing.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void doPut(HttpRequest * const pRequest, HttpResponse * const pReply) {}
+    virtual void doPut(HttpRequest & request, HttpResponse & reply) {}
 
     ///
     /// \brief Executes the requests - DELETE
     ///
     /// Implement this for DELETE. The default implementation does nothing.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void doDelete(HttpRequest * const pRequest, HttpResponse * const pReply) {}
+    virtual void doDelete(HttpRequest & request, HttpResponse & reply) {}
 
 
     ///
@@ -135,20 +135,20 @@ public:
     ///
     /// Implement this for TRACE. The default implementation does nothing.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void doTrace(HttpRequest * const pRequest, HttpResponse * const pReply) {}
+    virtual void doTrace(HttpRequest & request, HttpResponse & reply) {}
 
     ///
     /// \brief Executes the requests - OPTIONS
     ///
     /// Implement this for OPTIONS. The default implementation does nothing.
     ///
-    /// \param pRequest the HTTP request
-    /// \param pReply the HTTP reply
+    /// \param request the HTTP request
+    /// \param reply the HTTP reply
     ///
-    virtual void doOptions(HttpRequest * const pRequest, HttpResponse * const pReply) {}
+    virtual void doOptions(HttpRequest & request, HttpResponse & reply) {}
 
 private:
     ///The path, in the form '/the/path/name' or 'REGEX expression'

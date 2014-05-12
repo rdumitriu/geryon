@@ -37,7 +37,7 @@ public:
     ///
     /// \return the application module \b where is is defined \b.
     ///
-    inline ApplicationModule * getApplicationModule() const { return pApplicationModule; }
+    ApplicationModule & getApplicationModule() const throw(ApplicationException);
 
 
     ///

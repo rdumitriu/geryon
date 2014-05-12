@@ -28,12 +28,12 @@ public:
 };
 
 int main(int argn, const char * argv []) {    
-    ApplicationModule  * module = new ApplicationModule("module");
-    _AppListener * modListener = new _AppListener();
+    std::shared_ptr<ApplicationModule> module = std::make_shared<ApplicationModule>("module");
+    std::shared_ptr<_AppListener> modListener = std::make_shared<_AppListener>();
     module->addLifecycleListener(modListener);
 
     ApplicationModuleContainer app("test.app");
-    _AppListener * appListener = new _AppListener();
+    std::shared_ptr<_AppListener> appListener = std::make_shared<_AppListener>();
     app.addLifecycleListener(appListener);
     app.addModule(module);
 

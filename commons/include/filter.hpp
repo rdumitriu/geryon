@@ -77,7 +77,7 @@ public:
     /// \param reply the reply
     /// \return true or false, true to continue processing.
     ///
-    virtual bool doFilter(HttpRequest * const pRequest, HttpResponse * const pReply) = 0;
+    virtual bool doFilter(HttpRequest & request, HttpResponse & reply) = 0;
 private:
     std::string path;
     bool regex;

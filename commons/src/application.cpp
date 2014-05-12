@@ -24,18 +24,6 @@ ApplicationModule::ApplicationModule(const std::string & _key, const std::string
 }
 
 ApplicationModule::~ApplicationModule() {
-    for(auto p : servlets) {
-        delete (p);
-    }
-    for(auto p : filters) {
-        delete (p);
-    }
-    for(auto p : sessionListeners) {
-        delete (p);
-    }
-    for(auto p : moduleListeners) {
-        delete (p);
-    }
 }
 
 void ApplicationModule::start() {
@@ -76,41 +64,41 @@ bool ApplicationModule::mustNotifyForSessions() {
     return (!sessionListeners.empty() && status == ApplicationModule::STARTED);
 }
 
-void ApplicationModule::notifySessionCreated(Session * const pSes) {
+void ApplicationModule::notifySessionCreated(Session & ses) {
     for(auto p : sessionListeners) {
-        p->init(pSes);
+        p->init(ses);
     }
 }
 
-void ApplicationModule::notifySessionInvalidated(Session * const pSes) {
+void ApplicationModule::notifySessionInvalidated(Session & ses) {
     for(auto p : sessionListeners) {
-        p->invalidated(pSes);
+        p->invalidated(ses);
     }
 }
 
-void ApplicationModule::notifySessionDestroyed(Session * const pSes) {
+void ApplicationModule::notifySessionDestroyed(Session & ses) {
     for(auto p : sessionListeners) {
-        p->done(pSes);
+        p->done(ses);
     }
 }
 
-void ApplicationModule::notifySessionValueAdded(Session * const pSes, const std::string & name,
+void ApplicationModule::notifySessionValueAdded(Session & ses, const std::string & name,
                                                 const boost::any & newVal) {
     for(auto p : sessionListeners) {
-        p->added(pSes, name, newVal);
+        p->added(ses, name, newVal);
     }
 }
 
-void ApplicationModule::notifySessionValueChanged(Session * const pSes, const std::string & name,
+void ApplicationModule::notifySessionValueChanged(Session & ses, const std::string & name,
                                                   const boost::any & oldVal, const boost::any & newVal) {
     for(auto p : sessionListeners) {
-        p->modified(pSes, name, oldVal, newVal);
+        p->modified(ses, name, oldVal, newVal);
     }
 }
 
-void ApplicationModule::notifySessionValueRemoved(Session * const pSes, const std::string & name) {
+void ApplicationModule::notifySessionValueRemoved(Session & ses, const std::string & name) {
     for(auto p : sessionListeners) {
-        p->removed(pSes, name);
+        p->removed(ses, name);
     }
 }
 
@@ -119,9 +107,6 @@ void ApplicationModule::notifySessionValueRemoved(Session * const pSes, const st
  * ================================================================== */
 
 ApplicationModuleContainer::~ApplicationModuleContainer() {
-    for(auto mp : modules) {
-        delete (mp);
-    }
 }
 
 void ApplicationModuleContainer::start() {
@@ -159,58 +144,58 @@ bool ApplicationModuleContainer::mustNotifyForSessions() {
     return false;
 }
 
-void ApplicationModuleContainer::notifySessionCreated(Session * const pSes) {
-    ApplicationModule::notifySessionCreated(pSes);
+void ApplicationModuleContainer::notifySessionCreated(Session & ses) {
+    ApplicationModule::notifySessionCreated(ses);
     for(auto mp : modules) {
         if(mp->mustNotifyForSessions()) {
-            mp->notifySessionCreated(pSes);
+            mp->notifySessionCreated(ses);
         }
     }
 }
 
-void ApplicationModuleContainer::notifySessionInvalidated(Session * const pSes) {
-    ApplicationModule::notifySessionInvalidated(pSes);
+void ApplicationModuleContainer::notifySessionInvalidated(Session & ses) {
+    ApplicationModule::notifySessionInvalidated(ses);
     for(auto mp : modules) {
         if(mp->mustNotifyForSessions()) {
-            mp->notifySessionInvalidated(pSes);
+            mp->notifySessionInvalidated(ses);
         }
     }
 }
 
-void ApplicationModuleContainer::notifySessionDestroyed(Session * const pSes) {
-    ApplicationModule::notifySessionDestroyed(pSes);
+void ApplicationModuleContainer::notifySessionDestroyed(Session & ses) {
+    ApplicationModule::notifySessionDestroyed(ses);
     for(auto mp : modules) {
         if(mp->mustNotifyForSessions()) {
-            mp->notifySessionDestroyed(pSes);
+            mp->notifySessionDestroyed(ses);
         }
     }
 }
 
-void ApplicationModuleContainer::notifySessionValueAdded(Session * const pSes, const std::string & name,
+void ApplicationModuleContainer::notifySessionValueAdded(Session & ses, const std::string & name,
                                                          const boost::any & newVal) {
-    ApplicationModule::notifySessionValueAdded(pSes, name, newVal);
+    ApplicationModule::notifySessionValueAdded(ses, name, newVal);
     for(auto mp : modules) {
         if(mp->mustNotifyForSessions()) {
-            mp->notifySessionValueAdded(pSes, name, newVal);
+            mp->notifySessionValueAdded(ses, name, newVal);
         }
     }
 }
 
-void ApplicationModuleContainer::notifySessionValueChanged(Session * const pSes, const std::string & name,
+void ApplicationModuleContainer::notifySessionValueChanged(Session & ses, const std::string & name,
                                                            const boost::any & oldVal, const boost::any & newVal) {
-    ApplicationModule::notifySessionValueChanged(pSes, name, oldVal, newVal);
+    ApplicationModule::notifySessionValueChanged(ses, name, oldVal, newVal);
     for(auto mp : modules) {
         if(mp->mustNotifyForSessions()) {
-            mp->notifySessionValueChanged(pSes, name, oldVal, newVal);
+            mp->notifySessionValueChanged(ses, name, oldVal, newVal);
         }
     }
 }
 
-void ApplicationModuleContainer::notifySessionValueRemoved(Session * const pSes, const std::string & name) {
-    ApplicationModule::notifySessionValueRemoved(pSes, name);
+void ApplicationModuleContainer::notifySessionValueRemoved(Session & ses, const std::string & name) {
+    ApplicationModule::notifySessionValueRemoved(ses, name);
     for(auto mp : modules) {
         if(mp->mustNotifyForSessions()) {
-            mp->notifySessionValueRemoved(pSes, name);
+            mp->notifySessionValueRemoved(ses, name);
         }
     }
 }

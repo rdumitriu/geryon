@@ -124,7 +124,7 @@ public:
     ///
     /// \param listener the listener address (MUST be pointer, MUST be allocated with 'new')
     ///
-    void addLifecycleListener(ApplicationModuleLifecycleListener * const listener) {
+    void addLifecycleListener(std::shared_ptr<ApplicationModuleLifecycleListener> listener) {
         listener->setApplicationModule(this);
         moduleListeners.push_back(listener);
     }
@@ -139,7 +139,7 @@ public:
     ///
     /// \param listener the listener address (MUST be pointer, MUST be allocated with 'new')
     ///
-    void addSessionListener(SessionLifecycleListener * const listener) {
+    void addSessionListener(std::shared_ptr<SessionLifecycleListener> listener) {
         listener->setApplicationModule(this);
         sessionListeners.push_back(listener);
     }
@@ -155,7 +155,7 @@ public:
     /// Filters are added on the application module and they are owned by the application module object.
     /// \param filter the filter pointer (allocated with 'new')
     ///
-    void addFilter(Filter * const filter) {
+    void addFilter(std::shared_ptr<Filter> filter) {
         filter->setApplicationModule(this);
         filters.push_back(filter);
     }
@@ -170,7 +170,7 @@ public:
     /// destroyed by the current application module object.\n
     /// \param servlet the servlet pointer (allocated with 'new')
     ///
-    void addServlet(Servlet * const servlet) {
+    void addServlet(std::shared_ptr<Servlet> servlet) {
         servlet->setApplicationModule(this);
         servlets.push_back(servlet);
     }
@@ -190,26 +190,27 @@ protected:
     ///Perf: To avoid copying values, use this just before notifying
     virtual bool mustNotifyForSessions();
     ///Notify: session created
-    virtual void notifySessionCreated(Session * const pSes);
+    virtual void notifySessionCreated(Session & ses);
     ///Notify: session invalidated
-    virtual void notifySessionInvalidated(Session * const pSes);
+    virtual void notifySessionInvalidated(Session & ses);
     ///Notify: session destroyed
-    virtual void notifySessionDestroyed(Session * const pSes);
+    virtual void notifySessionDestroyed(Session & ses);
     ///Notify: session value added
-    virtual void notifySessionValueAdded(Session * const pSes, const std::string & name, const boost::any & newVal);
+    virtual void notifySessionValueAdded(Session & ses, const std::string & name, const boost::any & newVal);
     ///Notify: session value modified
-    virtual void notifySessionValueChanged(Session * const pSes, const std::string & name, const boost::any & oldVal, const boost::any & newVal);
+    virtual void notifySessionValueChanged(Session & ses, const std::string & name,
+                                           const boost::any & oldVal, const boost::any & newVal);
     ///Notify: session value removed
-    virtual void notifySessionValueRemoved(Session * const pSes, const std::string & name);
+    virtual void notifySessionValueRemoved(Session & ses, const std::string & name);
 
     std::string key;
     ApplicationConfig config;
     ApplicationModule * parent;
     Status status;
-    std::vector<Filter *> filters;
-    std::vector<Servlet *> servlets;
-    std::vector<ApplicationModuleLifecycleListener *> moduleListeners;
-    std::vector<SessionLifecycleListener *> sessionListeners;
+    std::vector<std::shared_ptr<Filter>> filters;
+    std::vector<std::shared_ptr<Servlet>> servlets;
+    std::vector<std::shared_ptr<ApplicationModuleLifecycleListener>> moduleListeners;
+    std::vector<std::shared_ptr<SessionLifecycleListener>> sessionListeners;
 };
 
 ///
@@ -236,7 +237,7 @@ public:
     /// \brief Adds a module
     /// \param module the module pointer
     ///
-    void addModule(ApplicationModule * const module) {
+    void addModule(std::shared_ptr<ApplicationModule> module) {
         module->parent = this;
         modules.push_back(module);
     }
@@ -245,20 +246,20 @@ protected:
     ///Perf: To avoid copying values, use this just before notifying
     virtual bool mustNotifyForSessions();
     ///Notify: session created
-    virtual void notifySessionCreated(Session * const pSes);
+    virtual void notifySessionCreated(Session & ses);
     ///Notify: session invalidated
-    virtual void notifySessionInvalidated(Session * const pSes);
+    virtual void notifySessionInvalidated(Session & ses);
     ///Notify: session destroyed
-    virtual void notifySessionDestroyed(Session * const pSes);
+    virtual void notifySessionDestroyed(Session & ses);
     ///Notify: session value added
-    virtual void notifySessionValueAdded(Session * const pSes, const std::string & name, const boost::any & newVal);
+    virtual void notifySessionValueAdded(Session & ses, const std::string & name, const boost::any & newVal);
     ///Notify: session value modified
-    virtual void notifySessionValueChanged(Session * const pSes, const std::string & name,
+    virtual void notifySessionValueChanged(Session & ses, const std::string & name,
                                            const boost::any & oldVal, const boost::any & newVal);
     ///Notify: session value removed
-    virtual void notifySessionValueRemoved(Session * const pSes, const std::string & name);
+    virtual void notifySessionValueRemoved(Session & ses, const std::string & name);
 
-    std::vector<ApplicationModule *> modules;
+    std::vector<std::shared_ptr<ApplicationModule>> modules;
 };
 
 ///

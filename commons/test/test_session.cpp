@@ -25,23 +25,23 @@ public:
     virtual ~_SessionL() {}
 
 
-    virtual void init(Session * const pSes) {
+    virtual void init(Session & pSes) {
         _init++;
     }
-    virtual void added(Session * const pSes, const std::string & name, const boost::any & val) {
+    virtual void added(Session & pSes, const std::string & name, const boost::any & val) {
         _added++;
     }
-    virtual void modified(Session * const pSes, const std::string & name,
+    virtual void modified(Session & pSes, const std::string & name,
                           const boost::any & oldVal, const boost::any & newVal) {
         _modified++;
     }
-    virtual void removed(Session * const pSes, const std::string & name) {
+    virtual void removed(Session & pSes, const std::string & name) {
         _removed++;
     }
-    virtual void invalidated(Session * const pSes) {
+    virtual void invalidated(Session & pSes) {
         _invalidated++;
     }
-    virtual void done(Session * const pSes) {
+    virtual void done(Session & pSes) {
         _done++;
     }
 
@@ -58,10 +58,10 @@ public:
     _Application(const std::string & _key) : Application(_key) {}
     virtual ~_Application() {}
 
-    virtual void notifySessionCreated(Session * const pSes) {
+    virtual void notifySessionCreated(Session & pSes) {
         Application::notifySessionCreated(pSes);
     }
-    virtual void notifySessionDestroyed(Session * const pSes) {
+    virtual void notifySessionDestroyed(Session & pSes) {
         Application::notifySessionDestroyed(pSes);
     }
 };
@@ -69,12 +69,12 @@ public:
 int main(int argn, const char * argv []) {
 
     _Application app("test.app");
-    _SessionL * listener = new _SessionL();
+    std::shared_ptr<_SessionL> listener = std::make_shared<_SessionL>();
     app.addSessionListener(listener);
     app.start();
 
     _Session ses(&app);
-    app.notifySessionCreated(&ses);
+    app.notifySessionCreated(ses);
 
     ses.put("avalue", std::string("buhuhu"));
     ses.put("bvalue", 10);
@@ -106,7 +106,7 @@ int main(int argn, const char * argv []) {
     ses.invalidate();
 
 
-    app.notifySessionDestroyed(&ses);
+    app.notifySessionDestroyed(ses);
     app.stop();
 
     //Now the listener should all be 1

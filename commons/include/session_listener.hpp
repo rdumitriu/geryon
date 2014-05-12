@@ -45,7 +45,7 @@ public:
     ///
     /// \param pSes the session
     ///
-    virtual void init(Session * const pSes) = 0;
+    virtual void init(Session & ses) = 0;
 
     ///
     /// \brief Called when a value is added on a session
@@ -56,7 +56,7 @@ public:
     /// \param name the name of the variable
     /// \param val the data
     ///
-    virtual void added(Session * const pSes,
+    virtual void added(Session & ses,
                        const std::string & name,
                        const boost::any & val) = 0;
     ///
@@ -69,7 +69,7 @@ public:
     /// \param oldVal the data, old
     /// \param newVal the data, new
     ///
-    virtual void modified(Session * const pSes,
+    virtual void modified(Session & ses,
                           const std::string & name,
                           const boost::any & oldVal, const boost::any & newVal) = 0;
     ///
@@ -78,21 +78,21 @@ public:
     /// \param pSes the session
     /// \param name the name of the variable
     ///
-    virtual void removed(Session * const pSes, const std::string & name) = 0;
+    virtual void removed(Session & ses, const std::string & name) = 0;
 
     ///
     /// \brief Called when we called invalidate
     ///
     /// \param pSes the session
     ///
-    virtual void invalidated(Session * const pSes) = 0;
+    virtual void invalidated(Session & ses) = 0;
 
     ///
     /// \brief Called when we're done with the session
     ///
     /// \param pSes the session
     ///
-    virtual void done(Session * const pSes) = 0;
+    virtual void done(Session & ses) = 0;
 };
 
 ///
@@ -109,18 +109,18 @@ public:
     virtual ~SessionLifecycleListenerAdapter() {}
 
     ///Initialization. This implementation does nothing.
-    virtual void init(Session * const pSes) {}
+    virtual void init(Session & ses) {}
     ///Attribute added. This implementation does nothing.
-    virtual void added(Session * const pSes, const std::string & name, const boost::any & val) {}
+    virtual void added(Session & ses, const std::string & name, const boost::any & val) {}
     ///Attribute modified. This implementation does nothing.
-    virtual void modified(Session * const pSes, const std::string & name,
+    virtual void modified(Session & ses, const std::string & name,
                           const boost::any & oldVal, const boost::any & newVal) {}
     ///Attribute removed. This implementation does nothing.
-    virtual void removed(Session * const pSes, const std::string & name) {}
+    virtual void removed(Session & ses, const std::string & name) {}
     ///Session invalidated. This implementation does nothing.
-    virtual void invalidated(Session * const pSes) {}
+    virtual void invalidated(Session & ses) {}
     ///Session will be soon gone. This implementation does nothing.
-    virtual void done(Session * const pSes) {}
+    virtual void done(Session & ses) {}
 };
 
 }
