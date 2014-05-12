@@ -17,7 +17,8 @@
 namespace geryon { namespace server {
 
 ///
-/// Single threaded acceptor server
+/// Single threaded acceptor server.
+/// Note: Here, single threaded refers to 'acceptor' ONLY.
 ///
 class SingleThreadTCPServer : public TCPServer {
 public:

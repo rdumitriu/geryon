@@ -18,8 +18,7 @@ TCPConnection::TCPConnection(boost::asio::ip::tcp::socket && _socket,
                              boost::asio::io_service & io_service,
                              TCPConnectionManager & _connectionManager,
                              std::shared_ptr<TCPProtocolHandler> _protocolHandler)
-                        : strand(io_service),
-                          socket(std::move(_socket)),
+                        : socket(std::move(_socket)),
                           rConnectionManager(_connectionManager),
                           pProtocolHandler(_protocolHandler),
                           asioOperationInProgress(false) {

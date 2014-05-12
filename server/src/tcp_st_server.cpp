@@ -1,5 +1,5 @@
 /**
- * \file tcp_server.cpp
+ * \file tcp_st_server.cpp
  *
  *  Created on: Aug 13, 2011
  *      Author: rdumitriu
@@ -15,6 +15,10 @@
 namespace geryon { namespace server {
 
 namespace detail {
+
+/* ======================================================================= */
+/* C O N N E C T I O N  &  C O N N  M A N A G E R */
+/* ======================================================================= */
 
 ///Connection, ST
 class STTCPConnection : public TCPConnection, public std::enable_shared_from_this<STTCPConnection> {
@@ -37,10 +41,10 @@ private:
 class STTCPConnectionManager : public TCPConnectionManager {
 public:
     STTCPConnectionManager(TCPProtocol & _proto) : TCPConnectionManager(), proto(_proto) {
-        LOG(geryon::util::Log::INFO) << "Initialized STTCP conn manager";
+        LOG(geryon::util::Log::DEBUG) << "Initialized STTCP conn manager";
     }
     virtual ~STTCPConnectionManager() {
-        LOG(geryon::util::Log::INFO) << "Cleaning up STTCP conn manager";
+        LOG(geryon::util::Log::DEBUG) << "Cleaning up STTCP conn manager";
     }
 protected:
     virtual std::shared_ptr<TCPConnection> create(boost::asio::ip::tcp::socket && socket,
@@ -75,12 +79,17 @@ void STTCPConnection::scheduleASIORead() {
 
     tcpSocket().async_read_some(asiob,
                                 [this, self](boost::system::error_code ec, std::size_t nBytes) {
-        if (!ec) {
-            LOG(geryon::util::Log::DEBUG) << "In read handler";
-            GBufferHandler localbuff(std::move(commands.front()->bufferHandler));
-            protocolHandler()->handleRead(std::move(localbuff), nBytes);
-            rescheduleASIO();
-        } else if (ec != boost::asio::error::operation_aborted) {
+        try {
+            if (!ec) {
+                LOG(geryon::util::Log::DEBUG) << "In read handler";
+                GBufferHandler localbuff(std::move(commands.front()->bufferHandler));
+                protocolHandler()->handleRead(std::move(localbuff), nBytes);
+                rescheduleASIO();
+            } else if (ec != boost::asio::error::operation_aborted) {
+                connectionManager().stop(shared_from_this());
+            }
+        } catch( ... ) {
+            LOG(geryon::util::Log::ERROR) << "Fatal error in processing request. Connection aborted";
             connectionManager().stop(shared_from_this());
         }
       });
@@ -139,6 +148,10 @@ std::shared_ptr<TCPConnection> STTCPConnectionManager::create(boost::asio::ip::t
 
 } /* namespace detail */
 
+/* ======================================================================= */
+/* T H E  S E R V E R */
+/* ======================================================================= */
+
 
 SingleThreadTCPServer::SingleThreadTCPServer(const std::string & _srvName, const std::string & _bindAddress,
                                              const std::string & _bindPort, TCPProtocol & _proto)
@@ -149,6 +162,7 @@ SingleThreadTCPServer::SingleThreadTCPServer(const std::string & _srvName, const
 void SingleThreadTCPServer::run() {
     iosrvc.run();
 }
+
 
 TCPConnectionManager & SingleThreadTCPServer::connectionManager() {
     return *(connMgr.get());

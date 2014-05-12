@@ -70,8 +70,6 @@ public:
 
     inline boost::asio::ip::tcp::socket & tcpSocket() { return socket; }
 
-    inline boost::asio::io_service::strand & ioStrand() { return strand; }
-
     inline TCPConnectionManager & connectionManager() { return rConnectionManager; }
 
     inline std::shared_ptr<TCPProtocolHandler> & protocolHandler() { return pProtocolHandler; }
@@ -125,9 +123,6 @@ protected:
     std::deque<detail::TCPConnectionCommandPtr> commands;
 
 private:
-    /// Strand (mutex for asio, if needed)
-    boost::asio::io_service::strand strand;
-
     /// The socket
     boost::asio::ip::tcp::socket socket;
 

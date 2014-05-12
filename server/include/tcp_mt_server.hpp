@@ -18,13 +18,12 @@ namespace geryon { namespace server {
 
 ///
 /// Multi-threaded acceptor server
+/// Note: Here, multi threaded refers to 'acceptor' ONLY.
 ///
 class MultiThreadedTCPServer : public TCPServer{
 public:
     MultiThreadedTCPServer(const std::string & _srvName, const std::string & _bindAddress,
-                          const std::string & _bindPort, unsigned int _nThreads)
-                         : TCPServer(_srvName, _bindAddress, _bindPort), nThreads(_nThreads) {}
-
+                           const std::string & _bindPort, TCPProtocol & _proto, unsigned int _nThreads);
     /// Destructor
     virtual ~MultiThreadedTCPServer() {}
 
@@ -40,6 +39,7 @@ protected:
     virtual TCPConnectionManager & connectionManager();
 private:
     unsigned int nThreads;
+    std::shared_ptr<TCPConnectionManager> connMgr;
 };
 
 } }  /* namespace */

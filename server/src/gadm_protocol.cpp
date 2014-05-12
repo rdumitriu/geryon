@@ -22,33 +22,32 @@ public:
     virtual void init(TCPConnection & _rConnection);
     virtual void handleRead(GBufferHandler && currentBuffer, std::size_t nBytes);
     virtual void done();
+
+    void writeString(const std::string & str);
 private:
     std::string command;
+    void writeString();
 };
+
+void GAdmTCPProtocolHandler::writeString(const std::string & msg) {
+    GBufferHandler writeBuff(&getMemoryPool());
+    std::strncpy(writeBuff.get().buffer(), msg.c_str(), writeBuff.get().size());
+    writeBuff.get().setMarker(msg.length());
+    requestWrite(std::move(writeBuff));
+}
 
 void GAdmTCPProtocolHandler::init(TCPConnection & _rConnection) {
     TCPProtocolHandler::init(_rConnection);
 
-    LOG(geryon::util::Log::DEBUG) << "Connected to administrative interface";
+    LOG(geryon::util::Log::DEBUG) << "Connected to administrative interface (init)";
 
-//    GBufferHandler writeBuff(&getMemoryPool());
-//    std::string msg("Connected to geryon server administrative interface.\n");
-//    std::strncpy(writeBuff.get().buffer(), msg.c_str(), writeBuff.get().size());
-//    writeBuff.get().setMarker(msg.length());
-//    requestWrite(std::move(writeBuff));
-
+    writeString("Connected to GERYON. Type command and press enter.\n");
+    writeString(">");
     GBufferHandler readBuffer(&getMemoryPool());
     requestRead(std::move(readBuffer));
 }
 
 void GAdmTCPProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_t nBytes) {
-    LOG(geryon::util::Log::DEBUG) << "Read handler called with " << nBytes << " bytes read.";
-    std::string str;
-    for(unsigned int i = 0; i < nBytes + currentBuffer.get().marker(); ++i) {
-        str.push_back(currentBuffer.get().buffer()[i]);
-    }
-    LOG(geryon::util::Log::DEBUG) << "Buffer content is >>" << str << "<<";
-
     bool hascr = false;
     GBuffer buff = currentBuffer.get();
     for(unsigned int i = 0; i < nBytes && !hascr; ++i) {
@@ -59,29 +58,25 @@ void GAdmTCPProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::si
             hascr = true;
         }
     }
-    geryon::util::trim(command);
 
-    LOG(geryon::util::Log::DEBUG) << "Command is >>" << command << "<<";
-    if("close" == command) {
-        LOG(geryon::util::Log::DEBUG) << "Disconnected from administrative interface (cmd)";
-        requestClose();
-    } else if("help" == command) {
-        LOG(geryon::util::Log::DEBUG) << "Gadm :: Help";
-        GBufferHandler writeBuff(&getMemoryPool());
-        std::string msg("Help requested.\n");
-        std::strncpy(writeBuff.get().buffer(), msg.c_str(), writeBuff.get().size());
-        writeBuff.get().setMarker(msg.length());
-        requestWrite(std::move(writeBuff));
-        command.clear();
-    }
     if(hascr) {
+        geryon::util::trim(command);
+
+        if("close" == command) {
+            requestClose();
+        } else if("help" == command) {
+            writeString("Help:\n");
+            writeString("\t close - closes this connection\n");
+            writeString("\t help  - this message\n\n");
+        } else {
+            writeString("?Well? Help is available by typing 'help'\n");
+        }
         command.clear();
+        writeString(">");
     }
 
-    LOG(geryon::util::Log::DEBUG) << "Protocol will request read";
     GBufferHandler readBuffer(&getMemoryPool());
     requestRead(std::move(readBuffer));
-    LOG(geryon::util::Log::DEBUG) << "Protocol readHandler done";
 }
 
 void GAdmTCPProtocolHandler::done() {
