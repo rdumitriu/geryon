@@ -1,4 +1,4 @@
-/**
+ /**
  * \file tcp_protocol_handler.hpp
  *
  *  Created on: Aug 19, 2011, reformatted on Mar 23, 2014
@@ -12,7 +12,7 @@
 #include <boost/asio.hpp>
 
 #include "mem_buf.hpp"
-#include "tcp_connection.hpp"
+//#include "tcp_connection.hpp"
 
 namespace geryon { namespace server {
 
@@ -26,7 +26,7 @@ class TCPConnection;
 class TCPProtocolHandler {
 public:
     /// \brief The constructor
-    explicit TCPProtocolHandler(GMemoryPool & _rMemoryPool) : rMemoryPool(_rMemoryPool), pConnection(0) {}
+    explicit TCPProtocolHandler(GMemoryPool * const _pMemoryPool) : pMemoryPool(_pMemoryPool), pConnection(0) {}
     /// \brief Destructor
     virtual ~TCPProtocolHandler() {}
 
@@ -36,8 +36,8 @@ public:
     TCPProtocolHandler & operator = (const TCPProtocolHandler &other) = delete;
     
     /// \brief Called just before the protocol is used
-    virtual void init(TCPConnection & _rConnection) {
-        pConnection = &_rConnection;
+    virtual void init(TCPConnection * _pConnection) {
+        pConnection = _pConnection;
     }
 
     ///
@@ -67,7 +67,7 @@ protected:
 
 
     /// \brief Gets the memory pool pointer
-    inline GMemoryPool & getMemoryPool() { return rMemoryPool; }
+    inline GMemoryPool * const getMemoryPool() const { return pMemoryPool; }
 
     /// \brief Returns the read hint. Default implementation returns 0 (no hint)
     virtual std::size_t getReadSizeHint() { return 0; }
@@ -76,11 +76,11 @@ protected:
     virtual std::size_t getWriteSizeHint() { return 0; }
 
     /// \brief get connection
-    inline TCPConnection & getConnection() { return *(pConnection); }
+    inline TCPConnection & getConnection() const { return *(pConnection); }
 
 private:
     /// \brief The memory pool pointer
-    GMemoryPool & rMemoryPool;
+    GMemoryPool * pMemoryPool;
 
     /// \brief The connection this handler belongs to
     TCPConnection * pConnection;

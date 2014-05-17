@@ -29,7 +29,7 @@ TCPConnection::~TCPConnection() {
 
 void TCPConnection::start() {
     try {
-        protocolHandler()->init(*this);
+        protocolHandler()->init(this);
     } catch( std::runtime_error & e) {
         LOG(geryon::util::Log::ERROR) << "Failed to initialize properly the protocol handler! Error was :" << e.what();
     } catch( ... ) {

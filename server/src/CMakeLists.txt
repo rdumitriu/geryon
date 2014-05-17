@@ -38,13 +38,17 @@ SET (geryon_SRC
     ../include/gadm_protocol.hpp
     gadm_protocol.cpp
 
-#    ../include/http_server.hpp
-#    http_server.cpp
+    ../include/http_protocol.hpp
+    http_protocol.cpp
 
-#    ../include/http_protocol_handler.hpp
-#    http_protocol_handler.cpp
+    ../include/http_protocol_handler.hpp
+    http_protocol_handler.cpp
 
-#    ../include/http_request_parser.hpp
+    ../include/http_server_types.hpp
+    http_server_types.cpp
+
+    ../include/http_request_parser.hpp
+    http_request_parser.cpp
 
     main.cpp
      )

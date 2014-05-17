@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "tcp_connection.hpp"
+#include "tcp_protocol_handler.hpp"
 #include "tcp_st_server.hpp"
 
 #include "log.hpp"

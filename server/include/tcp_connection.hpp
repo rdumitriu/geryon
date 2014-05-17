@@ -14,12 +14,15 @@
 #include <deque>
 #include <mutex>
 
+#include "mem_buf.hpp"
 #include "tcp_protocol_handler.hpp"
 #include "tcp_connection_manager.hpp"
 
 namespace geryon { namespace server {
 
 typedef boost::asio::mutable_buffers_1 asioBuffer;
+
+//class TCPProtocolHandler;
 
 namespace detail {
 ///
@@ -72,7 +75,7 @@ public:
 
     inline TCPConnectionManager & connectionManager() { return rConnectionManager; }
 
-    inline std::shared_ptr<TCPProtocolHandler> & protocolHandler() { return pProtocolHandler; }
+    inline std::shared_ptr<TCPProtocolHandler> protocolHandler() { return pProtocolHandler; }
 
 protected:
     friend class TCPProtocolHandler;

@@ -1,11 +1,11 @@
 /**
- * \file conversions.hpp
+ * \file string_utils.hpp
  *
  * Created on: Feb 25, 2014
  * Author: rdumitriu at gmail.com
  */
-#ifndef CONVERSIONS_HPP_
-#define CONVERSIONS_HPP_
+#ifndef GERYON_STRING_UTILS_HPP_
+#define GERYON_STRING_UTILS_HPP_
 
 #include <sstream>
 #include <string>
@@ -94,6 +94,28 @@ inline bool startsWith(const std::string & s, const std::string & begin) {
 inline void trim(std::string & s) {
     boost::trim(s);
 }
+
+/* ===================================================================
+ * H T T P  S U P P O R T
+ * =================================================================== */
+
+inline bool isHTTPChar(char c) {
+    return c >= 0 && c <= 127;
+}
+
+inline bool isHTTPCtl(char c) {
+    return (c >= 0 && c <= 31) || (c == 127);
+}
+
+inline bool isHTTPDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+bool isHTTPSpecial(char c);
+
+bool decodeURL(const std::string& in, std::string& out);
+
+void encodeURL(const std::string& in, std::string& out);
 
 } }
 

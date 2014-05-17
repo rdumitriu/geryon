@@ -12,29 +12,29 @@
 #include <string>
 #include <deque>
 
-#include "http_types.hpp"
+#include "http_server_types.hpp"
  
 namespace geryon { namespace server {
 
-class HTTPRequestParser {
+class HttpRequestParser {
 public:
     /// Constructor
-    HTTPRequestParser(std::size_t maximalCT, 
-                      std::size_t fileIOBufferSize, 
-                      const std::string & tempDir);
+    HttpRequestParser(std::size_t maximalContentLenght);
     
     ///Destructor
-    ~HTTPRequestParser();
+    ~HttpRequestParser();
 
     /// Reset to initial parser state.
-    void reset(geryon::HTTPRequest *pRequest);
+    void init(geryon::server::HttpServerRequest *pRequest);
     
     ///consume a char from input
     bool consume(char c, geryon::HttpResponse::HttpStatusCode & error);
     
     ///Call this after you parsed the message
-    agrade::yahsrv::HTTPReply::HTTPStatusCode validate();
+    geryon::HttpResponse::HttpStatusCode validate();
 
+    ///Report back the maximal content length
+    std::size_t maximalContentLenght() const;
 private:
     /// The current state of the parser.
     enum State {
@@ -75,67 +75,63 @@ private:
         URI_END
     };
     
-    std::size_t m_maxContentLength;
-    std::size_t m_bufferSize;
-    std::string m_tmpDir;
+    std::size_t maxContentLength;
+
+    State state;
+    URIState uriState;
+    geryon::server::HttpServerRequest *pRequest;
+    std::size_t postParamsCharCount;
     
-    State m_state;
-    URIState m_uriState;
-    geryon::HttpRequest *m_pRequest;
-    std::size_t m_postParamsCharCount;
+    std::string headerName;
+    std::string headerValue;
     
-    std::string m_headerName;
-    std::string m_headerValue;
+    bool consumeChar(char expected, char input, geryon::HttpResponse::HttpStatusCode & error, State nextState);
+    bool consumeStart(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumeMethod(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumeURI(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumeHttpVersion(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumeNewline(char input, geryon::HttpResponse::HttpStatusCode & error, State nextState);
+    bool consumeHeaderName(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumeHeaderLWS(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumeHeaderValue(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumePostParameters(char input, geryon::HttpResponse::HttpStatusCode & error);
     
-    bool consumeChar(char expected, char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error, State nextState);
-    bool consumeStart(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumeMethod(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumeURI(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumeHttpVersion(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumeNewline(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error, State nextState);
-    bool consumeHeaderName(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumeHeaderLWS(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumeHeaderValue(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumePostParameters(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    
-    bool consumePostMultipartBoundary(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumePostMultipartNewline(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error, State nextState);
-    bool consumePostMultipartHeaderOrContent(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumePostMultipartHeaderLine(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumePostMultipartContent(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumePostMultipartNextPartOrEnd(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
-    bool consumePostMultipartEnd(char input, agrade::yahsrv::HTTPReply::HTTPStatusCode & error);
+    bool consumePostMultipartBoundary(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumePostMultipartNewline(char input, geryon::HttpResponse::HttpStatusCode & error, State nextState);
+    bool consumePostMultipartHeaderOrContent(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumePostMultipartHeaderLine(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumePostMultipartContent(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumePostMultipartNextPartOrEnd(char input, geryon::HttpResponse::HttpStatusCode & error);
+    bool consumePostMultipartEnd(char input, geryon::HttpResponse::HttpStatusCode & error);
     
     //URI_break_down
-    std::string m_paramName;
-    std::string m_paramValue;
+    std::string paramName;
+    std::string paramValue;
     bool consumeURISubstate(char c);
     void pushRequestParameter();
     bool validateMethod();
     
     //Multipart:
-    std::string m_multipartSeparator;
-    std::size_t m_multipartSeparatorIndex;
-    std::string m_multipartHeaderLine;
-    std::string m_multipartFileName;
-    std::string m_multipartCountentType;
-    std::string m_multipartCountentEncoding;
-    std::string m_mFileName;
-    std::FILE * m_mFile;
-    std::size_t m_mFileWriteCount;
-    char * m_mFileBuffer;
-    unsigned int m_mFileCounter;
+    std::string multipartSeparator;
+    std::size_t multipartSeparatorIndex;
+    std::string multipartHeaderLine;
+    std::string multipartFileName;
+    std::string multipartCountentType;
+    std::string multipartCountentEncoding;
+    std::string mFileName;
+    std::FILE * mFile;
+    std::size_t mFileWriteCount;
+    char * mFileBuffer;
+    unsigned int mFileCounter;
     
-    std::deque<char> m_multipartContentQueue;
+    std::deque<char> multipartContentQueue;
     bool extractMultipartSeparator();
     bool multipartContentMatchesBoundary();
     void countPostBytes();
     bool processMultipartHeader();
     void parseContentDispositionHeader();
     
-    std::string generatePartFileName();
     bool writeIntoPartFile(char c);
-    bool closePartFile();
 };
 
 } } /* namespace */

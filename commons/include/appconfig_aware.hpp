@@ -32,7 +32,7 @@ public:
     ///
     /// \brief Gets the application module
     ///
-    /// May return NULL if the object has not been added to some application module. This will not change during the
+    /// May throw if the object has not been added to some application module. Module will not change during the
     /// life of this object.
     ///
     /// \return the application module \b where is is defined \b.

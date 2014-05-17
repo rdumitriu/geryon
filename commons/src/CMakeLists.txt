@@ -6,6 +6,7 @@ SET (commonslib_SRC
     ../include/thread_pool.hpp
 
     ../include/string_utils.hpp
+    string_utils.cpp
     ../include/properties_file.hpp
     properties_file.cpp
 

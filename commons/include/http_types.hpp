@@ -193,7 +193,7 @@ public:
     ///
     /// \return the content type
     ///
-    inline const std::string getContentType() const { return contentType; }
+    inline const std::string & getContentType() const { return contentType; }
     
     ///
     /// \brief Basic support for cookies.
@@ -297,7 +297,7 @@ private:
 /// files on servers.
 ///
 class HttpRequestPart {
-
+public:
     HttpRequestPart(const std::string & _name, const std::string & _fileName, const std::string & _contentType)
         : name(_name), fileName(_fileName), contentType(_contentType) {}
 
@@ -308,11 +308,11 @@ class HttpRequestPart {
 
     virtual ~HttpRequestPart() {}
 
-    inline std::string getName() const { return name; }
+    inline const std::string & getName() const { return name; }
 
-    inline std::string getFileName() const { return fileName; }
+    inline const std::string & getFileName() const { return fileName; }
 
-    inline std::string getContentType() const { return contentType; }
+    inline const std::string & getContentType() const { return contentType; }
 
     ///The real deal is here
     virtual std::istream & getInputStream() = 0;
@@ -414,42 +414,42 @@ public:
     ///\brief The parsed URI protocol
     ///\return the parsed URI protocol (e.g. 'http'). It is not always filled!
     ///
-    inline const std::string getURIProtocol() const { return uriProtocol; }
+    inline const std::string & getURIProtocol() const { return uriProtocol; }
     ///
     ///\brief The parsed URI host
     ///\return the parsed URI host (e.g. 'www.mydomain.com'). It is not always filled!
     ///
-    inline const std::string getURIHost() const { return uriHost; }
+    inline const std::string & getURIHost() const { return uriHost; }
     ///
     ///\brief The parsed URI port
     ///\return the parsed URI port (e.g. '80'). It is not always filled!
     ///
-    inline const std::string getURIPort() const { return uriPort; }
+    inline const std::string & getURIPort() const { return uriPort; }
     ///
     ///\brief The parsed URI path
     ///\return the parsed URI path. Always there.
     ///
-    inline const std::string getURIPath() const { return uriPath; }
+    inline const std::string & getURIPath() const { return uriPath; }
     ///
     ///\brief The parsed URI QUERY
     ///\return the parsed URI query string. Always there.
     ///
-    inline const std::string getQueryString() const { return queryString; }
+    inline const std::string & getQueryString() const { return queryString; }
     ///
     ///\brief The parsed URI
     ///\return the URI.
     ///
-    inline const std::string getURI() const { return uri; }
+    inline const std::string & getURI() const { return uri; }
     ///
     ///\brief The HTTP protocol version
     ///\return the version.
     ///
-    inline const std::string getHttpVersion() const { return httpVersion; }
+    inline const std::string & getHttpVersion() const { return httpVersion; }
     ///
     ///\brief The HTTP method, as a string
     ///\return the method string.
     ///
-    inline const std::string getMethod() const { return method; }
+    inline const std::string & getMethod() const { return method; }
     ///
     ///\brief The HTTP method, as an int
     ///\return the method.
@@ -669,6 +669,7 @@ protected:
     bool committed;
 };
 
+const std::string & getHttpStatusMessage(HttpResponse::HttpStatusCode status);
 
 }
 

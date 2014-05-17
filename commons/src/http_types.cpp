@@ -21,12 +21,12 @@ namespace geryon {
 
     namespace detail {
 
-        const char * const MSG_GENERIC_HTTP_ERROR = "HTTP unspecified error.";
-        const char * const MSG_HEADERS_ALREADY_SENT = "Headers were already sent down the wire. Cannot modify the response.";
-        const char * const MSG_COOKIE_MALFORMED = "Cookie is malformed. Please check expires and max-age attributes.";
+        const std::string MSG_GENERIC_HTTP_ERROR("HTTP unspecified error.");
+        const std::string MSG_HEADERS_ALREADY_SENT("Headers were already sent down the wire. Cannot modify the response.");
+        const std::string MSG_COOKIE_MALFORMED("Cookie is malformed. Please check expires and max-age attributes.");
 
 
-        const char * getHttpExceptionCodeMsg(HttpException::HttpExceptionCode code) {
+        const std::string & getHttpExceptionCodeMsg(HttpException::HttpExceptionCode code) {
             switch(code) {
                 case HttpException::HEADERS_ALREADY_SENT: return MSG_HEADERS_ALREADY_SENT;
                 case HttpException::COOKIE_MALFORMED: return MSG_COOKIE_MALFORMED;
@@ -36,92 +36,92 @@ namespace geryon {
             return MSG_GENERIC_HTTP_ERROR;
         }
 
-        const char * const SC_CONTINUE_HDR = "HTTP/1.1 100 Continue\r\n";
-        const char * const SC_SWITCHING_PROTOCOLS_HDR = "HTTP/1.1 101 Switching Protocols\r\n";
-        const char * const SC_OK_HDR = "HTTP/1.1 200 OK\r\n";
-        const char * const SC_CREATED_HDR = "HTTP/1.1 201 Created\r\n";
-        const char * const SC_ACCEPTED_HDR = "HTTP/1.1 202 Accepted\r\n";
-        const char * const SC_NON_AUTORITATIVE_INFO_HDR = "HTTP/1.1 203 Non-Authoritative Info\r\n";
-        const char * const SC_NO_CONTENT_HDR = "HTTP/1.1 204 No Content\r\n";
-        const char * const SC_RESET_CONTENT_HDR = "HTTP/1.1 205 Reset Content\r\n";
-        const char * const SC_PARTIAL_CONTENT_HDR = "HTTP/1.1 206 Partial Content\r\n";
-        const char * const SC_MULTIPLE_CHOICES_HDR = "HTTP/1.1 300 Multiple Choices\r\n";
-        const char * const SC_MOVED_PERMANENTLY_HDR = "HTTP/1.1 301 Moved Permanently\r\n";
-        const char * const SC_MOVED_TEMPORARILY_HDR = "HTTP/1.1 302 Moved Temporarily\r\n";
-        const char * const SC_SEE_OTHER_HDR = "HTTP/1.1 303 See Other\r\n";
-        const char * const SC_NOT_MODIFIED_HDR = "HTTP/1.1 304 Not Modified\r\n";
-        const char * const SC_USE_PROXY_HDR = "HTTP/1.1 305 Use Proxy\r\n";
-        const char * const SC_BAD_REQUEST_HDR = "HTTP/1.1 400 Bad Request\r\n";
-        const char * const SC_UNAUTHORIZED_HDR = "HTTP/1.1 401 Unauthorized\r\n";
-        const char * const SC_PAYMENT_REQUIRED_HDR = "HTTP/1.1 402 Payment Required\r\n";
-        const char * const SC_FORBIDDEN_HDR = "HTTP/1.1 403 Forbidden\r\n";
-        const char * const SC_NOT_FOUND_HDR = "HTTP/1.1 404 Not Found\r\n";
-        const char * const SC_METHOD_NOT_ALLOWED_HDR = "HTTP/1.1 405 Method Not Allowed\r\n";
-        const char * const SC_NOT_ACCEPTABLE_HDR = "HTTP/1.1 406 Not Acceptable\r\n";
-        const char * const SC_PROXY_AUTHENTICATION_REQUIRED_HDR = "HTTP/1.1 407 Proxy Authentication Required\r\n";
-        const char * const SC_REQUEST_TIMEOUT_HDR = "HTTP/1.1 408 Request Timeout\r\n";
-        const char * const SC_CONFLICT_HDR = "HTTP/1.1 409 Conflict\r\n";
-        const char * const SC_GONE_HDR = "HTTP/1.1 410 Gone\r\n";
-        const char * const SC_LENGTH_REQUIRED_HDR = "HTTP/1.1 411 Length Required\r\n";
-        const char * const SC_PRECONDITION_FAILED_HDR = "HTTP/1.1 412 Precondition Failed\r\n";
-        const char * const SC_REQUEST_ENTITY_TOO_LARGE_HDR = "HTTP/1.1 413 Request Entity Too Large\r\n";
-        const char * const SC_REQUEST_URI_TOO_LONG_HDR = "HTTP/1.1 414 Request-URI Too Long\r\n";
-        const char * const SC_UNSUPPORTED_MEDIA_TYPE_HDR = "HTTP/1.1 415 Unsupported Media Type\r\n";
-        const char * const SC_REQUESTED_RANGE_NOT_SATISFIABLE_HDR = "HTTP/1.1 416 Requested Range Not Satisfiable\r\n";
-        const char * const SC_EXPECTATION_FAILED_HDR = "HTTP/1.1 417 Expectation Failed\r\n";
-        const char * const SC_INTERNAL_SERVER_ERROR_HDR = "HTTP/1.1 500 Internal Server Error\r\n";
-        const char * const SC_NOT_IMPLEMENTED_HDR = "HTTP/1.1 501 Not Implemented\r\n";
-        const char * const SC_BAD_GATEWAY_HDR = "HTTP/1.1 502 Bad Gateway\r\n";
-        const char * const SC_SERVICE_UNAVAILABLE_HDR = "HTTP/1.1 503 Service Unavailable\r\n";
-        const char * const SC_GATEWAY_TIMEOUT_HDR = "HTTP/1.1 504 Gateway Timeout\r\n";
-        const char * const SC_HTTP_VERSION_NOT_SUPPORTED_HDR = "HTTP/1.1 505 HTTP Version Not Supported\r\n";
-
-        const char * getHeaderStatusMessage(HttpResponse::HttpStatusCode status) {
-            switch(status) {
-                case HttpResponse::SC_CONTINUE: { return SC_CONTINUE_HDR;}
-                case HttpResponse::SC_SWITCHING_PROTOCOLS: { return SC_SWITCHING_PROTOCOLS_HDR;}
-                case HttpResponse::SC_OK: { return SC_OK_HDR;}
-                case HttpResponse::SC_CREATED: { return SC_CREATED_HDR;}
-                case HttpResponse::SC_ACCEPTED: { return SC_ACCEPTED_HDR;}
-                case HttpResponse::SC_NON_AUTORITATIVE_INFO: { return SC_NON_AUTORITATIVE_INFO_HDR;}
-                case HttpResponse::SC_NO_CONTENT: { return SC_NO_CONTENT_HDR;}
-                case HttpResponse::SC_RESET_CONTENT: { return SC_RESET_CONTENT_HDR;}
-                case HttpResponse::SC_PARTIAL_CONTENT: { return SC_PARTIAL_CONTENT_HDR;}
-                case HttpResponse::SC_MULTIPLE_CHOICES: { return SC_MULTIPLE_CHOICES_HDR;}
-                case HttpResponse::SC_MOVED_PERMANENTLY: { return SC_MOVED_PERMANENTLY_HDR;}
-                case HttpResponse::SC_MOVED_TEMPORARILY: { return SC_MOVED_TEMPORARILY_HDR;}
-                case HttpResponse::SC_SEE_OTHER: { return SC_SEE_OTHER_HDR;}
-                case HttpResponse::SC_NOT_MODIFIED: { return SC_NOT_MODIFIED_HDR;}
-                case HttpResponse::SC_USE_PROXY: { return SC_USE_PROXY_HDR;}
-                case HttpResponse::SC_BAD_REQUEST: { return SC_BAD_REQUEST_HDR;}
-                case HttpResponse::SC_UNAUTHORIZED: { return SC_UNAUTHORIZED_HDR;}
-                case HttpResponse::SC_PAYMENT_REQUIRED: { return SC_PAYMENT_REQUIRED_HDR;}
-                case HttpResponse::SC_FORBIDDEN: { return SC_FORBIDDEN_HDR;}
-                case HttpResponse::SC_NOT_FOUND: { return SC_NOT_FOUND_HDR;}
-                case HttpResponse::SC_METHOD_NOT_ALLOWED: { return SC_METHOD_NOT_ALLOWED_HDR;}
-                case HttpResponse::SC_NOT_ACCEPTABLE: { return SC_NOT_ACCEPTABLE_HDR;}
-                case HttpResponse::SC_PROXY_AUTHENTICATION_REQUIRED: { return SC_PROXY_AUTHENTICATION_REQUIRED_HDR;}
-                case HttpResponse::SC_REQUEST_TIMEOUT: { return SC_REQUEST_TIMEOUT_HDR;}
-                case HttpResponse::SC_CONFLICT: { return SC_CONFLICT_HDR;}
-                case HttpResponse::SC_GONE: { return SC_GONE_HDR;}
-                case HttpResponse::SC_LENGTH_REQUIRED: { return SC_LENGTH_REQUIRED_HDR;}
-                case HttpResponse::SC_PRECONDITION_FAILED: { return SC_PRECONDITION_FAILED_HDR;}
-                case HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE: { return SC_REQUEST_ENTITY_TOO_LARGE_HDR;}
-                case HttpResponse::SC_REQUEST_URI_TOO_LONG: { return SC_REQUEST_URI_TOO_LONG_HDR;}
-                case HttpResponse::SC_UNSUPPORTED_MEDIA_TYPE: { return SC_UNSUPPORTED_MEDIA_TYPE_HDR;}
-                case HttpResponse::SC_REQUESTED_RANGE_NOT_SATISFIABLE: { return SC_REQUESTED_RANGE_NOT_SATISFIABLE_HDR;}
-                case HttpResponse::SC_EXPECTATION_FAILED: { return SC_EXPECTATION_FAILED_HDR;}
-                case HttpResponse::SC_INTERNAL_SERVER_ERROR: { return SC_INTERNAL_SERVER_ERROR_HDR;}
-                case HttpResponse::SC_NOT_IMPLEMENTED: { return SC_NOT_IMPLEMENTED_HDR;}
-                case HttpResponse::SC_BAD_GATEWAY: { return SC_BAD_GATEWAY_HDR;}
-                case HttpResponse::SC_SERVICE_UNAVAILABLE: { return SC_SERVICE_UNAVAILABLE_HDR;}
-                case HttpResponse::SC_GATEWAY_TIMEOUT: { return SC_GATEWAY_TIMEOUT_HDR;}
-                case HttpResponse::SC_HTTP_VERSION_NOT_SUPPORTED: { return SC_HTTP_VERSION_NOT_SUPPORTED_HDR;}
-            }
-            return SC_INTERNAL_SERVER_ERROR_HDR;
-        }
+        const std::string SC_CONTINUE_HDR("HTTP/1.1 100 Continue\r\n");
+        const std::string SC_SWITCHING_PROTOCOLS_HDR("HTTP/1.1 101 Switching Protocols\r\n");
+        const std::string SC_OK_HDR("HTTP/1.1 200 OK\r\n");
+        const std::string SC_CREATED_HDR("HTTP/1.1 201 Created\r\n");
+        const std::string SC_ACCEPTED_HDR("HTTP/1.1 202 Accepted\r\n");
+        const std::string SC_NON_AUTORITATIVE_INFO_HDR("HTTP/1.1 203 Non-Authoritative Info\r\n");
+        const std::string SC_NO_CONTENT_HDR("HTTP/1.1 204 No Content\r\n");
+        const std::string SC_RESET_CONTENT_HDR("HTTP/1.1 205 Reset Content\r\n");
+        const std::string SC_PARTIAL_CONTENT_HDR("HTTP/1.1 206 Partial Content\r\n");
+        const std::string SC_MULTIPLE_CHOICES_HDR("HTTP/1.1 300 Multiple Choices\r\n");
+        const std::string SC_MOVED_PERMANENTLY_HDR("HTTP/1.1 301 Moved Permanently\r\n");
+        const std::string SC_MOVED_TEMPORARILY_HDR("HTTP/1.1 302 Moved Temporarily\r\n");
+        const std::string SC_SEE_OTHER_HDR("HTTP/1.1 303 See Other\r\n");
+        const std::string SC_NOT_MODIFIED_HDR("HTTP/1.1 304 Not Modified\r\n");
+        const std::string SC_USE_PROXY_HDR("HTTP/1.1 305 Use Proxy\r\n");
+        const std::string SC_BAD_REQUEST_HDR("HTTP/1.1 400 Bad Request\r\n");
+        const std::string SC_UNAUTHORIZED_HDR("HTTP/1.1 401 Unauthorized\r\n");
+        const std::string SC_PAYMENT_REQUIRED_HDR("HTTP/1.1 402 Payment Required\r\n");
+        const std::string SC_FORBIDDEN_HDR("HTTP/1.1 403 Forbidden\r\n");
+        const std::string SC_NOT_FOUND_HDR("HTTP/1.1 404 Not Found\r\n");
+        const std::string SC_METHOD_NOT_ALLOWED_HDR("HTTP/1.1 405 Method Not Allowed\r\n");
+        const std::string SC_NOT_ACCEPTABLE_HDR("HTTP/1.1 406 Not Acceptable\r\n");
+        const std::string SC_PROXY_AUTHENTICATION_REQUIRED_HDR("HTTP/1.1 407 Proxy Authentication Required\r\n");
+        const std::string SC_REQUEST_TIMEOUT_HDR("HTTP/1.1 408 Request Timeout\r\n");
+        const std::string SC_CONFLICT_HDR("HTTP/1.1 409 Conflict\r\n");
+        const std::string SC_GONE_HDR("HTTP/1.1 410 Gone\r\n");
+        const std::string SC_LENGTH_REQUIRED_HDR("HTTP/1.1 411 Length Required\r\n");
+        const std::string SC_PRECONDITION_FAILED_HDR("HTTP/1.1 412 Precondition Failed\r\n");
+        const std::string SC_REQUEST_ENTITY_TOO_LARGE_HDR("HTTP/1.1 413 Request Entity Too Large\r\n");
+        const std::string SC_REQUEST_URI_TOO_LONG_HDR("HTTP/1.1 414 Request-URI Too Long\r\n");
+        const std::string SC_UNSUPPORTED_MEDIA_TYPE_HDR("HTTP/1.1 415 Unsupported Media Type\r\n");
+        const std::string SC_REQUESTED_RANGE_NOT_SATISFIABLE_HDR("HTTP/1.1 416 Requested Range Not Satisfiable\r\n");
+        const std::string SC_EXPECTATION_FAILED_HDR("HTTP/1.1 417 Expectation Failed\r\n");
+        const std::string SC_INTERNAL_SERVER_ERROR_HDR("HTTP/1.1 500 Internal Server Error\r\n");
+        const std::string SC_NOT_IMPLEMENTED_HDR("HTTP/1.1 501 Not Implemented\r\n");
+        const std::string SC_BAD_GATEWAY_HDR("HTTP/1.1 502 Bad Gateway\r\n");
+        const std::string SC_SERVICE_UNAVAILABLE_HDR("HTTP/1.1 503 Service Unavailable\r\n");
+        const std::string SC_GATEWAY_TIMEOUT_HDR("HTTP/1.1 504 Gateway Timeout\r\n");
+        const std::string SC_HTTP_VERSION_NOT_SUPPORTED_HDR("HTTP/1.1 505 HTTP Version Not Supported\r\n");
 
     } //namespace detail
+
+const std::string & getHttpStatusMessage(HttpResponse::HttpStatusCode status) {
+    switch(status) {
+        case HttpResponse::SC_CONTINUE: { return detail::SC_CONTINUE_HDR;}
+        case HttpResponse::SC_SWITCHING_PROTOCOLS: { return detail::SC_SWITCHING_PROTOCOLS_HDR;}
+        case HttpResponse::SC_OK: { return detail::SC_OK_HDR;}
+        case HttpResponse::SC_CREATED: { return detail::SC_CREATED_HDR;}
+        case HttpResponse::SC_ACCEPTED: { return detail::SC_ACCEPTED_HDR;}
+        case HttpResponse::SC_NON_AUTORITATIVE_INFO: { return detail::SC_NON_AUTORITATIVE_INFO_HDR;}
+        case HttpResponse::SC_NO_CONTENT: { return detail::SC_NO_CONTENT_HDR;}
+        case HttpResponse::SC_RESET_CONTENT: { return detail::SC_RESET_CONTENT_HDR;}
+        case HttpResponse::SC_PARTIAL_CONTENT: { return detail::SC_PARTIAL_CONTENT_HDR;}
+        case HttpResponse::SC_MULTIPLE_CHOICES: { return detail::SC_MULTIPLE_CHOICES_HDR;}
+        case HttpResponse::SC_MOVED_PERMANENTLY: { return detail::SC_MOVED_PERMANENTLY_HDR;}
+        case HttpResponse::SC_MOVED_TEMPORARILY: { return detail::SC_MOVED_TEMPORARILY_HDR;}
+        case HttpResponse::SC_SEE_OTHER: { return detail::SC_SEE_OTHER_HDR;}
+        case HttpResponse::SC_NOT_MODIFIED: { return detail::SC_NOT_MODIFIED_HDR;}
+        case HttpResponse::SC_USE_PROXY: { return detail::SC_USE_PROXY_HDR;}
+        case HttpResponse::SC_BAD_REQUEST: { return detail::SC_BAD_REQUEST_HDR;}
+        case HttpResponse::SC_UNAUTHORIZED: { return detail::SC_UNAUTHORIZED_HDR;}
+        case HttpResponse::SC_PAYMENT_REQUIRED: { return detail::SC_PAYMENT_REQUIRED_HDR;}
+        case HttpResponse::SC_FORBIDDEN: { return detail::SC_FORBIDDEN_HDR;}
+        case HttpResponse::SC_NOT_FOUND: { return detail::SC_NOT_FOUND_HDR;}
+        case HttpResponse::SC_METHOD_NOT_ALLOWED: { return detail::SC_METHOD_NOT_ALLOWED_HDR;}
+        case HttpResponse::SC_NOT_ACCEPTABLE: { return detail::SC_NOT_ACCEPTABLE_HDR;}
+        case HttpResponse::SC_PROXY_AUTHENTICATION_REQUIRED: { return detail::SC_PROXY_AUTHENTICATION_REQUIRED_HDR;}
+        case HttpResponse::SC_REQUEST_TIMEOUT: { return detail::SC_REQUEST_TIMEOUT_HDR;}
+        case HttpResponse::SC_CONFLICT: { return detail::SC_CONFLICT_HDR;}
+        case HttpResponse::SC_GONE: { return detail::SC_GONE_HDR;}
+        case HttpResponse::SC_LENGTH_REQUIRED: { return detail::SC_LENGTH_REQUIRED_HDR;}
+        case HttpResponse::SC_PRECONDITION_FAILED: { return detail::SC_PRECONDITION_FAILED_HDR;}
+        case HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE: { return detail::SC_REQUEST_ENTITY_TOO_LARGE_HDR;}
+        case HttpResponse::SC_REQUEST_URI_TOO_LONG: { return detail::SC_REQUEST_URI_TOO_LONG_HDR;}
+        case HttpResponse::SC_UNSUPPORTED_MEDIA_TYPE: { return detail::SC_UNSUPPORTED_MEDIA_TYPE_HDR;}
+        case HttpResponse::SC_REQUESTED_RANGE_NOT_SATISFIABLE: { return detail::SC_REQUESTED_RANGE_NOT_SATISFIABLE_HDR;}
+        case HttpResponse::SC_EXPECTATION_FAILED: { return detail::SC_EXPECTATION_FAILED_HDR;}
+        case HttpResponse::SC_INTERNAL_SERVER_ERROR: { return detail::SC_INTERNAL_SERVER_ERROR_HDR;}
+        case HttpResponse::SC_NOT_IMPLEMENTED: { return detail::SC_NOT_IMPLEMENTED_HDR;}
+        case HttpResponse::SC_BAD_GATEWAY: { return detail::SC_BAD_GATEWAY_HDR;}
+        case HttpResponse::SC_SERVICE_UNAVAILABLE: { return detail::SC_SERVICE_UNAVAILABLE_HDR;}
+        case HttpResponse::SC_GATEWAY_TIMEOUT: { return detail::SC_GATEWAY_TIMEOUT_HDR;}
+        case HttpResponse::SC_HTTP_VERSION_NOT_SUPPORTED: { return detail::SC_HTTP_VERSION_NOT_SUPPORTED_HDR;}
+    }
+    return detail::SC_INTERNAL_SERVER_ERROR_HDR;
+}
 
 HttpException::HttpException(HttpExceptionCode code, const std::string & msg)
     : std::runtime_error(std::move(std::string(detail::getHttpExceptionCodeMsg(code)) + " Error:" + msg)) {
@@ -453,7 +453,7 @@ void HttpResponse::sendHeaders() throw (HttpException) {
     committed = true;
 
     //1: status
-    getOutputStream() << detail::getHeaderStatusMessage(status);
+    getOutputStream() << getHttpStatusMessage(status);
     //2: content length
     if(contentLength) {
         getOutputStream() << "Content-Length: " << std::to_string(contentLength) << "\r\n";
