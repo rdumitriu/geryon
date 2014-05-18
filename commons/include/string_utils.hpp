@@ -78,10 +78,18 @@ inline std::string formatISODateTime(const std::time_t & t) {
 /// \brief startsWith
 /// \param s the string
 /// \param begin the string to be searched
-/// \return true if the
+/// \return true if the string starts with the second param
 ///
 inline bool startsWith(const std::string & s, const std::string & begin) {
     return boost::starts_with(s, begin);
+}
+
+///
+/// \brief toUpper
+/// \param s the string
+///
+inline void toUpper(std::string & s) {
+    boost::to_upper(s);
 }
 
 ///
@@ -93,6 +101,17 @@ inline bool startsWith(const std::string & s, const std::string & begin) {
 ///
 inline void trim(std::string & s) {
     boost::trim(s);
+}
+
+///
+/// \brief Trim a string on both sides
+///
+/// In place trim.
+///
+/// \param s the string
+///
+inline std::string trimAndCopy(const std::string & s) {
+    return boost::trim_copy(s);
 }
 
 /* ===================================================================

@@ -34,3 +34,8 @@ ADD_TEST(test_mem_buf_hnd1 test_mem_buf_hnd)
 SET_TESTS_PROPERTIES (test_mem_buf_hnd1
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "ERROR.*")
+
+ADD_TEST(test_mem_buf_prf1 test_mem_buf_prf)
+SET_TESTS_PROPERTIES (test_mem_buf_prf1
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "ERROR.*")

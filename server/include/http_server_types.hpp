@@ -1,5 +1,5 @@
 /**
- * \file http_server_types.cpp
+ * \file http_server_types.hpp
  *
  *  Created on: May 16, 2014
  *      Author: rdumitriu at gmail dot com
@@ -8,7 +8,10 @@
 #ifndef HTTPSERVERTYPES_HPP_
 #define HTTPSERVERTYPES_HPP_
 
+#include <vector>
+
 #include "http_types.hpp"
+#include "mem_buf.hpp"
 
 namespace geryon { namespace server {
 
@@ -20,7 +23,7 @@ public:
     ///
     /// Constructor of the request
     ///
-    HttpServerRequest() : HttpRequest() {}
+    HttpServerRequest() : HttpRequest(), startStreamStreamIndex(0) {}
 
     ///
     /// Destructor of the request
@@ -31,7 +34,7 @@ public:
     ///\brief The session
     ///\return a pointer to the session; if it does not exist, it is created.
     ///
-    virtual Session * getSession() const { return 0; }
+    virtual Session * getSession() const { return 0; } //::TODO:: implement me!
 
     ///
     ///\brief The input stream.
@@ -52,14 +55,30 @@ public:
     ///
     void addHeader(const std::string & hdrName, const std::string & hdrValue);
 
+    ///
+    /// \brief Adds a parameter
+    ///
+    /// \param prmName the parameter name
+    /// \param prmValue the value
+    ///
     void addParameter(const std::string & prmName, const std::string & prmValue);
 
+    ///
+    /// \brief Adds a part
+    ///
+    /// \param ptr the part shared pointer
+    ///
     void addPart(std::shared_ptr<HttpRequestPart> ptr);
+
+    void setStreamStartIndex(std::size_t n) { startStreamStreamIndex = n; }
 
     friend class HttpProtocolHandler;
     friend class HttpRequestParser;
 private:
     std::istringstream stream;
+    std::vector<GBufferHandler> buffers;
+    std::size_t startStreamStreamIndex;
+
 };
 
 class HttpServerRequestPart : public HttpRequestPart {
@@ -67,8 +86,10 @@ public:
     ///
     /// Constructor of the request
     ///
-    HttpServerRequestPart(const std::string & _name, const std::string & _fileName, const std::string & _contentType)
-                                : HttpRequestPart(_name, _fileName, _contentType) {}
+    HttpServerRequestPart(const std::string & _name, const std::string & _fileName, const std::string & _contentType,
+                          HttpServerRequest * const _pServerRequest, std::size_t _startIndex, std::size_t _stopIndex)
+                                : HttpRequestPart(_name, _fileName, _contentType),
+                                  pServerRequest(_pServerRequest), startIndex(_startIndex), stopIndex(_stopIndex) {}
 
     ///
     /// Destructor of the request
@@ -84,6 +105,10 @@ public:
     friend class HttpProtocolHandler;
     friend class HttpRequestParser;
 private:
+    HttpServerRequest * pServerRequest;
+    std::size_t startIndex;
+    std::size_t stopIndex;
+
     std::istringstream stream;
 };
 
@@ -103,9 +128,7 @@ public:
     ///
     /// \brief The output stream
     ///
-    /// You will write here the response; if you send a lot of data (and I mean: a lot) you will need to call flush from
-    /// time to time on the stream. Flushing the stream will send all the bytes on the wire and will lower the total
-    /// memory consuption.
+    /// You will write here the response.
     ///
     virtual std::ostream & getOutputStream() { return stream; }
 

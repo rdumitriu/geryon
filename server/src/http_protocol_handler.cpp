@@ -65,7 +65,6 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
                             //not really a chunked transfer
                             chunkedTransfer = false;
                             chunkedState = 0;
-                            //:::TODO:: mark error
                             sendStockAnswer(geryon::HttpResponse::SC_NOT_IMPLEMENTED);
                             requestClose();
                             return;
@@ -88,15 +87,28 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
             if(statusCode != geryon::HttpResponse::SC_OK) {
                 sendStockAnswer(statusCode);
             } else {
+                //1: add last buffer, but only if we have an multipart
+                request.buffers.push_back(std::move(currentBuffer));
+                //2: now, do the dispatch
                 //::TODO:: proper dispatch
                 sendStockAnswer(geryon::HttpResponse::SC_NOT_IMPLEMENTED);
             }
-            //::TODO:: don't close, maybe use keepalive
+            //::TODO:: don't close, maybe use keepalive (in v. 0.2)
             requestClose();
         } else {
             //read a bit more
-            GBufferHandler readBuff(getMemoryPool());
-            requestRead(std::move(readBuff));
+            //::TODO:: at this stage, we should know in some cases the amount of bytes to read, so we should be able
+            //::TODO:: to request bigger or smaller buffers. In any case, we'll reuse the buffer if we have 2k left
+            if(buff.size() - buff.marker() > 2048) {
+                //reuse the buffer
+                requestRead(std::move(currentBuffer));
+            } else {
+                //push the current buffer in request
+                request.buffers.push_back(std::move(currentBuffer));
+                //allocate a new buffer and read again
+                GBufferHandler readBuff(getMemoryPool());
+                requestRead(std::move(readBuff));
+            }
         }
     } catch( ... ) {
         LOG(geryon::util::Log::ERROR) << "Exception while serving resource:"
@@ -104,7 +116,9 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
         try {
             sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR);
             requestClose();
-        } catch( ... ) {} // just make sure.
+        } catch( ... ) {
+            requestClose();
+        } // just make sure.
     }
 }
 

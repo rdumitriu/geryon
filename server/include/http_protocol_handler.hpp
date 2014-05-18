@@ -31,7 +31,6 @@ public:
     ///
     /// \param currentBuffer the current buffer
     /// \param nBytes the number of bytes needing processing
-    /// \return the next op
     ///
     virtual void handleRead(GBufferHandler && currentBuffer, std::size_t nBytes);
 

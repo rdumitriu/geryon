@@ -21,21 +21,18 @@ namespace geryon { namespace server {
 #define MAX_HTTPHEADERVALUE_LENGTH 8192
 
 HttpRequestParser::HttpRequestParser(std::size_t maximalContentLenght) :
+                                        consumedChars(0),
                                         maxContentLength(maximalContentLenght),
                                         state(START),
                                         uriState(URI_START),
                                         pRequest(NULL),
                                         postParamsCharCount(0),
                                         multipartSeparatorIndex(0),
-                                        mFile(NULL),
-                                        mFileWriteCount(0),
-                                        mFileBuffer(NULL),
-                                        mFileCounter(0) {
+                                        startMultipartIndex(0),
+                                        stopMultipartIndex(0) {
 }
 
 HttpRequestParser::~HttpRequestParser() {
-    //::TODO::clear it closePartFile();
-    delete mFileBuffer;
 }
 
 std::size_t HttpRequestParser::maximalContentLenght() const {
@@ -47,6 +44,7 @@ void HttpRequestParser::init(geryon::server::HttpServerRequest *_pRequest) {
     pRequest = _pRequest;
     state = START;
     uriState = URI_START;
+    consumedChars = 0;
     postParamsCharCount = 0;
     multipartSeparatorIndex = 0;
     headerName.clear();
@@ -59,7 +57,8 @@ void HttpRequestParser::init(geryon::server::HttpServerRequest *_pRequest) {
     multipartCountentType.clear();
     multipartCountentEncoding.clear();
     multipartContentQueue.clear();
-    //::TODO::clear it closePartFile();
+    startMultipartIndex = 0;
+    stopMultipartIndex = 0;
 }
 
 geryon::HttpResponse::HttpStatusCode HttpRequestParser::validate() {
@@ -114,7 +113,7 @@ geryon::HttpResponse::HttpStatusCode HttpRequestParser::validate() {
         if(hasContentLengthHeader) {
             std::string ctstr = pRequest->getHeaderValue("Content-Length");
             try {
-                pRequest->contentLength = boost::lexical_cast<std::size_t>(ctstr);
+                pRequest->contentLength = geryon::util::convertTo(ctstr, 0L);
                 if(pRequest->contentLength > maxContentLength) {
                     LOG(geryon::util::Log::ERROR) << "Request too large :" << ctstr;
                     return geryon::HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE;
@@ -369,12 +368,12 @@ bool HttpRequestParser::consumePostMultipartContent(char input, geryon::HttpResp
     char front = multipartContentQueue.front();
     multipartContentQueue.pop_front();
     if(multipartFileName.length()) {
-        //push into a file
-        if(!writeIntoPartFile(front)) {
-            //::TODO::clear it closePartFile();
-            state = END;
-            error = geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR;
-            return true;
+        //first char pushed into it is the part start
+        if(startMultipartIndex == 0) {
+            startMultipartIndex = consumedChars - 1;
+            stopMultipartIndex = startMultipartIndex;
+        } else {
+            ++stopMultipartIndex;
         }
     } else {
         //normal value
@@ -386,10 +385,11 @@ bool HttpRequestParser::consumePostMultipartContent(char input, geryon::HttpResp
             //add part
             std::shared_ptr<geryon::HttpRequestPart> ptr = std::make_shared<HttpServerRequestPart>(paramName,
                                                                                                    multipartFileName,
-                                                                                                   multipartCountentType);
-            //::TODO::clear it - part.realFileName = mFileName;
+                                                                                                   multipartCountentType,
+                                                                                                   pRequest,
+                                                                                                   startMultipartIndex,
+                                                                                                   stopMultipartIndex);
             pRequest->addPart(ptr);
-            //::TODO::clear it - closePartFile();
         } else {
             //add normal param
             pRequest->addParameter(paramName, paramValue);
@@ -399,6 +399,8 @@ bool HttpRequestParser::consumePostMultipartContent(char input, geryon::HttpResp
         multipartFileName.clear();
         multipartCountentType.clear();
         multipartCountentEncoding.clear();
+        startMultipartIndex = 0;
+        stopMultipartIndex = 0;
         state = state == END ? END : POST_MULTIPART_NEXT_PART_OR_END;
     }
     return (state == END);
@@ -432,6 +434,7 @@ const char * const WWWFORMURLENCODED = "application/x-www-form-urlencoded";
 const char * const MULTIPARTFORMDATA = "multipart/form-data";
 
 bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & error) {
+    ++consumedChars;
     //LOG(Log::DEBUG) << "Consume char [" << c << "] State:" << state;
     switch(state) {
         case START:
@@ -455,18 +458,19 @@ bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & er
         case NEWLINE_2:
             consumeNewline(c, error, END);
             error = validate();
+            pRequest->setStreamStartIndex(consumedChars); //here is where the raw stream begins
             if((error == geryon::HttpResponse::SC_OK || error == geryon::HttpResponse::SC_CONTINUE) &&
                pRequest->getMethodCode() == geryon::HttpRequest::POST) {
                 paramName.clear();
                 paramValue.clear();
 
-                if(boost::istarts_with(pRequest->contentType, WWWFORMURLENCODED)) {
+                if(geryon::util::startsWith(pRequest->contentType, WWWFORMURLENCODED)) {
                     //we have to read params from the body, so:
                     pRequest->queryString.push_back('&');
                     state = POST_PARAMS;
                     uriState = URI_PARAM_NAME;
                     return false;
-                } else if(boost::istarts_with(pRequest->contentType, MULTIPARTFORMDATA)) {
+                } else if(geryon::util::startsWith(pRequest->contentType, MULTIPARTFORMDATA)) {
                     //this is a multipart/form-data
                     //first extract the multipart separator from the header
                     if(!extractMultipartSeparator()) {
@@ -512,7 +516,7 @@ bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & er
 }
 
 bool HttpRequestParser::validateMethod() {
-    boost::to_upper(pRequest->method);
+    geryon::util::toUpper(pRequest->method);
     //Supported: GET*,HEAD*,POST*,PUT*,DELETE*,TRACE*,OPTIONS*
     if(pRequest->method == "GET") {
         pRequest->methodCode = HttpRequest::GET;
@@ -583,17 +587,17 @@ void HttpRequestParser::countPostBytes() {
 //Content-Type: application/octet-stream
 //Content-Transfer-Encoding: 7bit
 bool HttpRequestParser::processMultipartHeader() {
-    if(boost::starts_with(multipartHeaderLine, "Content-Disposition:")) {
+    if(geryon::util::startsWith(multipartHeaderLine, "Content-Disposition:")) {
         parseContentDispositionHeader();
         return true;
-    } else if(boost::starts_with(multipartHeaderLine, "Content-Type:")) {
+    } else if(geryon::util::startsWith(multipartHeaderLine, "Content-Type:")) {
         if(multipartHeaderLine.length() > 13) {
             multipartCountentType = boost::trim_copy( multipartHeaderLine.substr(13));
             return true;
         } else {
             return false;
         }
-    } else if(boost::starts_with( multipartHeaderLine, "Content-Transfer-Encoding:")) {
+    } else if(geryon::util::startsWith(multipartHeaderLine, "Content-Transfer-Encoding:")) {
         if( multipartHeaderLine.length() > 26) {
             multipartCountentEncoding = boost::trim_copy( multipartHeaderLine.substr(26));
             return true;
@@ -769,56 +773,6 @@ void HttpRequestParser::pushRequestParameter() {
     }
     paramName.clear();
     paramValue.clear();
-}
-
-//bool HttpRequestParser::closePartFile() {
-//    bool ret = true;
-//    if( mFile) {
-//        if( mFileWriteCount) {
-//            std::size_t written = std::fwrite( mFileBuffer, sizeof(char), mFileWriteCount, mFile);
-//            ret = (written == mFileWriteCount);
-//            if(!ret) {
-//                LOG(geryon::util::Log::ERROR) << "Cannot write into temporary file :"
-//                                              << mFileName << ". Written only "
-//                                              << written << " bytes from "
-//                                              << mFileWriteCount << " bytes.";
-//            }
-//        }
-//        std::fclose( mFile);
-//        mFile = NULL;
-//    }
-//    mFileName.clear();
-//    mFileWriteCount = 0;
-//    return ret;
-//}
-
-bool HttpRequestParser::writeIntoPartFile(char c) {
-    bool ret = true;
-//    if(! mFileBuffer) {
-//        mFileBuffer = new char[ bufferSize];
-//    }
-//    if(! mFile) {
-//        mFileName = generatePartFileName();
-//        mFile = std::fopen( mFileName.c_str(), "wb+");
-//    }
-//    if(! mFile) {
-//        LOG(geryon::util::Log::ERROR) << "Cannot open temporary file :" << mFileName;
-//        return false;
-//    }
-//    mFileBuffer[ mFileWriteCount] = c;
-//    mFileWriteCount++;
-//    if( mFileWriteCount == bufferSize) {
-//        std::size_t written = std::fwrite( mFileBuffer, sizeof(char), mFileWriteCount, mFile);
-//        ret = (written == mFileWriteCount);
-//        if(!ret) {
-//            LOG(geryon::util::Log::ERROR) << "Cannot write into temporary file :"
-//                                          << mFileName << ". Written only "
-//                                          << written << " bytes from "
-//                                          << mFileWriteCount << " bytes.";
-//        }
-//        mFileWriteCount = 0;
-//    }
-    return ret;
 }
 
 } } /*namespace */

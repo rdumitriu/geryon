@@ -1,3 +1,9 @@
+/**
+ * \file http_server_types.cpp
+ *
+ *  Created on: May 16, 2014
+ *      Author: rdumitriu at gmail dot com
+ */
 
 #include "http_server_types.hpp"
 

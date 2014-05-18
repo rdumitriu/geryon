@@ -75,6 +75,7 @@ private:
         URI_END
     };
     
+    std::size_t consumedChars; //counts the number of chars consumed.
     std::size_t maxContentLength;
 
     State state;
@@ -118,20 +119,16 @@ private:
     std::string multipartFileName;
     std::string multipartCountentType;
     std::string multipartCountentEncoding;
-    std::string mFileName;
-    std::FILE * mFile;
-    std::size_t mFileWriteCount;
-    char * mFileBuffer;
-    unsigned int mFileCounter;
+    std::size_t startMultipartIndex;
+    std::size_t stopMultipartIndex;
     
     std::deque<char> multipartContentQueue;
+
     bool extractMultipartSeparator();
     bool multipartContentMatchesBoundary();
     void countPostBytes();
     bool processMultipartHeader();
     void parseContentDispositionHeader();
-    
-    bool writeIntoPartFile(char c);
 };
 
 } } /* namespace */
