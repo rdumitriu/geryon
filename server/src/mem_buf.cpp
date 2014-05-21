@@ -83,12 +83,14 @@ GBuffer GUniformMemoryPool::acquire(std::size_t hint) {
                     continue;
                 }
                 borrowedBuffers.insert(head);
+                LOG(geryon::util::Log::DEBUG) << "Allocating buffer:" << static_cast<void *>(head);
                 return GBuffer(getBufferSize(), head);
             } else {
                 //we have something ready
                 char * head = readyBuffers.front();
                 readyBuffers.pop_front();
                 borrowedBuffers.insert(head);
+                LOG(geryon::util::Log::DEBUG) << "Reusing buffer:" << static_cast<void *>(head);
                 return GBuffer(getBufferSize(), head);
             }
         }
@@ -128,6 +130,7 @@ void GUniformMemoryPool::release(const GBuffer & pab) {
         LOG(geryon::util::Log::WARNING) << "Buffer not found into the borrowed ones. Internal error. Memory pool: "
                                         << getBufferSizeK() << "K blocks.";
     }
+    LOG(geryon::util::Log::DEBUG) << "Releasing buffer:" << static_cast<void *>(buff);
     readyBuffers.push_back(buff);
 }
 

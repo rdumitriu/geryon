@@ -24,6 +24,11 @@ ADD_EXECUTABLE(test_buf_istream ../src/mem_buf.cpp ../src/mem_buf_input_stream.c
 INCLUDE_DIRECTORIES ("../include" "../../commons/include")
 TARGET_LINK_LIBRARIES (test_buf_istream ${MLIB})
 
+ADD_EXECUTABLE(test_buf_ostream ../src/mem_buf.cpp ../src/mem_buf_output_stream.cpp test_buf_ostream.cpp)
+INCLUDE_DIRECTORIES ("../include" "../../commons/include")
+TARGET_LINK_LIBRARIES (test_buf_ostream ${MLIB})
+
+
 
 ADD_TEST(test_mem_buf_ump1 test_mem_buf_ump)
 SET_TESTS_PROPERTIES (test_mem_buf_ump1
@@ -42,5 +47,15 @@ SET_TESTS_PROPERTIES (test_mem_buf_hnd1
 
 ADD_TEST(test_mem_buf_prf1 test_mem_buf_prf)
 SET_TESTS_PROPERTIES (test_mem_buf_prf1
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "ERROR.*")
+
+ADD_TEST(test_buf_istream1 test_buf_istream)
+SET_TESTS_PROPERTIES (test_buf_istream1
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "ERROR.*")
+
+ADD_TEST(test_buf_ostream1 test_buf_ostream)
+SET_TESTS_PROPERTIES (test_buf_ostream1
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "ERROR.*")

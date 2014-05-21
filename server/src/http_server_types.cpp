@@ -44,6 +44,7 @@ std::istream & HttpServerRequest::getInputStream() {
             endStreamIndex += buffers.at(i).get().marker();
         }
         buff.setup(startStreamIndex, endStreamIndex);
+        stream.rdbuf(&buff); //force update
     }
     return stream;
 }

@@ -20,6 +20,8 @@ void GIstreambuff::setup(std::size_t _start, std::size_t _end) {
 }
 
 void GIstreambuff::adjustIndexes() {
+    currentBuffer = 0;
+    currentIndex = 0;
     //calculate the buffer and index
     std::size_t charCount = 0;
     //well, we could substract from absolute index, but ...

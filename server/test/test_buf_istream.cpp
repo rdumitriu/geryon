@@ -51,13 +51,30 @@ void test1() {
     }
     std::cout << "String 2 is >>" << s << "<<" << std::endl;
 
-    //3nd test: empty (EOF)
-    geryon::server::GIstreambuff buff3(buffers, 1, 1);
+    //3rd test: reset the stream
+    buff2.setup(1,9);
+    std::istream iss2_1(&buff2); //our stream
+    iss2_1 >> s;
+    if("abbbcccc" != s) {
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed (3.1)";
+    }
+    std::cout << "String 3.1 is >>" << s << "<<" << std::endl;
+    buff2.setup(2,8);
+    iss2.rdbuf(&buff2);
+    iss2 >> s;
+    if("bbbccc" != s) {
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed (3.2)";
+    }
+    std::cout << "String 3.2 is >>" << s << "<<" << std::endl;
+
+
+    //4th test: empty (EOF)
+    geryon::server::GIstreambuff buff3(buffers, 0, 0);
     std::istream iss3(&buff3);
     if(iss3 >> s) { //yeap, this should return false
-        LOG(geryon::util::Log::ERROR) << "ERROR: Failed (3)";
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed (4)";
     }
-    std::cout << "String 3 is >>" << s << "<<" << std::endl; //unchanged
+    std::cout << "String 4 is >>" << s << "<<" << std::endl; //unchanged
 }
 
 int main(int argn, const char * argv []) {
