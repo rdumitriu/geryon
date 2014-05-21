@@ -16,6 +16,10 @@ SET (geryon_SRC
 
     ../include/mem_buf.hpp
     mem_buf.cpp
+    ../include/mem_buf_input_stream.hpp
+    mem_buf_input_stream.cpp
+    ../include/mem_buf_output_stream.hpp
+    mem_buf_output_stream.cpp
 
     ../include/server_global_structs.hpp
     server_global_structs.cpp

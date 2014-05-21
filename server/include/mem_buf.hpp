@@ -65,10 +65,8 @@ private:
 ///
 class GMemoryPool {
 public:
-    GMemoryPool(std::size_t _bufferSize) : bufferSize(_bufferSize) {
-        if(bufferSize < G_MEMORY_POOL_MIN_BUFFER_SIZE) {
-            bufferSize = G_MEMORY_POOL_MIN_BUFFER_SIZE;
-        }
+    GMemoryPool(std::size_t _bufferSize) : bufferSize(std::max(_bufferSize, static_cast<std::size_t>(G_MEMORY_POOL_MIN_BUFFER_SIZE))) {
+        //adjust
         if(bufferSize % G_MEMORY_POOL_PAGE_SIZE != 0) {
             bufferSize = (bufferSize / G_MEMORY_POOL_PAGE_SIZE + 1) * G_MEMORY_POOL_PAGE_SIZE;
         }

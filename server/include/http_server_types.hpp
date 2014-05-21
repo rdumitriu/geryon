@@ -12,18 +12,21 @@
 
 #include "http_types.hpp"
 #include "mem_buf.hpp"
+#include "mem_buf_input_stream.hpp"
+#include "mem_buf_output_stream.hpp"
 
 namespace geryon { namespace server {
 
 class HttpProtocolHandler;
 class HttpRequestParser;
+class HttpServerRequestPart;
 
 class HttpServerRequest : public HttpRequest {
 public:
     ///
     /// Constructor of the request
     ///
-    HttpServerRequest() : HttpRequest(), startStreamStreamIndex(0) {}
+    HttpServerRequest() : HttpRequest(), buffers(), buff(buffers), stream(&buff), startStreamIndex(0), endStreamIndex(0) {}
 
     ///
     /// Destructor of the request
@@ -41,7 +44,7 @@ public:
     ///
     ///\return the stream
     ///
-    virtual std::istream & getInputStream() { return stream; }
+    virtual std::istream & getInputStream();
 
     ///
     /// \brief Adds a header
@@ -70,29 +73,33 @@ public:
     ///
     void addPart(std::shared_ptr<HttpRequestPart> ptr);
 
-    void setStreamStartIndex(std::size_t n) { startStreamStreamIndex = n; }
+    void setStreamStartIndex(std::size_t n) { startStreamIndex = n; }
 
     friend class HttpProtocolHandler;
     friend class HttpRequestParser;
+    friend class HttpServerRequestPart;
 private:
-    std::istringstream stream;
     std::vector<GBufferHandler> buffers;
-    std::size_t startStreamStreamIndex;
-
+    GIstreambuff buff;
+    std::istream stream;
+    std::size_t startStreamIndex;
+    std::size_t endStreamIndex;
 };
 
 class HttpServerRequestPart : public HttpRequestPart {
 public:
     ///
-    /// Constructor of the request
+    /// Constructor of the request part
     ///
     HttpServerRequestPart(const std::string & _name, const std::string & _fileName, const std::string & _contentType,
                           HttpServerRequest * const _pServerRequest, std::size_t _startIndex, std::size_t _stopIndex)
                                 : HttpRequestPart(_name, _fileName, _contentType),
-                                  pServerRequest(_pServerRequest), startIndex(_startIndex), stopIndex(_stopIndex) {}
+                                  pServerRequest(_pServerRequest),
+                                  buff(_pServerRequest->buffers, _startIndex, _stopIndex),
+                                  stream(&buff) {}
 
     ///
-    /// Destructor of the request
+    /// Destructor of the request part
     ///
     virtual ~HttpServerRequestPart() {}
     ///
@@ -106,10 +113,9 @@ public:
     friend class HttpRequestParser;
 private:
     HttpServerRequest * pServerRequest;
-    std::size_t startIndex;
-    std::size_t stopIndex;
 
-    std::istringstream stream;
+    GIstreambuff buff;
+    std::istream stream;
 };
 
 

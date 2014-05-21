@@ -592,14 +592,14 @@ bool HttpRequestParser::processMultipartHeader() {
         return true;
     } else if(geryon::util::startsWith(multipartHeaderLine, "Content-Type:")) {
         if(multipartHeaderLine.length() > 13) {
-            multipartCountentType = boost::trim_copy( multipartHeaderLine.substr(13));
+            multipartCountentType = geryon::util::trimAndCopy(multipartHeaderLine.substr(13));
             return true;
         } else {
             return false;
         }
     } else if(geryon::util::startsWith(multipartHeaderLine, "Content-Transfer-Encoding:")) {
         if( multipartHeaderLine.length() > 26) {
-            multipartCountentEncoding = boost::trim_copy( multipartHeaderLine.substr(26));
+            multipartCountentEncoding = geryon::util::trimAndCopy(multipartHeaderLine.substr(26));
             return true;
         } else {
             return false;
