@@ -12,7 +12,6 @@
 #include <boost/asio.hpp>
 
 #include "mem_buf.hpp"
-//#include "tcp_connection.hpp"
 
 namespace geryon { namespace server {
 
@@ -54,20 +53,19 @@ public:
     /// \brief Called just before exit time
     virtual void done() {}
 
-protected:
-    /// \brief Schedule a read (asynchronously)
-    void requestRead(GBufferHandler && readBuffer);
-
-    /// \brief Writes the data on the wire (asynchronously).
-    /// \return true if the write succeeded, false otherwise
-    void requestWrite(GBufferHandler && writeBuffer);
-
-    /// \brief Communication breakdown (asynchronously).
-    void requestClose();
-
-
     /// \brief Gets the memory pool pointer
     inline GMemoryPool * const getMemoryPool() const { return pMemoryPool; }
+
+    /// \brief Schedule a read (asynchronously)
+    virtual void requestRead(GBufferHandler && readBuffer);
+
+    /// \brief Writes the data on the wire (asynchronously).
+    virtual void requestWrite(GBufferHandler && writeBuffer);
+
+    /// \brief Communication breakdown (asynchronously).
+    virtual void requestClose();
+
+protected:
 
     /// \brief Returns the read hint. Default implementation returns 0 (no hint)
     virtual std::size_t getReadSizeHint() { return 0; }

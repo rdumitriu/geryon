@@ -85,7 +85,6 @@ protected:
     /// Calling with invalid buffer will close the connection
     ///
     /// \param readBuffer the buffer where to read into
-    /// \return true if schedule suceeded
     ///
     void scheduleRead(GBufferHandler && readBuffer);
 
@@ -95,7 +94,6 @@ protected:
     /// Calling with invalid buffer will close the connection
     ///
     /// \param writeBuffer the buffer to write from.
-    /// \return true if write was scheduled
     ///
     void scheduleWrite(GBufferHandler && writeBuffer);
 

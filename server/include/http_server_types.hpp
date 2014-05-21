@@ -17,6 +17,7 @@
 
 namespace geryon { namespace server {
 
+class TCPProtocolHandler;
 class HttpProtocolHandler;
 class HttpRequestParser;
 class HttpServerRequestPart;
@@ -124,7 +125,7 @@ public:
     ///
     /// Constructor of the request
     ///
-    HttpServerResponse() : HttpResponse() {}
+    HttpServerResponse(TCPProtocolHandler * httpPHandler) : HttpResponse(), buff(httpPHandler), stream(&buff) {}
 
     ///
     /// Destructor of the request
@@ -140,7 +141,8 @@ public:
 
     friend class HttpProtocolHandler;
 private:
-    std::ostringstream stream;
+    GOstreambuff buff;
+    std::ostream stream;
 };
 
 } }

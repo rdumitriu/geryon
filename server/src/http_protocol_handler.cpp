@@ -19,7 +19,7 @@ namespace geryon { namespace server {
 HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, std::size_t maximalContentLength)
                         : TCPProtocolHandler(_pMemoryPool),
                       request(),
-                      response(),
+                      response(this),
                       parser(maximalContentLength),
                       chunkedDelimiterLine(""),
                       chunkSize(0L),

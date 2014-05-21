@@ -24,7 +24,8 @@ ADD_EXECUTABLE(test_buf_istream ../src/mem_buf.cpp ../src/mem_buf_input_stream.c
 INCLUDE_DIRECTORIES ("../include" "../../commons/include")
 TARGET_LINK_LIBRARIES (test_buf_istream ${MLIB})
 
-ADD_EXECUTABLE(test_buf_ostream ../src/mem_buf.cpp ../src/mem_buf_output_stream.cpp test_buf_ostream.cpp)
+ADD_EXECUTABLE(test_buf_ostream ../src/mem_buf.cpp ../src/mem_buf_output_stream.cpp
+               ../src/tcp_connection.cpp ../src/tcp_protocol_handler.cpp test_buf_ostream.cpp)
 INCLUDE_DIRECTORIES ("../include" "../../commons/include")
 TARGET_LINK_LIBRARIES (test_buf_ostream ${MLIB})
 

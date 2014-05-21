@@ -35,7 +35,6 @@ public:
     virtual void handleRead(GBufferHandler && currentBuffer, std::size_t nBytes);
 
 private:
-    std::string extractFirstPathSegment(const std::string & path);
 
     void outputErrorString(const std::string & errorMsg);
 

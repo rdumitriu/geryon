@@ -11,12 +11,13 @@
 #include <streambuf>
 
 #include "mem_buf.hpp"
+#include "tcp_protocol_handler.hpp"
 
 namespace geryon { namespace server {
 
 class GOstreambuff : public std::streambuf {
 public:
-    GOstreambuff(GMemoryPool *_pGPool);
+    GOstreambuff(TCPProtocolHandler * pProtocolHandler);
     virtual ~GOstreambuff();
 
     ///Non-Copyable
@@ -28,7 +29,7 @@ protected:
     int sync();
 
 private:
-    GMemoryPool * pGPool;
+    TCPProtocolHandler * pProtocolHandler;
     GBufferHandler buf_handler;
 };
 
