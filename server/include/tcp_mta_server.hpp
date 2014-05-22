@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
 
-#ifndef TCP_MT_SERVER_H_
-#define TCP_MT_SERVER_H_
+#ifndef TCP_MTA_SERVER_H_
+#define TCP_MTA_SERVER_H_
 
 #include <string>
 
@@ -20,17 +20,17 @@ namespace geryon { namespace server {
 /// Multi-threaded acceptor server
 /// Note: Here, multi threaded refers to 'acceptor' ONLY.
 ///
-class MultiThreadedTCPServer : public TCPServer{
+class MultiThreadedAcceptorTCPServer : public TCPServer{
 public:
-    MultiThreadedTCPServer(const std::string & _srvName, const std::string & _bindAddress,
+    MultiThreadedAcceptorTCPServer(const std::string & _srvName, const std::string & _bindAddress,
                            const std::string & _bindPort, TCPProtocol & _proto, unsigned int _nThreads);
     /// Destructor
-    virtual ~MultiThreadedTCPServer() {}
+    virtual ~MultiThreadedAcceptorTCPServer() {}
 
     ///Non-copyable
-    MultiThreadedTCPServer(const MultiThreadedTCPServer & copy) = delete;
+    MultiThreadedAcceptorTCPServer(const MultiThreadedAcceptorTCPServer & copy) = delete;
     ///Non-copyable
-    MultiThreadedTCPServer & operator = (const MultiThreadedTCPServer & other) = delete;
+    MultiThreadedAcceptorTCPServer & operator = (const MultiThreadedAcceptorTCPServer & other) = delete;
 
     ///\brief The run loop. You must invoke this for the magic to begin
     virtual void run();

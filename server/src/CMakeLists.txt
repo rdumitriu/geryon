@@ -34,10 +34,10 @@ SET (geryon_SRC
     tcp_protocol_handler.cpp
     ../include/tcp_server.hpp
     tcp_server.cpp
-    ../include/tcp_st_server.hpp
-    tcp_st_server.cpp
-    ../include/tcp_mt_server.hpp
-    tcp_mt_server.cpp
+    ../include/tcp_sta_server.hpp
+    tcp_sta_server.cpp
+    ../include/tcp_mta_server.hpp
+    tcp_mta_server.cpp
 
     ../include/gadm_protocol.hpp
     gadm_protocol.cpp

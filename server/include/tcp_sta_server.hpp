@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
 
-#ifndef TCP_ST_SERVER_H_
-#define TCP_ST_SERVER_H_
+#ifndef TCP_STA_SERVER_H_
+#define TCP_STA_SERVER_H_
 
 #include <string>
 
@@ -20,18 +20,18 @@ namespace geryon { namespace server {
 /// Single threaded acceptor server.
 /// Note: Here, single threaded refers to 'acceptor' ONLY.
 ///
-class SingleThreadTCPServer : public TCPServer {
+class SingleThreadAcceptorTCPServer : public TCPServer {
 public:
-    SingleThreadTCPServer(const std::string & _srvName, const std::string & _bindAddress,
-                          const std::string & _bindPort, TCPProtocol & _proto);
+    SingleThreadAcceptorTCPServer(const std::string & _srvName, const std::string & _bindAddress,
+                                  const std::string & _bindPort, TCPProtocol & _proto);
 
     /// Destructor
-    virtual ~SingleThreadTCPServer() {}
+    virtual ~SingleThreadAcceptorTCPServer() {}
 
     ///Non-copyable
-    SingleThreadTCPServer(const SingleThreadTCPServer & copy) = delete;
+    SingleThreadAcceptorTCPServer(const SingleThreadAcceptorTCPServer & copy) = delete;
     ///Non-copyable
-    SingleThreadTCPServer & operator = (const SingleThreadTCPServer & other) = delete;
+    SingleThreadAcceptorTCPServer & operator = (const SingleThreadAcceptorTCPServer & other) = delete;
 
     ///\brief The run loop. You must invoke this for the magic to begin
     virtual void run ();

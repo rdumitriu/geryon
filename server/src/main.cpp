@@ -16,8 +16,8 @@
 #include "server_build.hpp"
 #include "tcp_server.hpp"
 #include "server_global_structs.hpp"
-#include "tcp_st_server.hpp"
-#include "tcp_mt_server.hpp"
+#include "tcp_sta_server.hpp"
+#include "tcp_mta_server.hpp"
 #include "gadm_protocol.hpp"
 #include "http_protocol.hpp"
 
@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
         //Protocol is 'gadm'
         geryon::server::GAdmProtocol adminProtocol;
         //Start the admin server on port 7001
-        geryon::server::SingleThreadTCPServer adminserver("adminserver", "127.0.0.1", "7001", adminProtocol);
-        geryon::server::SingleThreadTCPServer * pAdminServer = &adminserver;
+        geryon::server::SingleThreadAcceptorTCPServer adminserver("adminserver", "127.0.0.1", "7001", adminProtocol);
+        geryon::server::SingleThreadAcceptorTCPServer * pAdminServer = &adminserver;
 
         std::shared_ptr<std::thread> p_admin_thr (new std::thread([pAdminServer]() {
             pAdminServer->run();
@@ -68,8 +68,8 @@ int main(int argc, char* argv[]) {
         //HTTP server: Run server in a subsequent background thread, as normal.
         //MT server (there are N acceptor threads)
         geryon::server::HttpProtocol httpProtocol;
-        geryon::server::MultiThreadedTCPServer httpserver("httpserver", "127.0.0.1", "8001", httpProtocol, 6);
-        geryon::server::MultiThreadedTCPServer * pHttpServer = &httpserver;
+        geryon::server::MultiThreadedAcceptorTCPServer httpserver("httpserver", "127.0.0.1", "8001", httpProtocol, 6);
+        geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
 
         std::shared_ptr<std::thread> p_http_thr (new std::thread([pHttpServer]() {
             pHttpServer->run();

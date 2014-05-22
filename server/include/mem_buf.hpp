@@ -30,18 +30,6 @@ public:
                     sz(_size), buff(_buffer), mrk(_marker) {}
     ~GBuffer() {}
 
-//    GBuffer(const GBuffer & other) : sz(other.sz), buff(other.buff), mrk(other.mrk) {
-//    }
-
-//    GBuffer & operator = (const GBuffer & other) {
-//        if(this != &other) {
-//            this->sz = other.sz;
-//            this->buff = other.buff;
-//            this->mrk = other.mrk;
-//        }
-//        return (*this);
-//    }
-
     inline std::size_t size() const { return sz; }
     inline std::size_t marker() const { return mrk; }
     inline char * buffer() const { return buff; }
