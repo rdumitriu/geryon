@@ -38,7 +38,24 @@ public:
     ///\brief The session
     ///\return a pointer to the session; if it does not exist, it is created.
     ///
-    virtual Session * getSession() const { return 0; } //::TODO:: implement me!
+    virtual Session * getSession() const {
+        return session.get();
+    }
+
+    ///
+    ///\brief The session setter
+    ///
+    void setSession(std::shared_ptr<Session> _session) {
+        session = _session;
+    }
+
+    void setSessionCookie(const std::string & _sessionCookie) {
+        sessionCookie = _sessionCookie;
+    }
+
+    const std::string & getSessionCookie() {
+        return sessionCookie;
+    }
 
     ///
     ///\brief The input stream.
@@ -85,6 +102,8 @@ private:
     std::istream stream;
     std::size_t startStreamIndex;
     std::size_t endStreamIndex;
+    std::string sessionCookie;
+    std::shared_ptr<Session> session;
 };
 
 class HttpServerRequestPart : public HttpRequestPart {
@@ -137,7 +156,19 @@ public:
     ///
     /// You will write here the response.
     ///
-    virtual std::ostream & getOutputStream() { return stream; }
+    virtual std::ostream & getOutputStream() {
+        if(!responseCommitted()) {
+            sendHeaders();
+        }
+        return stream;
+    }
+
+    ///
+    /// \brief close the stream (and flushes it)
+    ///
+    void close() {
+        buff.close();
+    }
 
     friend class HttpProtocolHandler;
 private:

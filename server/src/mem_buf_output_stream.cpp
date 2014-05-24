@@ -34,5 +34,10 @@ int GOstreambuff::sync() {
     return 0;
 }
 
+void GOstreambuff::close() {
+    sync();
+    pProtocolHandler->requestClose();
+}
+
 
 } }

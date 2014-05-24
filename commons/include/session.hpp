@@ -80,7 +80,7 @@ public:
         boost::any oldObj;
         {
             std::lock_guard<std::mutex> _(mutex);
-            updateTimeStamp();
+            updateTimeStampNoLock();
             auto p = attributes.find(name);
             if(p != attributes.end()) {
                 upd = true;
@@ -113,7 +113,7 @@ public:
     bool get(const std::string & name, T & obj) {
         try {
             std::lock_guard<std::mutex> _(mutex);
-            updateTimeStamp();
+            updateTimeStampNoLock();
             auto p = attributes.find(name);
             if(p != attributes.end()) {
                 obj = boost::any_cast<T>(p->second);
@@ -135,7 +135,7 @@ public:
         bool ret = false;
         {
             std::lock_guard<std::mutex> _(mutex);
-            updateTimeStamp();
+            updateTimeStampNoLock();
             auto p = attributes.find(name);
             if(p != attributes.end()) {
                 attributes.erase(p);
@@ -158,7 +158,7 @@ public:
     inline void invalidate() {
         {
             std::lock_guard<std::mutex> _(mutex);
-            updateTimeStamp();
+            updateTimeStampNoLock();
             attributes.clear();
         }
         // Free from locks !
@@ -170,10 +170,9 @@ protected:
     std::time_t timeStamp;
     std::map<std::string, boost::any> attributes;
 
-    inline void updateTimeStamp() {
+    inline void updateTimeStampNoLock() {
         timeStamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     }
-
 private:
     void notifySessionValueAdded(const std::string & name, const boost::any & val);
     void notifySessionValueChanged(const std::string & name, const boost::any & oldval, const boost::any & newval);

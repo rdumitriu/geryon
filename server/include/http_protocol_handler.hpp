@@ -8,16 +8,23 @@
 #ifndef HTTPPROTOCOL_HANDLER_HPP_
 #define HTTPPROTOCOL_HANDLER_HPP_
 
+#include "http_executor.hpp"
 #include "tcp_protocol_handler.hpp"
 #include "http_server_types.hpp"
 #include "http_request_parser.hpp"
 
 namespace geryon { namespace server {
 
+///
+/// \brief The HttpProtocolHandler class
+///
+/// Deals with chunked transfers; once the request is read, it passes the request and response to the executor
 class HttpProtocolHandler : public TCPProtocolHandler {
 public:
     ///The constructor
-    explicit HttpProtocolHandler(GMemoryPool * const _pMemoryPool, std::size_t maximalContentLength);
+    explicit HttpProtocolHandler(GMemoryPool * const _pMemoryPool,
+                                 HttpExecutor & executor,
+                                 std::size_t maximalContentLength);
     ///Destructor
     virtual ~HttpProtocolHandler() {}
 
@@ -42,6 +49,7 @@ private:
 
     void sendStockAnswer(HttpResponse::HttpStatusCode http_code);
 
+    HttpExecutor & executor;
 
     geryon::server::HttpServerRequest request;
     geryon::server::HttpServerResponse response;

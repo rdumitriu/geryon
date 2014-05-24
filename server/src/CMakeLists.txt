@@ -42,6 +42,14 @@ SET (geryon_SRC
     ../include/gadm_protocol.hpp
     gadm_protocol.cpp
 
+    ../include/server_session.hpp
+    ../include/server_application.hpp
+    server_application.cpp
+
+    ../include/http_executor.hpp
+    ../include/http_st_executor.hpp
+    ../include/http_mt_executor.hpp
+
     ../include/http_protocol.hpp
     http_protocol.cpp
 

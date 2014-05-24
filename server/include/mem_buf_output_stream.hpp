@@ -24,6 +24,8 @@ public:
     GOstreambuff(const GOstreambuff & other) = delete;
     ///Non-Copyable
     GOstreambuff & operator = (const GOstreambuff & other) = delete;
+
+    void close();
 protected:
     int_type overflow(int_type ch);
     int sync();

@@ -85,6 +85,16 @@ inline bool startsWith(const std::string & s, const std::string & begin) {
 }
 
 ///
+/// \brief endsWith
+/// \param s the string
+/// \param end the end of the string
+/// \return true if the string ends with the second param
+///
+inline bool endsWith(const std::string & s, const std::string & end) {
+    return boost::ends_with(s, end);
+}
+
+///
 /// \brief toUpper
 /// \param s the string
 ///

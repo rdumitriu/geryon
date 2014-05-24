@@ -16,8 +16,9 @@
 namespace geryon { namespace server {
 
 
-HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, std::size_t maximalContentLength)
+HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecutor & _executor, std::size_t maximalContentLength)
                         : TCPProtocolHandler(_pMemoryPool),
+                      executor(_executor),
                       request(),
                       response(this),
                       parser(maximalContentLength),
@@ -45,13 +46,13 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
         bool done = false;
         geryon::HttpResponse::HttpStatusCode statusCode = geryon::HttpResponse::SC_OK;
 
-        GBuffer buff = currentBuffer.get();
+        GBuffer & buff = currentBuffer.get();
         for(unsigned int i = 0; i < nBytes && !done; ++i) {
             char c = buff.buffer()[buff.marker() + i];
 
             if(chunkedState) {
                 done = parseChunkedTESize(c, statusCode);
-                if(!chunkedState && !done) {
+                if(!chunkedState && !done) { //chunkedState might be modified in here!
                     sendStockAnswer(geryon::HttpResponse::SC_CONTINUE);
                 }
             } else {
@@ -87,11 +88,10 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
             if(statusCode != geryon::HttpResponse::SC_OK) {
                 sendStockAnswer(statusCode);
             } else {
-                //1: add last buffer, but only if we have an multipart
+                //1: add last buffer
                 request.buffers.push_back(std::move(currentBuffer));
                 //2: now, do the dispatch
-                //::TODO:: proper dispatch
-                sendStockAnswer(geryon::HttpResponse::SC_NOT_IMPLEMENTED);
+                executor.execute(request, response);
             }
             //::TODO:: don't close, maybe use keepalive (in v. 0.2)
             requestClose();
@@ -99,8 +99,9 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
             //read a bit more
             //::TODO:: at this stage, we should know in some cases the amount of bytes to read, so we should be able
             //::TODO:: to request bigger or smaller buffers. In any case, we'll reuse the buffer if we have 2k left
-            if(buff.size() - buff.marker() > 2048) {
+            if(buff.size() - buff.marker() - nBytes > 2048) {
                 //reuse the buffer
+                buff.advanceMarker(nBytes);
                 requestRead(std::move(currentBuffer));
             } else {
                 //push the current buffer in request
@@ -109,6 +110,15 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
                 GBufferHandler readBuff(getMemoryPool());
                 requestRead(std::move(readBuff));
             }
+        }
+    } catch(geryon::HttpException & e) {
+        LOG(geryon::util::Log::ERROR) << "Exception while serving resource:"
+                                      << request.getURI() << ". Error was:" << e.what();
+        try {
+            sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR);
+            requestClose();
+        } catch( ... ) {
+            requestClose();
         }
     } catch( ... ) {
         LOG(geryon::util::Log::ERROR) << "Exception while serving resource:"

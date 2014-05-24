@@ -106,7 +106,7 @@ public:
     inline std::string getKey() const { return key; }
 
     ///Gets the configuration of this module
-    inline const ApplicationConfig & getConfig() { return config; }
+    inline ApplicationConfig & getConfig() { return config; }
 
     ///Called by the container. By default, notifies all the configured listeners of the module.
     virtual void start();
