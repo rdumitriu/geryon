@@ -22,7 +22,6 @@ namespace geryon { namespace server {
 
 typedef boost::asio::mutable_buffers_1 asioBuffer;
 
-//class TCPProtocolHandler;
 
 namespace detail {
 ///

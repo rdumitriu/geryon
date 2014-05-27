@@ -16,9 +16,9 @@
 namespace geryon { namespace server {
 
 
-HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecutor * _executor, std::size_t maximalContentLength)
+HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecutor & _executor, std::size_t maximalContentLength)
                         : TCPProtocolHandler(_pMemoryPool),
-                      pExecutor(_executor),
+                      executor(_executor),
                       request(),
                       response(this),
                       parser(maximalContentLength),
@@ -98,7 +98,7 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
                 request.buffers.push_back(std::move(currentBuffer));
                 //2: now, do the dispatch
                 LOG(geryon::util::Log::DEBUG) << "Request about to be dispatched.";
-                pExecutor->execute(request, response);
+                executor.execute(request, response);
 
             }
         } else {

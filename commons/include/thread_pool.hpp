@@ -13,6 +13,8 @@
 
 #include "monitor_queue.hpp"
 
+#include "log.hpp"
+
 namespace geryon { namespace mt {
 
 namespace detail {
@@ -51,7 +53,7 @@ public:
                                 break;
                         }
                     } catch(...) {
-                        //::TODO:: errors !!!
+                        LOG(geryon::util::Log::ERROR) << "Error in queue thread pool. Skipping over.";
                     }
                 }
             }));

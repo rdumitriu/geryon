@@ -23,7 +23,7 @@ class HttpProtocolHandler : public TCPProtocolHandler {
 public:
     ///The constructor
     explicit HttpProtocolHandler(GMemoryPool * const _pMemoryPool,
-                                 HttpExecutor * const executor,
+                                 HttpExecutor & executor,
                                  std::size_t maximalContentLength);
     ///Destructor
     virtual ~HttpProtocolHandler() {}
@@ -49,7 +49,7 @@ private:
 
     void sendStockAnswer(HttpResponse::HttpStatusCode http_code);
 
-    HttpExecutor * pExecutor;
+    HttpExecutor & executor;
 
     geryon::server::HttpServerRequest request;
     geryon::server::HttpServerResponse response;

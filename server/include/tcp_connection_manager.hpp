@@ -13,7 +13,6 @@
 
 #include <boost/asio.hpp>
 
-//#include "tcp_connection.hpp"
 
 namespace geryon { namespace server {
 

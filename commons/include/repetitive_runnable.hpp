@@ -13,6 +13,8 @@
 #include <chrono>
 #include <functional>
 
+#include "log.hpp"
+
 namespace geryon { namespace mt {
 
 ///
@@ -82,7 +84,7 @@ public:
                         try {
                             f();
                         } catch( ... ) {
-                            //::TODO:: errors !!!
+                            LOG(geryon::util::Log::ERROR) << "Error in repetitive runnable. Skipping over.";
                         }
                     }
                 }

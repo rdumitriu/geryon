@@ -13,8 +13,6 @@
 
 #include "mem_buf.hpp"
 
-#include "log.hpp"
-
 namespace geryon { namespace server {
 
 class TCPConnection;
@@ -27,9 +25,8 @@ class TCPConnection;
 class TCPProtocolHandler {
 public:
     /// \brief The constructor
-    explicit TCPProtocolHandler(GMemoryPool * const _pMemoryPool) : pMemoryPool(_pMemoryPool), pConnection(0) {
-        LOG(geryon::util::Log::DEBUG) << "TCP Protocol handler created";
-    }
+    explicit TCPProtocolHandler(GMemoryPool * const _pMemoryPool) : pMemoryPool(_pMemoryPool), pConnection(0) {}
+
     /// \brief Destructor
     virtual ~TCPProtocolHandler() {}
 
@@ -41,7 +38,6 @@ public:
     /// \brief Called just before the protocol is used
     virtual void init(TCPConnection * _pConnection) {
         pConnection = _pConnection;
-        LOG(geryon::util::Log::DEBUG) << "TCP Protocol handler initialized";
     }
 
     ///

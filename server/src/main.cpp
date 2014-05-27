@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         //HTTP server: Run server in a subsequent background thread, as normal.
         //MT server (there are N acceptor threads)
         geryon::server::HttpMultiThreadExecutor executor(2);
-        geryon::server::HttpProtocol httpProtocol(&executor);
+        geryon::server::HttpProtocol httpProtocol(executor);
         geryon::server::MultiThreadedAcceptorTCPServer httpserver("httpserver", "127.0.0.1", "8001", httpProtocol, 6);
         geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
 

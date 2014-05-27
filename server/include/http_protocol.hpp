@@ -17,16 +17,16 @@ namespace geryon { namespace server {
 
 class HttpProtocol : public TCPProtocol {
 public:
-    HttpProtocol(HttpExecutor * const _executor, std::size_t _maxRequestLenght = 1024 * 1024 * 10)
+    HttpProtocol(HttpExecutor & _executor, std::size_t _maxRequestLenght = 1024 * 1024 * 10)
                     : TCPProtocol("http"),
-                      pExecutor(_executor),
+                      executor(_executor),
                       maxRequestLenght(_maxRequestLenght) {}
     virtual ~HttpProtocol() {}
 
     virtual std::shared_ptr<TCPProtocolHandler> createHandler();
 
 private:
-    HttpExecutor * pExecutor;
+    HttpExecutor & executor;
     std::size_t maxRequestLenght;
 };
 
