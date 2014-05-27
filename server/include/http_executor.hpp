@@ -8,6 +8,7 @@
 #define HTTPEXECUTOR_HPP_
 
 #include "http_server_types.hpp"
+#include "server_application.hpp"
 
 namespace geryon { namespace server {
 
@@ -16,7 +17,16 @@ public:
     HttpExecutor() {}
     virtual ~HttpExecutor() {}
 
-    virtual void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) = 0;
+    void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+
+protected:
+    std::shared_ptr<ServerApplication> getDispatchTarget(HttpServerRequest & request);
+
+    virtual void executeInternal(std::shared_ptr<ServerApplication> papp,
+                                 HttpServerRequest & request,
+                                 HttpServerResponse & response) throw(geryon::HttpException) = 0;
+private:
+    std::string extractPath(const std::string & path);
 };
 
 } }

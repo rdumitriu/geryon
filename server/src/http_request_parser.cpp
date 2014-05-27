@@ -25,11 +25,12 @@ HttpRequestParser::HttpRequestParser(std::size_t maximalContentLenght) :
                                         maxContentLength(maximalContentLenght),
                                         state(START),
                                         uriState(URI_START),
-                                        pRequest(NULL),
+                                        pRequest(0),
                                         postParamsCharCount(0),
                                         multipartSeparatorIndex(0),
                                         startMultipartIndex(0),
                                         stopMultipartIndex(0) {
+    LOG(geryon::util::Log::DEBUG) << "Parser created";
 }
 
 HttpRequestParser::~HttpRequestParser() {

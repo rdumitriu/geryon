@@ -77,7 +77,16 @@ void test1() {
     std::cout << "String 4 is >>" << s << "<<" << std::endl; //unchanged
 }
 
+void test2() {
+    geryon::server::GUniformMemoryPool pool(BUF_SZ, 1, 0);
+    std::vector<geryon::server::GBufferHandler> buffers;
+
+    geryon::server::GIstreambuff buff1(buffers, 0, 0);
+    std::istream iss1(&buff1);
+}
+
 int main(int argn, const char * argv []) {
     test1();
+    test2();
     return 0;
 }

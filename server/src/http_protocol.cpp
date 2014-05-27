@@ -14,8 +14,9 @@
 namespace geryon { namespace server {
 
 std::shared_ptr<TCPProtocolHandler> HttpProtocol::createHandler() {
+    LOG(geryon::util::Log::DEBUG) << "About to create the protocol handler";
     return std::make_shared<HttpProtocolHandler>(ServerGlobalStucts::getMemoryPool().get(),
-                                                 executor,
+                                                 pExecutor,
                                                  maxRequestLenght);
 }
 

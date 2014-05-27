@@ -8,15 +8,36 @@
 #define HTTPMULTITHREADEXECUTOR_HPP_
 
 #include "http_executor.hpp"
+#include "thread_pool.hpp"
 
 namespace geryon { namespace server {
 
+namespace detail {
+
+struct HMTMessage {
+    HMTMessage() : pApp(), pRequest(0), pResponse(0) {}
+    HMTMessage(std::shared_ptr<ServerApplication> _pApp, HttpServerRequest & _request, HttpServerResponse & _response)
+        : pApp(_pApp), pRequest(&_request), pResponse(&_response) {}
+    ~HMTMessage() {}
+    std::shared_ptr<ServerApplication> pApp;
+    HttpServerRequest * pRequest;
+    HttpServerResponse * pResponse;
+};
+
+}
+
 class HttpMultiThreadExecutor : public HttpExecutor {
 public:
-    HttpMultiThreadExecutor() {}
+    HttpMultiThreadExecutor(unsigned int _nThreads);
     virtual ~HttpMultiThreadExecutor() {}
 
-    virtual void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) = 0;
+protected:
+    virtual void executeInternal(std::shared_ptr<ServerApplication> papp,
+                                 HttpServerRequest & request,
+                                 HttpServerResponse & response) throw(geryon::HttpException);
+private:
+    unsigned int nThreads;
+    geryon::mt::QueuedThreadPool<detail::HMTMessage> messageQueue;
 };
 
 } }

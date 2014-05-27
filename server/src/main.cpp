@@ -20,6 +20,10 @@
 #include "tcp_mta_server.hpp"
 #include "gadm_protocol.hpp"
 #include "http_protocol.hpp"
+#include "http_executor.hpp"
+#include "http_st_executor.hpp"
+#include "http_mt_executor.hpp"
+
 
 #include "log.hpp"
 
@@ -67,7 +71,8 @@ int main(int argc, char* argv[]) {
 
         //HTTP server: Run server in a subsequent background thread, as normal.
         //MT server (there are N acceptor threads)
-        geryon::server::HttpProtocol httpProtocol;
+        geryon::server::HttpMultiThreadExecutor executor(2);
+        geryon::server::HttpProtocol httpProtocol(&executor);
         geryon::server::MultiThreadedAcceptorTCPServer httpserver("httpserver", "127.0.0.1", "8001", httpProtocol, 6);
         geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
 

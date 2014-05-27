@@ -16,9 +16,9 @@
 namespace geryon { namespace server {
 
 
-HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecutor & _executor, std::size_t maximalContentLength)
+HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecutor * _executor, std::size_t maximalContentLength)
                         : TCPProtocolHandler(_pMemoryPool),
-                      executor(_executor),
+                      pExecutor(_executor),
                       request(),
                       response(this),
                       parser(maximalContentLength),
@@ -28,14 +28,17 @@ HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecuto
                       chunkTransferredSz(0L),
                       chunkedTransfer(false),
                       chunkedState(0) {
+    LOG(geryon::util::Log::DEBUG) << "Created protocol handler";
 }
 
 void HttpProtocolHandler::init(TCPConnection * _pConnection) {
+    LOG(geryon::util::Log::DEBUG) << "About to init the protocol handler";
     TCPProtocolHandler::init(_pConnection);
     parser.init(&request);
     try {
         GBufferHandler readBuff(getMemoryPool());
         requestRead(std::move(readBuff));
+        LOG(geryon::util::Log::DEBUG) << "Initialized protocol handler for connection";
     } catch( ... ) {
         requestClose();
     }
@@ -45,6 +48,7 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
     try {
         bool done = false;
         geryon::HttpResponse::HttpStatusCode statusCode = geryon::HttpResponse::SC_OK;
+        LOG(geryon::util::Log::DEBUG) << "Request build - handle read:" << nBytes;
 
         GBuffer & buff = currentBuffer.get();
         for(unsigned int i = 0; i < nBytes && !done; ++i) {
@@ -87,14 +91,16 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
         if(done) {
             if(statusCode != geryon::HttpResponse::SC_OK) {
                 sendStockAnswer(statusCode);
+                requestClose();
             } else {
+                LOG(geryon::util::Log::DEBUG) << "Request completed.";
                 //1: add last buffer
                 request.buffers.push_back(std::move(currentBuffer));
                 //2: now, do the dispatch
-                executor.execute(request, response);
+                LOG(geryon::util::Log::DEBUG) << "Request about to be dispatched.";
+                pExecutor->execute(request, response);
+
             }
-            //::TODO:: don't close, maybe use keepalive (in v. 0.2)
-            requestClose();
         } else {
             //read a bit more
             //::TODO:: at this stage, we should know in some cases the amount of bytes to read, so we should be able

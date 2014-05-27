@@ -35,7 +35,7 @@ void GIstreambuff::adjustIndexes() {
         currentBuffer++;
         charCount = nextM;
     }
-    if(currentBuffer == buffers.size()) {
+    if(currentBuffer == buffers.size() && currentBuffer != 0) {
         currentBuffer = buffers.size() - 1;
         currentIndex = buffers.at(currentBuffer).get().marker(); //end
     }

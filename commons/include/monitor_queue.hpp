@@ -59,7 +59,6 @@ public:
         c = (c+1) % maxSz;
         --sz;
 
-        //lock.unlock(); //manual unlocking here
         cond.notify_one();
         return ret;
     }

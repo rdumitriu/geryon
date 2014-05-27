@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "mem_buf.hpp"
+#include "server_application.hpp"
 
 namespace geryon { namespace server {
 
@@ -28,12 +29,18 @@ public:
 
     static std::shared_ptr<GMemoryPool> getMemoryPool();
 
+    static void defineApplication(std::shared_ptr<ServerApplication> app);
+
+    static std::shared_ptr<ServerApplication> getApplication(const std::string & path);
+
 private:
     ServerGlobalStucts() {}
     ~ServerGlobalStucts() {}
     static ServerGlobalStucts instance;
 
     std::shared_ptr<GMemoryPool> memoryPool;
+
+    std::map<std::string, std::shared_ptr<ServerApplication>> apps;
 };
 
 } } /* namespace */

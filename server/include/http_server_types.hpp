@@ -27,7 +27,7 @@ public:
     ///
     /// Constructor of the request
     ///
-    HttpServerRequest() : HttpRequest(), buffers(), buff(buffers), stream(&buff), startStreamIndex(0), endStreamIndex(0) {}
+    HttpServerRequest() : HttpRequest(), buff(buffers), stream(&buff), startStreamIndex(0), endStreamIndex(0) {}
 
     ///
     /// Destructor of the request
@@ -167,6 +167,9 @@ public:
     /// \brief close the stream (and flushes it)
     ///
     void close() {
+        if(!responseCommitted()) {
+            sendHeaders();
+        }
         buff.close();
     }
 

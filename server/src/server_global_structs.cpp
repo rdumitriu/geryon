@@ -21,4 +21,19 @@ std::shared_ptr<GMemoryPool> ServerGlobalStucts::getMemoryPool() {
     return instance.memoryPool;
 }
 
+//static
+void ServerGlobalStucts::defineApplication(std::shared_ptr<ServerApplication> app) {
+    instance.apps.insert(std::make_pair(app->getPath(), app));
+}
+
+//static
+std::shared_ptr<ServerApplication> ServerGlobalStucts::getApplication(const std::string & path) {
+    std::shared_ptr<ServerApplication> ret;
+    std::map<std::string, std::shared_ptr<ServerApplication>>::const_iterator p = instance.apps.find(path);
+    if(p != instance.apps.end()) {
+        ret = p->second;
+    }
+    return ret;
+}
+
 } } /* namespace */

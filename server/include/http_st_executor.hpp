@@ -13,10 +13,13 @@ namespace geryon { namespace server {
 
 class HttpSingleThreadExecutor : public HttpExecutor {
 public:
-    HttpSingleThreadExecutor() {}
+    HttpSingleThreadExecutor() : HttpExecutor() {}
     virtual ~HttpSingleThreadExecutor() {}
 
-    virtual void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) = 0;
+protected:
+    virtual void executeInternal(std::shared_ptr<ServerApplication> papp,
+                                 HttpServerRequest & request,
+                                 HttpServerResponse & response) throw(geryon::HttpException);
 };
 
 } }
