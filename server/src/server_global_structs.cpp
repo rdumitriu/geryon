@@ -36,4 +36,24 @@ std::shared_ptr<ServerApplication> ServerGlobalStucts::getApplication(const std:
     return ret;
 }
 
+//static
+void ServerGlobalStucts::setServerToken(const std::string & _serverToken) {
+    instance.serverToken = _serverToken;
+}
+
+//static
+void ServerGlobalStucts::setServerId(unsigned int _serverId) {
+    instance.serverId = _serverId;
+}
+
+//static
+std::string ServerGlobalStucts::getServerToken() {
+    return instance.serverToken;
+}
+
+//static
+unsigned int ServerGlobalStucts::getServerId() {
+    return instance.serverId;
+}
+
 } } /* namespace */
