@@ -48,7 +48,7 @@ std::shared_ptr<Servlet> ServerApplicationServletDispatcher::findServlet(HttpSer
 
 bool ServerApplicationServletDispatcher::requestMatches(detail::WrappedServlet & srv,
                                                         HttpServerRequest & request) {
-    return std::regex_search(request.getURIPath(), srv.regex);
+    return std::regex_match(request.getURIPath(), srv.regex);
 }
 
 

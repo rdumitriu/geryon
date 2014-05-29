@@ -40,7 +40,7 @@ bool ServerApplicationFilterChain::doFilter(detail::WrappedFilter & flt,
 bool ServerApplicationFilterChain::requestMatches(detail::WrappedFilter & flt,
                                                   HttpServerRequest & request) {
     return flt.isRegex
-            ? std::regex_search(request.getURIPath(), flt.regex)
+            ? std::regex_match(request.getURIPath(), flt.regex)
             : (request.getURIPath() == flt.mappedPath);
 }
 
