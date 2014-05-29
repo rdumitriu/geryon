@@ -9,6 +9,7 @@
 #include "session.hpp"
 #include "application.hpp"
 
+#include "string_utils.hpp"
 #include "log.hpp"
 
 //::TODO:: BIG Q: shall we run in isolation (try-catch) all the listeners and stuff ?
@@ -102,6 +103,14 @@ void ApplicationModule::notifySessionValueRemoved(Session & ses, const std::stri
     }
 }
 
+std::vector<std::shared_ptr<Filter>> ApplicationModule::getFilters() {
+    return filters; //copy-of
+}
+
+std::vector<std::shared_ptr<Servlet>> ApplicationModule::getServlets() {
+    return servlets; //copy-of
+}
+
 /* ====================================================================
  * ApplicationModuleContainer
  * ================================================================== */
@@ -137,6 +146,7 @@ void ApplicationModuleContainer::stop() {
 }
 
 bool ApplicationModuleContainer::mustNotifyForSessions() {
+    //::TODO:: impr: run only once
     if(ApplicationModule::mustNotifyForSessions()) { return true; }
     for(auto mp : modules) {
         if(mp->mustNotifyForSessions()) { return true; }
@@ -198,6 +208,26 @@ void ApplicationModuleContainer::notifySessionValueRemoved(Session & ses, const 
             mp->notifySessionValueRemoved(ses, name);
         }
     }
+}
+
+std::vector<std::shared_ptr<Filter>> ApplicationModuleContainer::getFilters() {
+    std::vector<std::shared_ptr<Filter>> ret = ApplicationModule::getFilters();
+
+    for(auto p : modules) {
+        std::vector<std::shared_ptr<Filter>> mFilters = p->getFilters();
+        ret.insert(ret.end(), mFilters.begin(), mFilters.end());
+    }
+    return ret;
+}
+
+std::vector<std::shared_ptr<Servlet>> ApplicationModuleContainer::getServlets() {
+    std::vector<std::shared_ptr<Servlet>> ret = ApplicationModule::getServlets();
+
+    for(auto p : modules) {
+        std::vector<std::shared_ptr<Servlet>> mServlets = p->getServlets();
+        ret.insert(ret.end(), mServlets.begin(), mServlets.end());
+    }
+    return ret;
 }
 
 } //namespace

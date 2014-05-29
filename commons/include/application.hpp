@@ -179,10 +179,24 @@ public:
     inline Status getStatus() {
         return status;
     }
-protected:
+
+    ///
+    /// \brief getFilterMappings
+    /// \return the raw mapping for this application's filters
+    ///
+    virtual std::vector<std::shared_ptr<Filter>> getFilters();
+
+    ///
+    /// \brief getServletMappings
+    /// \return the raw mapping for this application's servlets
+    ///
+    virtual std::vector<std::shared_ptr<Servlet>> getServlets();
 
     ///Get the parent of this module, if any
     inline ApplicationModule * getParent() const { return parent; }
+
+
+protected:
 
     friend class Session;
     friend class ApplicationModuleContainer; //that's funny
@@ -241,6 +255,18 @@ public:
         module->parent = this;
         modules.push_back(module);
     }
+
+    ///
+    /// \brief getFilterMappings
+    /// \return the raw mapping for this application's filters
+    ///
+    virtual std::vector<std::shared_ptr<Filter>> getFilters();
+
+    ///
+    /// \brief getServletMappings
+    /// \return the raw mapping for this application's servlets
+    ///
+    virtual std::vector<std::shared_ptr<Servlet>> getServlets();
 
 protected:
     ///Perf: To avoid copying values, use this just before notifying

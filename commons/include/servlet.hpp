@@ -18,18 +18,17 @@ namespace geryon {
 /// The servlet is your principal way of interacting with the world at large.
 /// One single instance of a servlet exists per application so your code MUST be thread safe.\n\n
 ///
-/// For regex paths, application will prepend its own path, then the regex will be created. Regex expressions should be
-/// marked providing the flag.
+/// For matcher paths (i.e. paths containing '*'), application will prepend its own path, then the matcher will be
+/// created.
 ///
 class Servlet : public ApplicationConfigAware {
 protected:
     ///
     /// \brief Constructor.
     /// \param _path the path of the servlet. It is relative to the application.
-    /// \param _regex true if the path is a REGEX
     ///
-    explicit Servlet(const std::string & _path, bool _regex = false)
-                                : ApplicationConfigAware(), path(_path), regex(_regex) {}
+    explicit Servlet(const std::string & _path)
+                                : ApplicationConfigAware(), path(_path) {}
 public:
 
     /// Non-copyable
@@ -47,12 +46,6 @@ public:
     /// \return the path of the servlet
     ///
     inline std::string getPath() const { return path; }
-
-    ///
-    /// \brief Is the configured path a regex ?
-    /// \return true if the the path is a REGEX
-    ///
-    inline bool isPathRegex() const { return regex; }
 
     ///
     /// \brief Called at initialization time.
@@ -151,9 +144,8 @@ public:
     virtual void doOptions(HttpRequest & request, HttpResponse & reply) {}
 
 private:
-    ///The path, in the form '/the/path/name' or 'REGEX expression'
+    ///The path, in the form '/the/path/name' or '/the/path/*'
     std::string path;
-    bool regex;
 };
 
 }  /*namespace*/

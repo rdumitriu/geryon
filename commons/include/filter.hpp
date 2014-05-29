@@ -17,8 +17,10 @@ class ApplicationModule;
 /// \brief The filter.
 ///
 /// A filter filters the requests. The developer has the possibility of interrupting the processing.
-/// The default implementation does really nothing, since we do not know what kind of processing would you like to
+/// The default implementation does really nothing, since we do not know what kind of processing you would like to
 /// add.\n\n
+///
+/// Paths may contain '*' symbols to signal that accepts everything on that position.
 ///
 class Filter : public ApplicationConfigAware {
 public:
@@ -26,10 +28,9 @@ public:
     /// \brief The constructor
     ///
     /// \param _path the path of the filter. It is relative to the application.
-    /// \param _regex true if the path is a REGEX
     ///
-    Filter(const std::string & _path, bool _regex = false)
-                        : ApplicationConfigAware(), path(_path), regex(_regex)  {}
+    Filter(const std::string & _path)
+                        : ApplicationConfigAware(), path(_path)  {}
     ///
     /// \brief The destructor
     ///
@@ -46,12 +47,6 @@ public:
     /// \return the path of the filter, if any
     ///
     inline std::string getPath() const { return path; }
-
-    ///
-    /// \brief Is the configured path a regex ?
-    /// \return true if the the path is a REGEX
-    ///
-    inline bool isPathRegex() const { return regex; }
 
     ///
     /// \brief Called at initialization time.
@@ -80,7 +75,6 @@ public:
     virtual bool doFilter(HttpRequest & request, HttpResponse & reply) = 0;
 private:
     std::string path;
-    bool regex;
 };
 
 } /* namespace */

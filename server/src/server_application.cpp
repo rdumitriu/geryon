@@ -2,6 +2,7 @@
 #include "log.hpp"
 #include "string_utils.hpp"
 #include "server_application.hpp"
+#include "server_global_structs.hpp"
 
 
 namespace geryon { namespace server {
@@ -59,15 +60,13 @@ void cleanupServerApplicationSessions(unsigned int sessTimeOut, unsigned int nPa
 }
 
 ServerApplication::ServerApplication(std::shared_ptr<geryon::Application> _application,
-                                     const std::string & _serverToken,
-                                     unsigned int _serverNumber,
                                      unsigned int _nPartitions,
                                      unsigned int _sessTimeOut,
                                      unsigned int cleanupInterval)
                     : application(_application),
                       path(_application->getConfig().getMountPath()),
-                      serverToken(_serverToken),
-                      serverNumber(_serverNumber),
+                      serverToken(ServerGlobalStucts::getServerToken()),
+                      serverNumber(ServerGlobalStucts::getServerId()),
                       nPartitions(_nPartitions),
                       sessTimeOut(_sessTimeOut),
                       sessionPartitions(new detail::SessionPartition[_nPartitions]),
@@ -85,7 +84,9 @@ ServerApplication::~ServerApplication() {
 
 void ServerApplication::start() {
     //1: build filters
+    filterChain.init(application);
     //2: build servlets
+    servletDispatcher.init(application);
     //3: start the session cleaner
     sessionCleaner.start();
     //4:: start the app
@@ -100,8 +101,8 @@ void ServerApplication::stop() {
 void ServerApplication::execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) {
     try {
         prepareExecution(request, response);
-        if(runFilters(request, response)) {
-            if(!runServlet(request, response)) {
+        if(filterChain.doFilters(request, response)) {
+            if(!servletDispatcher.doServlet(request, response)) {
                 response.setStatus(HttpServerResponse::SC_NOT_FOUND);
             }
         }
@@ -136,16 +137,6 @@ void ServerApplication::prepareExecution(HttpServerRequest & request,
     if("" != serverToken) {
         response.addHeader("Server", serverToken);
     }
-}
-
-bool ServerApplication::runFilters(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) {
-    //::TODO:: implement me
-    return false;
-}
-
-bool ServerApplication::runServlet(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) {
-    //::TODO:: implement me
-    return false;
 }
 
 const char * const SESSION_PREFIX = "geryonsessid="; //exactly 13 chars

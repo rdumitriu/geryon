@@ -15,6 +15,8 @@
 #include "http_server_types.hpp"
 
 #include "server_session.hpp"
+#include "server_application_fltch.hpp"
+#include "server_application_srvdsp.hpp"
 
 namespace geryon { namespace server {
 
@@ -36,11 +38,9 @@ private:
     std::mutex smutex;
 };
 
-class FilterMatcher {
 
-};
 
-class ServletMatcher {
+class ServerApplicationServletFinder { //::TODO:: should be moved out? returns a single servlet
 };
 
 }
@@ -48,8 +48,6 @@ class ServletMatcher {
 class ServerApplication {
 public:
     ServerApplication(std::shared_ptr<geryon::Application> application,
-                      const std::string & serverToken,
-                      unsigned int serverNumber,
                       unsigned int nPartitions,
                       unsigned int sessTimeOut,
                       unsigned int cleanupInterval);
@@ -76,14 +74,12 @@ private:
     detail::SessionPartition * sessionPartitions;
     geryon::mt::RepetitiveRunnable sessionCleaner;
     //filter mappings:
-    std::map<std::string, std::shared_ptr<detail::FilterMatcher>> filters;
+    ServerApplicationFilterChain filterChain;
     //servlets mappings:
-    std::map<std::string, std::shared_ptr<detail::ServletMatcher>> servlets;
+    ServerApplicationServletDispatcher servletDispatcher;
 
 
     void prepareExecution(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
-    bool runFilters(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
-    bool runServlet(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
 
     std::string getSessionCookieValue(HttpServerRequest & request);
     std::size_t getPartitionFromCookie(const std::string & cookie);

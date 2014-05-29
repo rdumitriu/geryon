@@ -33,6 +33,14 @@ public:
 
     static std::shared_ptr<ServerApplication> getApplication(const std::string & path);
 
+    static void setServerToken(const std::string & _serverToken);
+
+    static void setServerId(unsigned int _serverId);
+
+    static std::string getServerToken();
+
+    static unsigned int getServerId();
+
 private:
     ServerGlobalStucts() {}
     ~ServerGlobalStucts() {}
@@ -41,6 +49,10 @@ private:
     std::shared_ptr<GMemoryPool> memoryPool;
 
     std::map<std::string, std::shared_ptr<ServerApplication>> apps;
+
+    std::string serverToken;
+
+    unsigned int serverId;
 };
 
 } } /* namespace */
