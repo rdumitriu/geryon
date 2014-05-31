@@ -105,6 +105,12 @@ SET (geryon_SRC
 #
 # MAIN
 #
+    ../include/geryon_configapp.hpp
+    geryon_configapp.cpp
+
+    ../include/geryon_config.hpp
+    geryon_config.cpp
+
     main.cpp
      )
 

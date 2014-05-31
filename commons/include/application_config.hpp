@@ -7,9 +7,26 @@
 #ifndef APPLICATION_CONFIG_HPP_
 #define APPLICATION_CONFIG_HPP_
 
-#include "properties_file.hpp"
+#include "string_utils.hpp"
 
 namespace geryon {
+
+namespace configuration {
+
+///
+/// \brief The ApplicationConfigInjector class
+/// Used to inject the config
+class ApplicationConfigInjector {
+public:
+    ApplicationConfigInjector() {}
+    virtual ~ApplicationConfigInjector() {}
+
+    virtual std::string getMountPath() = 0;
+
+    virtual std::map<std::string, std::string> getProperties() = 0;
+};
+
+}
 
 ///
 /// \brief The application config
@@ -20,13 +37,9 @@ namespace geryon {
 ///
 class ApplicationConfig {
 public:
-    static const std::string MOUNT_PATH_PROPERTY;
 
     /// Constructor
-    ApplicationConfig(const std::string & configFile) : props() {
-        if(configFile != "") {
-            props.loadFromFile(configFile);
-        }
+    explicit ApplicationConfig() {
     }
 
     ///Destructor
@@ -38,17 +51,6 @@ public:
     ///Non-Copyable
     ApplicationConfig & operator =(ApplicationConfig & other) = delete;
 
-
-    ///
-    /// \brief Gets a property
-    /// Gets a certain property by the key. If the property is not found, returns an empty string
-    /// \param key the key
-    /// \return the value of the property
-    ///
-    inline std::string property(const std::string & key) const {
-        return props.property(key);
-    }
-
     ///
     /// \brief Gets the property
     /// \param key the key
@@ -56,7 +58,11 @@ public:
     /// \return the property if found, or empty string if not found
     ///
     inline std::string property(const std::string & key, const std::string & defValue) const {
-        return props.property(key, defValue);
+        std::map<std::string, std::string>::const_iterator p = props.find(key);
+        if(p == props.end()) {
+            return defValue;
+        }
+        return p->second;
     }
 
     ///
@@ -66,7 +72,11 @@ public:
     ///
     template<typename T>
     inline T property(const std::string & key, const T & defValue) const {
-        return props.property(key, defValue);
+        std::map<std::string, std::string>::const_iterator p = props.find(key);
+        if(p == props.end()) {
+            return defValue;
+        }
+        return geryon::util::convertTo(p->second, defValue);
     }
 
     ///
@@ -75,12 +85,18 @@ public:
     /// \return the path
     ///
     std::string getMountPath() {
-        return property(MOUNT_PATH_PROPERTY);
+        return mountPath;
     }
 
+    ///
+    /// \brief setup the config
+    /// \param injector the config injector
+    ///
+    void setup(configuration::ApplicationConfigInjector & injector);
 
 private:
-    geryon::util::PropertiesFile props;
+    std::string mountPath;
+    std::map<std::string, std::string> props;
 };
 
 }

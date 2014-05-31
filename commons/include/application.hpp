@@ -82,7 +82,6 @@ public:
     /// \param _parent the parent
     ///
     ApplicationModule(const std::string & _key,
-                      const std::string & _configFile = "",
                       ApplicationModule * const _parent = 0);
 
     ///Destructor
@@ -233,9 +232,7 @@ protected:
 class ApplicationModuleContainer : public ApplicationModule {
 public:
     ApplicationModuleContainer(const std::string & _key,
-                               const std::string & _configFile = "",
-                               ApplicationModule * const _parent = 0)
-                                        : ApplicationModule(_key, _configFile, _parent) {}
+                               ApplicationModule * const _parent = 0);
 
     virtual ~ApplicationModuleContainer();
 

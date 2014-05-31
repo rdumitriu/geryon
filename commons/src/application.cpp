@@ -20,8 +20,8 @@ namespace geryon {
  * ApplicationModule
  * ================================================================== */
 
-ApplicationModule::ApplicationModule(const std::string & _key, const std::string & configFile, ApplicationModule * const _parent)
-                    : key(_key), config(configFile), parent(_parent), status(ApplicationModule::INIT) {
+ApplicationModule::ApplicationModule(const std::string & _key, ApplicationModule * const _parent)
+                    : key(_key), config(), parent(_parent), status(ApplicationModule::INIT) {
 }
 
 ApplicationModule::~ApplicationModule() {
@@ -114,6 +114,10 @@ std::vector<std::shared_ptr<Servlet>> ApplicationModule::getServlets() {
 /* ====================================================================
  * ApplicationModuleContainer
  * ================================================================== */
+
+ApplicationModuleContainer::ApplicationModuleContainer(const std::string & _key,
+                                                       ApplicationModule * const _parent)
+                                 : ApplicationModule(_key, _parent) {}
 
 ApplicationModuleContainer::~ApplicationModuleContainer() {
 }

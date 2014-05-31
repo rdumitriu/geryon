@@ -23,70 +23,186 @@
 #include "http_executor.hpp"
 #include "http_st_executor.hpp"
 #include "http_mt_executor.hpp"
-
+#include "geryon_config.hpp"
 
 #include "log.hpp"
 
+class GServer {
+public:
+    GServer() {}
+    virtual ~GServer() {}
+    std::shared_ptr<std::thread> getThread() { return thr; }
+
+    void await() {
+        thr->join();
+    }
+
+protected:
+    std::shared_ptr<std::thread> thr;
+};
+
+class GAdminServer : public GServer {
+public:
+    GAdminServer(const std::string & service)
+            : GServer(),
+              adminProtocol(),
+              adminserver("adminserver", "127.0.0.1", service, adminProtocol) {
+        geryon::server::SingleThreadAcceptorTCPServer * pAdminServer = &adminserver;
+
+        thr = std::shared_ptr<std::thread>(new std::thread([pAdminServer]() {
+            pAdminServer->run();
+        }));
+    }
+    virtual ~GAdminServer() {}
+private:
+    geryon::server::GAdmProtocol adminProtocol;
+    geryon::server::SingleThreadAcceptorTCPServer adminserver;
+};
+
+class GHttpServer : public GServer {
+public:
+    GHttpServer(unsigned int nExecThreads, std::size_t maxRequestLen)
+            : GServer(),
+              executor(nExecThreads),
+              httpProtocol(executor, maxRequestLen) {
+    }
+    virtual ~GHttpServer() {}
+
+protected:
+    geryon::server::HttpMultiThreadExecutor executor;
+    geryon::server::HttpProtocol httpProtocol;
+};
+
+
+
+class GMHttpServer : public GHttpServer {
+public:
+    GMHttpServer(const std::string & bindAddress, const std::string & service,
+                 unsigned int nExecThreads, std::size_t maxRequestLen,
+                 unsigned int nAcceptorThreads)
+            : GHttpServer(nExecThreads, maxRequestLen),
+              httpserver("httpserver", bindAddress, service, httpProtocol, nAcceptorThreads) {
+        geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
+
+        thr = std::shared_ptr<std::thread>(new std::thread([pHttpServer]() {
+            pHttpServer->run();
+        }));
+    }
+    virtual ~GMHttpServer() {}
+
+private:
+    geryon::server::MultiThreadedAcceptorTCPServer httpserver;
+};
+
+class GSHttpServer : public GHttpServer {
+public:
+    GSHttpServer(const std::string & bindAddress, const std::string & service,
+                 unsigned int nExecThreads, std::size_t maxRequestLen)
+            : GHttpServer(nExecThreads, maxRequestLen),
+              httpserver("httpserver", bindAddress, service, httpProtocol) {
+        geryon::server::SingleThreadAcceptorTCPServer * pHttpServer = &httpserver;
+
+        thr = std::shared_ptr<std::thread>(new std::thread([pHttpServer]() {
+            pHttpServer->run();
+        }));
+    }
+    virtual ~GSHttpServer() {}
+
+private:
+    geryon::server::SingleThreadAcceptorTCPServer httpserver;
+};
+
+
 int main(int argc, char* argv[]) {
+    unsigned int serverId = 0;
+    std::string home;
+    std::string config;
+    std::string modules;
+
     boost::program_options::options_description desc("Command-line options");
     desc.add_options()
         ("help", "Produces this help message.")
-        ("home,h", "Specifies the home directory")
+        ("home,h", boost::program_options::value<std::string>()->required(),
+                   "Specifies the home directory")
         ("config,c", boost::program_options::value<std::string>()->implicit_value(std::string("")),
-                    "Specifies the configuration file. Optional")
-        ("modulesDir,m", boost::program_options::value<std::string>()->implicit_value(std::string("")),
-                    "Specifies the modules directory. Optional")
+                    "Configuration file. [<GERYON_HOME>/profiles/server<SID>/server.conf]")
+        ("modules,m", boost::program_options::value<std::string>()->implicit_value(std::string("")),
+                    "Specifies the modules directory [<GERYON_HOME>/modules/]")
+        ("serverId,i", boost::program_options::value<unsigned int>()->implicit_value(0),
+                    "Specifies the server id (SID).")
     ;
 
-    boost::program_options::variables_map vm;
-    boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
-    boost::program_options::notify(vm);
+    try {
+        boost::program_options::variables_map vm;
+        boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::notify(vm);
 
-    if (vm.count("help") || vm.empty()) {
+        if (vm.count("help") || vm.empty()) {
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+
+        if(vm.count("home")) {
+            home = vm["home"].as<std::string>();
+            std::cout << "Home directory set to:" << vm["home"].as<std::string>() << std::endl;
+        } else {
+            std::cout << desc << std::endl;
+            return 1;
+        }
+        if(vm.count("config")) {
+            config = vm["config"].as<std::string>();
+        }
+        if(vm.count("modules")) {
+            modules = vm["modules"].as<std::string>();
+        }
+        if(vm.count("serverId")) {
+            serverId = vm["serverId"].as<unsigned int>();
+        }
+    } catch( ... ) {
         std::cout << desc << std::endl;
         return 1;
     }
 
-    std::cout << "Booting " << GERYON_VERSION_FULL_STRING << std::endl;
-    if(vm.count("home")) {
-        std::cout << "Home directory set to:" << vm["home"].as<std::string>() << std::endl;
+    std::cout << "Booting " << GERYON_VERSION_FULL_STRING << " Server Id: " << serverId << std::endl;
+
+    geryon::server::GeryonConfigurator configurator(home, serverId, config, modules);
+    if(!configurator.configure()) {
+        return 1;
     }
 
-    geryon::util::Log::configureBasic(geryon::util::Log::DEBUG);
-
-    std::shared_ptr<geryon::server::GMemoryPool> pool(new geryon::server::GUniformMemoryPool(1024));
-    geryon::server::ServerGlobalStucts::setMemoryPool(pool);
-
+    std::vector<std::shared_ptr<GServer>> servers;
 
     try {
-        //Protocol is 'gadm'
-        geryon::server::GAdmProtocol adminProtocol;
-        //Start the admin server on port 7001
-        geryon::server::SingleThreadAcceptorTCPServer adminserver("adminserver", "127.0.0.1", "7001", adminProtocol);
-        geryon::server::SingleThreadAcceptorTCPServer * pAdminServer = &adminserver;
+        if(configurator.getAdminServerConfig().enabled) {
+            servers.push_back(std::make_shared<GAdminServer>(configurator.getAdminServerConfig().service));
+        }
 
-        std::shared_ptr<std::thread> p_admin_thr (new std::thread([pAdminServer]() {
-            pAdminServer->run();
-        }));
+        for(auto cfg : configurator.getHttpServers()) {
+            if(cfg.nAcceptors <= 1) {
+                servers.push_back(std::make_shared<GSHttpServer>(cfg.bindAddress,
+                                                                 cfg.service,
+                                                                 cfg.nExecutors,
+                                                                 cfg.maxRequestLength));
+            } else {
+                servers.push_back(std::make_shared<GMHttpServer>(cfg.bindAddress,
+                                                                 cfg.service,
+                                                                 cfg.nExecutors,
+                                                                 cfg.maxRequestLength,
+                                                                 cfg.nAcceptors));
+            }
+        }
 
-        //HTTP server: Run server in a subsequent background thread, as normal.
-        //MT server (there are N acceptor threads)
-        geryon::server::HttpMultiThreadExecutor executor(2);
-        geryon::server::HttpProtocol httpProtocol(executor);
-        geryon::server::MultiThreadedAcceptorTCPServer httpserver("httpserver", "127.0.0.1", "8001", httpProtocol, 6);
-        geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
-
-        std::shared_ptr<std::thread> p_http_thr (new std::thread([pHttpServer]() {
-            pHttpServer->run();
-        }));
-
-        p_http_thr->join();
-        p_admin_thr->join();
+        for(std::vector<std::shared_ptr<GServer>>::iterator i = servers.begin(); i != servers.end(); ++i) {
+            (*i)->await();
+        }
     } catch (std::exception& e) {
         std::cerr << "exception: " << e.what() << std::endl;
     } catch( ... ) {
         std::cerr << "exception: general, unspecified " << std::endl;
     }
+
+    configurator.unconfigure();
 
     return 0;
 }

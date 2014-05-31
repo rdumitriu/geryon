@@ -37,6 +37,16 @@ std::shared_ptr<ServerApplication> ServerGlobalStucts::getApplication(const std:
 }
 
 //static
+std::vector<std::shared_ptr<ServerApplication>> ServerGlobalStucts::getApplications() {
+    std::vector<std::shared_ptr<ServerApplication>> ret;
+    for(auto & p : instance.apps) {
+        //just gather them, no matter the order?
+        ret.push_back(p.second);
+    }
+    return ret;
+}
+
+//static
 void ServerGlobalStucts::setServerToken(const std::string & _serverToken) {
     instance.serverToken = _serverToken;
 }

@@ -33,6 +33,8 @@ public:
 
     static std::shared_ptr<ServerApplication> getApplication(const std::string & path);
 
+    static std::vector<std::shared_ptr<ServerApplication>> getApplications();
+
     static void setServerToken(const std::string & _serverToken);
 
     static void setServerId(unsigned int _serverId);

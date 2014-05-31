@@ -9,7 +9,14 @@
 
 namespace geryon {
 
-const std::string ApplicationConfig::MOUNT_PATH_PROPERTY("mount.path");
+///
+/// \brief setup the config
+/// \param injector the config injector
+///
+void ApplicationConfig::setup(configuration::ApplicationConfigInjector & injector) {
+    mountPath = injector.getMountPath();
+    props = injector.getProperties();
+}
 
 }
 
