@@ -69,16 +69,16 @@ public:
      */
     static void configureFile(LogLevel level,
     						  const std::string & fileName);
-    /** 
-     * \brief Configure logging according to a properties file.
-     * 
-     * Logging is performed according to a configuration file which contains the
-     * following entries:
-     *  - log.disable=0 (if 1 or 'true', log will be disabled)
-     *  - log.level=DEBUG ( FATAL, ERROR, WARNING, INFO, DEBUG)
-     *  - log.file=/tmp/yahsrv.log (if commented stderr will be used)
-     */
-    static void configureFromFile(const std::string & propsFile);
+//    *
+//     * \brief Configure logging according to a properties file.
+//     *
+//     * Logging is performed according to a configuration file which contains the
+//     * following entries:
+//     *  - log.disable=0 (if 1 or 'true', log will be disabled)
+//     *  - log.level=DEBUG ( FATAL, ERROR, WARNING, INFO, DEBUG)
+//     *  - log.file=/tmp/yahsrv.log (if commented stderr will be used)
+
+    //static void configureFromFile(const std::string & propsFile);
 
     /**
      * \brief Gets the reporting level.

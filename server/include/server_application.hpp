@@ -38,16 +38,11 @@ private:
     std::mutex smutex;
 };
 
-
-
-class ServerApplicationServletFinder { //::TODO:: should be moved out? returns a single servlet
-};
-
 }
 
 class ServerApplication {
 public:
-    ServerApplication(std::shared_ptr<geryon::Application> application,
+    ServerApplication(std::shared_ptr<geryon::Application> & application,
                       unsigned int nPartitions,
                       unsigned int sessTimeOut,
                       unsigned int cleanupInterval);
@@ -62,6 +57,7 @@ public:
     inline const std::string & getPath() { return path; }
 
     void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+
 private:
     std::shared_ptr<geryon::Application> application;
     std::string path;

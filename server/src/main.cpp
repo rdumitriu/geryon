@@ -25,8 +25,6 @@
 #include "http_mt_executor.hpp"
 #include "geryon_config.hpp"
 
-#include "log.hpp"
-
 class GServer {
 public:
     GServer() {}

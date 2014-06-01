@@ -38,6 +38,7 @@ protected:
     virtual ~GeryonAppBaseConfigurator();
 public:
     bool isConfigurationValid();
+    void * getModuleDLL();
 protected:
     void * moduleDLL;
 };

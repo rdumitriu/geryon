@@ -5,8 +5,9 @@
 namespace geryon { namespace server {
 
 
-void ServerApplicationServletDispatcher::init(std::shared_ptr<geryon::Application> app) {
-    std::vector<std::shared_ptr<Servlet>> rawServlets = app->getServlets();
+void ServerApplicationServletDispatcher::init(std::shared_ptr<geryon::Application> & app) {
+    std::vector<std::shared_ptr<Servlet>> rawServlets;
+    app->getServlets(rawServlets);
     for(std::vector<std::shared_ptr<Servlet>>::iterator p = rawServlets.begin(); p != rawServlets.end(); ++p) {
         std::string path = detail::calculatePathFromModule((*p)->getApplicationModule(), (*p)->getPath());
         if(path.find("*") == std::string::npos) {

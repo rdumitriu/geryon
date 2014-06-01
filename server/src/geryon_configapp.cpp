@@ -13,7 +13,11 @@ public:
 
     virtual std::string getMountPath() { return path; }
 
-    virtual std::map<std::string, std::string> getProperties() { return props; }
+    virtual std::map<std::string, std::string> getProperties() {
+        LOG(geryon::util::Log::DEBUG) << "Injecting " << props.size()
+                                      << " properties into the configuration, path:" << path;
+        return props;
+    }
 
 private:
     std::string & path;
@@ -43,10 +47,11 @@ bool GeryonAppBaseConfigurator::isConfigurationValid() {
     return (moduleDLL != 0);
 }
 
+void * GeryonAppBaseConfigurator::getModuleDLL() {
+    return moduleDLL;
+}
+
 GeryonAppBaseConfigurator::~GeryonAppBaseConfigurator() {
-    if(moduleDLL) {
-        closeDynamicLibrary(moduleDLL);
-    }
 }
 
 

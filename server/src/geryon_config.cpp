@@ -1,13 +1,17 @@
 
+#include <cstdlib>
+
 #include "server_build.hpp"
 #include "geryon_config.hpp"
 #include "geryon_configapp.hpp"
 #include "server_global_structs.hpp"
+#include "os_utils.hpp"
 
 #include "log.hpp"
 
 namespace geryon { namespace server {
 
+//::TODO:: close the modules!
 //::TODO:: lots of checks should be in place
 
 GeryonConfigurator::GeryonConfigurator(const std::string & _homeBase,
@@ -15,6 +19,15 @@ GeryonConfigurator::GeryonConfigurator(const std::string & _homeBase,
                                        const std::string & _configFile,
                                        const std::string & _modulesBase)
                     : homeBase(_homeBase), serverId(_serverId), configFile(_configFile), modulesBase(_modulesBase) {
+}
+
+GeryonConfigurator::~GeryonConfigurator() {
+}
+
+void GeryonConfigurator::addModuleDLL(void * ptr) {
+    if(ptr) {
+        modulesDLLs.push_back(ptr);
+    }
 }
 
 bool GeryonConfigurator::calculatePaths() {
@@ -91,7 +104,7 @@ bool GeryonConfigurator::configureLog() {
     geryon::util::Log::configureFile(geryon::util::Log::fromString(cfgLevel), logFilePath.c_str());
 
     LOG(geryon::util::Log::INFO) << "======================================";
-    LOG(geryon::util::Log::INFO) << "Starting " << GERYON_VERSION_FULL_STRING << " - server ID :" << serverId;
+    LOG(geryon::util::Log::INFO) << "Starting " << GERYON_VERSION_FULL_STRING << " - server ID :" << serverId << " LL:" << cfgLevel;
     return true;
 }
 
@@ -152,6 +165,8 @@ std::shared_ptr<ServerApplication> GeryonConfigurator::configureApplication(cons
     GeryonApplicationConfigurator app_configurer(modulesBasePath, cfg);
     if(app_configurer.isConfigurationValid()) {
         app = app_configurer.application();
+        addModuleDLL(app_configurer.getModuleDLL());
+        LOG(geryon::util::Log::INFO) << "Loaded application " << cfg.module << " to be mounted on path :" << cfg.path;
         //now, the modules
         for (const auto& kv : node) {
             if(kv.first == "plugin") {
@@ -167,6 +182,7 @@ std::shared_ptr<ServerApplication> GeryonConfigurator::configureApplication(cons
                     GeryonApplicationModuleConfigurator plg_configurer(modulesBasePath, plgcfg);
                     if(plg_configurer.isConfigurationValid()) {
                         app_configurer.addModule(plg_configurer.module());
+                        addModuleDLL(plg_configurer.getModuleDLL());
                     } else {
                         issues.push_back(std::move(detail::GeryonConfigIssue(false,
                                                                              "Module plugin " + plgcfg.module + ", host application >>" + cfg.module +
@@ -261,8 +277,8 @@ void GeryonConfigurator::unconfigureResources() {
 }
 
 void GeryonConfigurator::unconfigureMemoryStructs() {
-    std::shared_ptr<geryon::server::GMemoryPool> emptyPtr;
-    geryon::server::ServerGlobalStucts::setMemoryPool(emptyPtr); //NPE if someone still lingers inside
+    std::shared_ptr<geryon::server::GMemoryPool> empty(0);
+    geryon::server::ServerGlobalStucts::setMemoryPool(empty);
 }
 
 } }

@@ -55,7 +55,7 @@ public:
                                 unsigned int _serverId,
                                 const std::string & _configFile,
                                 const std::string & _modulesBase);
-    ~GeryonConfigurator() {}
+    ~GeryonConfigurator();
 
     bool configure();
 
@@ -64,6 +64,8 @@ public:
     inline GeryonAdminServerConfig & getAdminServerConfig() { return adminCfg; }
 
     inline std::vector<GeryonHttpServerConfig> & getHttpServers() { return httpServers; }
+
+    void addModuleDLL(void * ptr);
 
 private:
     bool calculatePaths();
@@ -96,6 +98,9 @@ private:
 
     GeryonAdminServerConfig adminCfg;
     std::vector<GeryonHttpServerConfig> httpServers;
+
+    //modules
+    std::vector<void *> modulesDLLs;
 };
 
 } } /*namespace */

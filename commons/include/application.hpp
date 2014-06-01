@@ -183,13 +183,13 @@ public:
     /// \brief getFilterMappings
     /// \return the raw mapping for this application's filters
     ///
-    virtual std::vector<std::shared_ptr<Filter>> getFilters();
+    virtual void getFilters(std::vector<std::shared_ptr<Filter>> & v) const;
 
     ///
     /// \brief getServletMappings
     /// \return the raw mapping for this application's servlets
     ///
-    virtual std::vector<std::shared_ptr<Servlet>> getServlets();
+    virtual void getServlets(std::vector<std::shared_ptr<Servlet>> & v) const;
 
     ///Get the parent of this module, if any
     inline ApplicationModule * getParent() const { return parent; }
@@ -257,13 +257,13 @@ public:
     /// \brief getFilterMappings
     /// \return the raw mapping for this application's filters
     ///
-    virtual std::vector<std::shared_ptr<Filter>> getFilters();
+    virtual void getFilters(std::vector<std::shared_ptr<Filter>> & v) const;
 
     ///
     /// \brief getServletMappings
     /// \return the raw mapping for this application's servlets
     ///
-    virtual std::vector<std::shared_ptr<Servlet>> getServlets();
+    virtual void getServlets(std::vector<std::shared_ptr<Servlet>> & v) const;
 
 protected:
     ///Perf: To avoid copying values, use this just before notifying

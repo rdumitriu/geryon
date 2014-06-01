@@ -33,7 +33,7 @@ public:
     ServerApplicationServletDispatcher() {}
     ~ServerApplicationServletDispatcher() {}
 
-    void init(std::shared_ptr<geryon::Application> app);
+    void init(std::shared_ptr<geryon::Application> & app);
 
     bool doServlet(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
 private:

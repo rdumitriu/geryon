@@ -103,12 +103,14 @@ void ApplicationModule::notifySessionValueRemoved(Session & ses, const std::stri
     }
 }
 
-std::vector<std::shared_ptr<Filter>> ApplicationModule::getFilters() {
-    return filters; //copy-of
+void ApplicationModule::getFilters(std::vector<std::shared_ptr<Filter>> & v) const {
+    LOG(geryon::util::Log::DEBUG) << "Returning " << filters.size() << " filters.";
+    v.insert(v.end(), filters.begin(), filters.end());
 }
 
-std::vector<std::shared_ptr<Servlet>> ApplicationModule::getServlets() {
-    return servlets; //copy-of
+void ApplicationModule::getServlets(std::vector<std::shared_ptr<Servlet>> & v) const {
+    LOG(geryon::util::Log::DEBUG) << "Returning " << servlets.size() << " servlets.";
+    v.insert(v.end(), servlets.begin(), servlets.end());
 }
 
 /* ====================================================================
@@ -214,24 +216,22 @@ void ApplicationModuleContainer::notifySessionValueRemoved(Session & ses, const 
     }
 }
 
-std::vector<std::shared_ptr<Filter>> ApplicationModuleContainer::getFilters() {
-    std::vector<std::shared_ptr<Filter>> ret = ApplicationModule::getFilters();
+void ApplicationModuleContainer::getFilters(std::vector<std::shared_ptr<Filter>> & v) const {
+    ApplicationModule::getFilters(v);
 
     for(auto p : modules) {
-        std::vector<std::shared_ptr<Filter>> mFilters = p->getFilters();
-        ret.insert(ret.end(), mFilters.begin(), mFilters.end());
+        p->getFilters(v);
     }
-    return ret;
+    LOG(geryon::util::Log::DEBUG) << "Returning " << v.size() << " filters (total).";
 }
 
-std::vector<std::shared_ptr<Servlet>> ApplicationModuleContainer::getServlets() {
-    std::vector<std::shared_ptr<Servlet>> ret = ApplicationModule::getServlets();
+void ApplicationModuleContainer::getServlets(std::vector<std::shared_ptr<Servlet>> & v) const {
+    ApplicationModule::getServlets(v);
 
     for(auto p : modules) {
-        std::vector<std::shared_ptr<Servlet>> mServlets = p->getServlets();
-        ret.insert(ret.end(), mServlets.begin(), mServlets.end());
+        p->getServlets(v);
     }
-    return ret;
+    LOG(geryon::util::Log::DEBUG) << "Returning " << v.size() << " servlets (total).";
 }
 
 } //namespace

@@ -76,6 +76,13 @@ namespace geryon {
         const std::string SC_GATEWAY_TIMEOUT_HDR("HTTP/1.1 504 Gateway Timeout\r\n");
         const std::string SC_HTTP_VERSION_NOT_SUPPORTED_HDR("HTTP/1.1 505 HTTP Version Not Supported\r\n");
 
+
+        const std::string CT_TEXT_HDR("text/plain; charset=UTF-8");
+        const std::string CT_BINARY_HDR("application/octet-stream");
+        const std::string CT_TEXTXML_HDR("text/xml; charset=UTF-8");
+        const std::string CT_TEXTHTML_HDR("text/html; charset=UTF-8");
+        const std::string CT_APPLICATIONXML_HDR("application/xml; charset=UTF-8");
+        const std::string CT_APPLICATIONJSON_HDR("application/json; charset=UTF-8");
     } //namespace detail
 
 const std::string & getHttpStatusMessage(HttpResponse::HttpStatusCode status) {
@@ -121,6 +128,18 @@ const std::string & getHttpStatusMessage(HttpResponse::HttpStatusCode status) {
         case HttpResponse::SC_HTTP_VERSION_NOT_SUPPORTED: { return detail::SC_HTTP_VERSION_NOT_SUPPORTED_HDR;}
     }
     return detail::SC_INTERNAL_SERVER_ERROR_HDR;
+}
+
+const std::string & getHttpContentTypeStd(HttpResponse::HttpContentType ct) {
+    switch(ct) {
+        case HttpResponse::CT_TEXT: { return detail::CT_TEXT_HDR; }
+        case HttpResponse::CT_BINARY: { return detail::CT_BINARY_HDR; }
+        case HttpResponse::CT_TEXTXML: { return detail::CT_TEXTXML_HDR; }
+        case HttpResponse::CT_TEXTHTML: { return detail::CT_TEXTHTML_HDR; }
+        case HttpResponse::CT_APPLICATIONXML: { return detail::CT_APPLICATIONXML_HDR; }
+        case HttpResponse::CT_APPLICATIONJSON: { return detail::CT_APPLICATIONJSON_HDR; }
+    }
+    return detail::CT_TEXT_HDR;
 }
 
 HttpException::HttpException(HttpExceptionCode code, const std::string & msg)
@@ -442,6 +461,10 @@ void HttpResponse::clear() {
     HttpMessage::clear();
     status = HttpStatusCode::SC_OK;
     committed = false;
+}
+
+void HttpResponse::setContentType(HttpContentType ct) throw (HttpException) {
+    setContentType(getHttpContentTypeStd(ct));
 }
 
 void HttpResponse::sendHeaders() throw (HttpException) {

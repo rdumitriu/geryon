@@ -5,19 +5,25 @@
 namespace geryon { namespace server { namespace detail {
 
 std::string concatPaths(const std::string & first, const std::string & second) {
-   using namespace geryon::util;
-   if(endsWith(first, "/") && startsWith(second, "/")) {
-       if(first == "/") {
-           return second;
-       }
-       //we need to adjust
-       std::string nosl = first.substr(0, first.size()-1);
-       return nosl + second;
-   } else if(endsWith(first, "/") || startsWith(second, "/")) {
-       //no matter who has the slash, this works
-       return first + second;
-   }
-   return first + "/" + second;
+    using namespace geryon::util;
+    if("" == second) {
+        return first;
+    }
+    if("" == first) {
+        return second;
+    }
+    if(endsWith(first, "/") && startsWith(second, "/")) {
+        if(first == "/") {
+            return second;
+        }
+        //we need to adjust
+        std::string nosl = first.substr(0, first.size()-1);
+        return nosl + second;
+    } else if(endsWith(first, "/") || startsWith(second, "/")) {
+        //no matter who has the slash, this works
+        return first + second;
+    }
+    return first + "/" + second;
 }
 
 std::string calculatePathFromModule(const ApplicationModule & appm, const std::string &last) {

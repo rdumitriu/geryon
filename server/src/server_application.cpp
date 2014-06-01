@@ -1,9 +1,9 @@
 
-#include "log.hpp"
 #include "string_utils.hpp"
 #include "server_application.hpp"
 #include "server_global_structs.hpp"
 
+#include "log.hpp"
 
 namespace geryon { namespace server {
 
@@ -59,7 +59,7 @@ void cleanupServerApplicationSessions(unsigned int sessTimeOut, unsigned int nPa
     }
 }
 
-ServerApplication::ServerApplication(std::shared_ptr<geryon::Application> _application,
+ServerApplication::ServerApplication(std::shared_ptr<geryon::Application> & _application,
                                      unsigned int _nPartitions,
                                      unsigned int _sessTimeOut,
                                      unsigned int cleanupInterval)
@@ -81,8 +81,8 @@ ServerApplication::~ServerApplication() {
     delete [] sessionPartitions;
 }
 
-
 void ServerApplication::start() {
+    LOG(geryon::util::Log::INFO) << "Starting application " << application->getKey() << " ...";
     //1: build filters
     filterChain.init(application);
     //2: build servlets
@@ -91,6 +91,7 @@ void ServerApplication::start() {
     sessionCleaner.start();
     //4:: start the app
     application->start();
+    LOG(geryon::util::Log::INFO) << "Started application " << application->getKey() << ".";
 }
 
 void ServerApplication::stop() {
@@ -147,17 +148,22 @@ std::string ServerApplication::getSessionCookieValue(HttpServerRequest & request
     if(request.getSessionCookie() != "") {
         return request.getSessionCookie();
     }
-    if(request.hasHeader(COOKIE_HEADER)) {
-        const std::vector<std::string> cookies = request.getHeaderValues(COOKIE_HEADER);
-        for(std::vector<std::string>::const_iterator i = cookies.begin(); i != cookies.end(); ++i) {
-            //geryonsessid=
-            if(geryon::util::startsWith(*i, SESSION_PREFIX)) {
-                std::string cv((*i).c_str() + 13);
-                request.setSessionCookie(cv);
-                return request.getSessionCookie();
-            }
-        }
+    geryon::HttpCookie sessCookie;
+    if(request.getCookie("geryonsessid", sessCookie)) {
+        request.setSessionCookie(sessCookie.value);
+        return sessCookie.value;
     }
+//    if(request.hasHeader(COOKIE_HEADER)) {
+//        const std::vector<std::string> cookies = request.getHeaderValues(COOKIE_HEADER);
+//        for(std::vector<std::string>::const_iterator i = cookies.begin(); i != cookies.end(); ++i) {
+//            //geryonsessid=
+//            if(geryon::util::startsWith(*i, SESSION_PREFIX)) {
+//                std::string cv((*i).c_str() + 13);
+//                request.setSessionCookie(cv);
+//                return request.getSessionCookie();
+//            }
+//        }
+//    }
     return "";
 }
 

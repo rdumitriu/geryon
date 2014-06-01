@@ -2,11 +2,15 @@
 #include "server_application_fltch.hpp"
 #include "server_application_utils.hpp"
 
+#include "log.hpp"
+
 namespace geryon { namespace server {
 
 
-void ServerApplicationFilterChain::init(std::shared_ptr<geryon::Application> app) {
-    std::vector<std::shared_ptr<Filter>> rawFilters = app->getFilters();
+void ServerApplicationFilterChain::init(std::shared_ptr<geryon::Application> & app) {
+    LOG(geryon::util::Log::DEBUG) << "Calculating filters for app :" << app->getKey();
+    std::vector<std::shared_ptr<Filter>> rawFilters;
+    app->getFilters(rawFilters);
     for(std::vector<std::shared_ptr<Filter>>::iterator p = rawFilters.begin(); p != rawFilters.end(); ++p) {
         detail::WrappedFilter wf;
         wf.filter = *p;

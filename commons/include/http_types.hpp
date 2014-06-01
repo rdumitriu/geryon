@@ -553,6 +553,15 @@ public:
         SC_HTTP_VERSION_NOT_SUPPORTED = 505 //http version not supported
     };
 
+    enum HttpContentType {
+        CT_TEXT,
+        CT_BINARY,
+        CT_TEXTXML,
+        CT_TEXTHTML,
+        CT_APPLICATIONXML,
+        CT_APPLICATIONJSON
+    };
+
     ///
     /// Constructor of the reply
     ///
@@ -619,6 +628,12 @@ public:
         }
         contentType = _contentType;
     }
+
+    ///
+    /// \brief Convenience method to set the content type
+    /// \param ct the content type
+    ///
+    void setContentType(HttpContentType ct) throw (HttpException);
 
     ///
     /// \brief Sets the status
