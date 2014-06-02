@@ -110,6 +110,28 @@ private:
     geryon::server::SingleThreadAcceptorTCPServer httpserver;
 };
 
+class WHttpServer : public GServer {
+public:
+    WHttpServer(const std::string & bindAddress, const std::string & service,
+                std::size_t maxRequestLen,
+                unsigned int nAcceptorThreads)
+            : GServer(),
+              executor(),
+              httpProtocol(executor, maxRequestLen),
+              httpserver("httpserver", bindAddress, service, httpProtocol, nAcceptorThreads) {
+        geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
+
+        thr = std::shared_ptr<std::thread>(new std::thread([pHttpServer]() {
+            pHttpServer->run();
+        }));
+    }
+    virtual ~WHttpServer() {}
+
+protected:
+    geryon::server::HttpSingleThreadExecutor executor;
+    geryon::server::HttpProtocol httpProtocol;
+    geryon::server::MultiThreadedAcceptorTCPServer httpserver;
+};
 
 int main(int argc, char* argv[]) {
     unsigned int serverId = 0;
@@ -178,16 +200,26 @@ int main(int argc, char* argv[]) {
 
         for(auto cfg : configurator.getHttpServers()) {
             if(cfg.nAcceptors <= 1) {
+                LOG(geryon::util::Log::INFO) << "Creating single-acceptor server, executor size:" << cfg.nExecutors;
                 servers.push_back(std::make_shared<GSHttpServer>(cfg.bindAddress,
                                                                  cfg.service,
                                                                  cfg.nExecutors,
                                                                  cfg.maxRequestLength));
-            } else {
+            } else if(cfg.nExecutors > 1) {
+                LOG(geryon::util::Log::INFO) << "Creating multi-acceptor server (" << cfg.nAcceptors
+                                             << "), executor size:" << cfg.nExecutors;
                 servers.push_back(std::make_shared<GMHttpServer>(cfg.bindAddress,
                                                                  cfg.service,
                                                                  cfg.nExecutors,
                                                                  cfg.maxRequestLength,
                                                                  cfg.nAcceptors));
+            } else {
+                LOG(geryon::util::Log::INFO) << "Creating multi-acceptor server (" << cfg.nAcceptors
+                                             << "), in-thread execution";
+                servers.push_back(std::make_shared<WHttpServer>(cfg.bindAddress,
+                                                                cfg.service,
+                                                                cfg.maxRequestLength,
+                                                                cfg.nAcceptors));
             }
         }
 

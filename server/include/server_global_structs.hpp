@@ -43,9 +43,12 @@ public:
 
     static unsigned int getServerId();
 
+    static void addModuleDLL(void * ptr);
+
+    static void clear();
 private:
     ServerGlobalStucts() {}
-    ~ServerGlobalStucts() {}
+    ~ServerGlobalStucts();
     static ServerGlobalStucts instance;
 
     std::shared_ptr<GMemoryPool> memoryPool;
@@ -55,6 +58,11 @@ private:
     std::string serverToken;
 
     unsigned int serverId;
+
+    //modules
+    std::vector<void *> modulesDLLs;
+
+    void _clear();
 };
 
 } } /* namespace */

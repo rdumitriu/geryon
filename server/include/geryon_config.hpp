@@ -65,8 +65,6 @@ public:
 
     inline std::vector<GeryonHttpServerConfig> & getHttpServers() { return httpServers; }
 
-    void addModuleDLL(void * ptr);
-
 private:
     bool calculatePaths();
 
@@ -83,7 +81,6 @@ private:
 
     void unconfigureApplications();
     void unconfigureResources();
-    void unconfigureMemoryStructs();
 
     std::string homeBase;
     unsigned int serverId;
@@ -98,9 +95,6 @@ private:
 
     GeryonAdminServerConfig adminCfg;
     std::vector<GeryonHttpServerConfig> httpServers;
-
-    //modules
-    std::vector<void *> modulesDLLs;
 };
 
 } } /*namespace */

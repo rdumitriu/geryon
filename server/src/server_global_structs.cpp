@@ -6,10 +6,32 @@
  */
 
 #include "server_global_structs.hpp"
+#include "os_utils.hpp"
 
 namespace geryon { namespace server {
 
 ServerGlobalStucts ServerGlobalStucts::instance;
+
+ServerGlobalStucts::~ServerGlobalStucts() {
+    _clear();
+    //now, close the modules
+    for(std::vector<void *>::reverse_iterator i = modulesDLLs.rbegin(); i != modulesDLLs.rend(); ++i) {
+        geryon::server::closeDynamicLibrary(*i);
+    }
+    modulesDLLs.clear();
+}
+
+//static
+void ServerGlobalStucts::clear() {
+    instance._clear();
+}
+
+void ServerGlobalStucts::_clear() {
+    apps.clear();
+
+    std::shared_ptr<geryon::server::GMemoryPool> empty(0);
+    memoryPool = empty;
+}
 
 //static
 void ServerGlobalStucts::setMemoryPool(std::shared_ptr<GMemoryPool> pool) {
@@ -64,6 +86,13 @@ std::string ServerGlobalStucts::getServerToken() {
 //static
 unsigned int ServerGlobalStucts::getServerId() {
     return instance.serverId;
+}
+
+//static
+void ServerGlobalStucts::addModuleDLL(void * ptr) {
+    if(ptr) {
+        instance.modulesDLLs.push_back(ptr);
+    }
 }
 
 } } /* namespace */
