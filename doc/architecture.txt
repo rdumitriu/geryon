@@ -33,24 +33,4 @@ level, or direct by names)
  5/ Basic transactional support for SQL
  6/ Streamable IO on servlets ...
  
-* IDEA:: arch
-
-Geryon Server = Listeners + Dispatchers + Executors + Applications + Resources 
-
-Listeners = Linked to a certain ip protocol (plain tcp / ssl / udp / etc). You can specify here the dispatcher(s) 
-to be used, if non-standard. The translation from data to request will not happen at this level. At this level we do 
-not care about carried-over protocol (e.g. http, https) we're only concerned with IO. 
-
-ProtocolDispatcher = responsibility is to dispatch the buffers (raw data) to the protocol handlers (protocol handlers can be chained!)
-Note: an automated routing mechanism may be added to the server.
-
-Worker Thread Pool = decrypt, interpret via protocol handlers the request and execution of the request (if request is completely
-interpreted calls in the ApplicationDispatcher) creates the result, call protocol handlers again to pack the response (encrypt).
-Protocols can be chained (i.e. https -> chained over http).
-So, when the buffer is taken by the thread, it is interpreted using the correct protocol handler. If the response is complete, it
-calls the ApplicationDispatcher, else returns next operation to be performed (READ, CLOSE). ApplicationDispatcher executes the
-request, creates the response, and the control is returned to the ProtocolDispatcher (WRITE, CLOSE, READ)
-
-ApplicationDispatcher = selects the application to pass the request over. Again, before passing down the request, it should
-go through a chain of command, so we can intercept requests and log them, etc.
 

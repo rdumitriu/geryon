@@ -1,0 +1,31 @@
+
+FUNCTIONAL
+~~~~~~~~~~
+
+1/ SQL Pools - must
+2/ Introspection - buf
+3/ Introspection - app ses
+
+
+STABILITY
+~~~~~~~~~
+
+1/ Configuration - clear TODOs
+2/ Lots of tests needed
+
+
+PERFORMANCE
+~~~~~~~~~~~
+
+1/ Create direct (new / delete) memory pool
+2/ Create thread bound memory pool
+3/ Create multiple execution queues (with threads + static atomic integer). 
+That should minimize contention on executors
+4/ Log should be on a separate thread; this includes the formatting (if possible).
+5/ Use hints on http where possible to get the proper buffers. This means that we should implement
+a memory pool that offers different-sized buffers
+6/ Create real stock answers (unchanged buffers) 
+7/ Implement keep-alive
+8/ Implement a light-weight connection manager. I do not believe this adds too much to our server, 
+I do not need to track the connection all the time to terminate it gracefully. If the comm is broken
+so be it!

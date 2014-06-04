@@ -11,7 +11,7 @@ std::shared_ptr<TCPConnection> TCPConnectionManager::start(boost::asio::ip::tcp:
     std::shared_ptr<TCPConnection> c = create(std::move(socket), ioservice);
     std::unique_lock<std::mutex> _(mutex);
     connections.insert(c);
-    c->start(); //::TODO:: error free, pls
+    c->start();
     LOG(geryon::util::Log::DEBUG) << "Start: ConnMgr has " << connections.size() << " connections.";
     return c;
 }
@@ -19,14 +19,15 @@ std::shared_ptr<TCPConnection> TCPConnectionManager::start(boost::asio::ip::tcp:
 void TCPConnectionManager::stop(std::shared_ptr<TCPConnection> c) {
     std::unique_lock<std::mutex> _(mutex);
     connections.erase(c);
-    c->stop(); //::TODO:: error free, pls
+    c->stop();
     LOG(geryon::util::Log::DEBUG) << "Stop: ConnMgr has " << connections.size() << " connections.";
 }
 
 void TCPConnectionManager::stopAll() {
     std::unique_lock<std::mutex> _(mutex);
+    LOG(geryon::util::Log::DEBUG) << "Stop all: ConnMgr has " << connections.size() << " connections.";
     for(auto c : connections) {
-        c->stop(); //::TODO:: error free, pls
+        c->stop();
     }
     connections.clear();
 }

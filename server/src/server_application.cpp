@@ -109,7 +109,10 @@ void ServerApplication::execute(HttpServerRequest & request, HttpServerResponse 
         }
     } catch(geryon::HttpException & e) {
         response.setStatus(HttpServerResponse::SC_INTERNAL_SERVER_ERROR);
-        LOG(geryon::util::Log::ERROR) << "Internal error :" << e.what();
+        LOG(geryon::util::Log::ERROR) << "Internal error (HTTP):" << e.what();
+    } catch(std::runtime_error & e) {
+        response.setStatus(HttpServerResponse::SC_INTERNAL_SERVER_ERROR);
+        LOG(geryon::util::Log::ERROR) << "Internal error (RUNTIME):" << e.what();
     } catch( ... ) {
         response.setStatus(HttpServerResponse::SC_INTERNAL_SERVER_ERROR);
     }

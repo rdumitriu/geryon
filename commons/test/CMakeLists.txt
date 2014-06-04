@@ -44,6 +44,10 @@ ADD_EXECUTABLE(test_app test_app.cpp)
 INCLUDE_DIRECTORIES ("../include")
 TARGET_LINK_LIBRARIES (test_app  ${MLIB})
 
+ADD_EXECUTABLE(test_sql_pool test_sql_pool.cpp)
+INCLUDE_DIRECTORIES ("../include")
+TARGET_LINK_LIBRARIES (test_sql_pool  ${MLIB})
+
 
 ADD_TEST(testlog1 testlog)
 SET_TESTS_PROPERTIES (testlog1
@@ -91,5 +95,10 @@ SET_TESTS_PROPERTIES (test_session
 
 ADD_TEST(test_app test_app)
 SET_TESTS_PROPERTIES (test_app
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "FAILED.*")
+
+ADD_TEST(test_sql_pool test_sql_pool)
+SET_TESTS_PROPERTIES (test_sql_pool
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "FAILED.*")

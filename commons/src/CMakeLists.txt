@@ -7,6 +7,9 @@ SET (commonslib_SRC
 
     ../include/string_utils.hpp
     string_utils.cpp
+#
+# This is not really needed...
+#
     ../include/properties_file.hpp
     properties_file.cpp
 
@@ -17,19 +20,31 @@ SET (commonslib_SRC
     http_types.cpp
 
     ../include/appexception.hpp
+
     ../include/application_config.hpp
     application_config.cpp
+
     ../include/appconfig_aware.hpp
     appconfig_aware.cpp
+
     ../include/session_listener.hpp
+
     ../include/session.hpp
     session.cpp
+
     ../include/filter.hpp
+
     ../include/servlet.hpp
     servlet.cpp
 
     ../include/application.hpp
     application.cpp
+
+    ../include/sql/sql_pool.hpp
+
+    ../include/sql/sql_postgres_support.hpp
+
+    ../include/resources.hpp
 )
 
 INCLUDE_DIRECTORIES ("../include" )
