@@ -243,21 +243,31 @@ public:
     ///Destructor
     ~SQLPool() {
         maintainer.stop();
+        for(typename std::deque<detail::SQLConnectionInternal<T>>::iterator i = queue.begin(); i != queue.end(); ++i) {
+            closeConnection(*i); //no throws
+        }
     }
 
     ///Gets the max size
-    unsigned int maxSize() {
+    inline unsigned int maxSize() {
         return maxSz;
     }
 
     ///Gets the min size
-    unsigned int minSize() {
+    inline unsigned int minSize() {
         return minSz;
     }
 
-    inline unsigned int usedSize() {
-        std::unique_lock<std::mutex> lock(mutex);
+    ///Returns the number of conns created
+    unsigned int currentSize() {
+        std::unique_lock<std::mutex> _(mutex);
         return queue.size() + noBorrowed;
+    }
+
+    ///Returns the number of conns created
+    unsigned int inUseSize() {
+        std::unique_lock<std::mutex> _(mutex);
+        return noBorrowed;
     }
 
     /// Non-copyable

@@ -7,15 +7,20 @@
 #ifndef APPLICATION_CONFIG_HPP_
 #define APPLICATION_CONFIG_HPP_
 
+#include "resources.hpp"
+
 #include "string_utils.hpp"
 
 namespace geryon {
+
+//::TODO:: at some point, we need to have a better way to deal with the conns
 
 namespace configuration {
 
 ///
 /// \brief The ApplicationConfigInjector class
 /// Used to inject the config
+///
 class ApplicationConfigInjector {
 public:
     ApplicationConfigInjector() {}
@@ -24,6 +29,10 @@ public:
     virtual std::string getMountPath() = 0;
 
     virtual std::map<std::string, std::string> getProperties() = 0;
+
+#ifdef G_HAS_PQXX
+    virtual std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> postgresConnections() = 0;
+#endif
 };
 
 }
@@ -37,6 +46,7 @@ public:
 ///
 class ApplicationConfig {
 public:
+    enum SQLPoolType { NOT_DEFINED, POSTGRES };
 
     /// Constructor
     explicit ApplicationConfig() {
@@ -88,6 +98,12 @@ public:
         return mountPath;
     }
 
+#ifdef G_HAS_PQXX
+    geryon::sql::postgres::PostgresConnectionPool & getPostgresPool(const std::string & name);
+#endif
+
+    SQLPoolType getSQLPoolType(const std::string & name);
+
     ///
     /// \brief setup the config
     /// \param injector the config injector
@@ -97,6 +113,9 @@ public:
 private:
     std::string mountPath;
     std::map<std::string, std::string> props;
+#ifdef G_HAS_PQXX
+    std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> postgresConnections;
+#endif
 };
 
 }

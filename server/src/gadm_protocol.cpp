@@ -85,7 +85,7 @@ void GAdmTCPProtocolHandler::done() {
 } /*namespace detail */
 
 std::shared_ptr<TCPProtocolHandler> GAdmProtocol::createHandler() {
-    return std::make_shared<detail::GAdmTCPProtocolHandler>(ServerGlobalStucts::getMemoryPool().get());
+    return std::make_shared<detail::GAdmTCPProtocolHandler>(ServerGlobalStructs::getMemoryPool().get());
 }
 
 

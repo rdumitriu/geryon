@@ -27,7 +27,7 @@ typedef SQLConnection<pqxx::connection> PostgresConnection;
 /// \brief The pool
 ///
 typedef SQLPool<pqxx::connection> PostgresConnectionPool;
-
+typedef std::shared_ptr<geryon::sql::postgres::PostgresConnectionPool> PostgresConnectionPoolPtr;
 
 } } } /* namespace */
 

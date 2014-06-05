@@ -1,6 +1,7 @@
 
 #include "os_utils.hpp"
 #include "geryon_configapp.hpp"
+#include "server_global_structs.hpp"
 
 #include "log.hpp"
 
@@ -8,7 +9,8 @@ namespace geryon { namespace server {
 
 class GeryonConfigurationInjector : public geryon::configuration::ApplicationConfigInjector {
 public:
-    GeryonConfigurationInjector(std::string & _path, std::map<std::string, std::string> & _props) : path(_path), props(_props) {
+    GeryonConfigurationInjector(std::string & _path, std::map<std::string, std::string> & _props)
+                    : path(_path), props(_props) {
     }
 
     virtual std::string getMountPath() { return path; }
@@ -19,9 +21,26 @@ public:
         return props;
     }
 
+#ifdef G_HAS_PQXX
+    virtual std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> postgresConnections() {
+        LOG(geryon::util::Log::DEBUG) << "Injecting " << postgresConns.size()
+                                      << " postgres datasources into the configuration, path:" << path;
+        return postgresConns;
+    }
+
+    virtual void setPostgresConnections(std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> map) {
+        postgresConns = map;
+    }
+
+#endif
+
 private:
     std::string & path;
     std::map<std::string, std::string> & props;
+
+#ifdef G_HAS_PQXX
+    std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> postgresConns;
+#endif
 };
 
 typedef std::shared_ptr<geryon::Application> (*pFunctCreateApp)();
@@ -85,6 +104,9 @@ bool GeryonApplicationConfigurator::isConfigurationValid() {
 
 std::shared_ptr<ServerApplication> GeryonApplicationConfigurator::application() {
     GeryonConfigurationInjector injector(cfg.path, cfg.props);
+#ifdef G_HAS_PQXX
+    injector.setPostgresConnections(ServerGlobalStructs::getPostgresPools());
+#endif
     pApplication->getConfig().setup(injector);
     return std::make_shared<ServerApplication>(pApplication,
                                                cfg.sessPartitions,
@@ -129,6 +151,9 @@ bool GeryonApplicationModuleConfigurator::isConfigurationValid() {
 
 std::shared_ptr<ApplicationModule> GeryonApplicationModuleConfigurator::module() {
     GeryonConfigurationInjector injector(cfg.path, cfg.props);
+#ifdef G_HAS_PQXX
+    injector.setPostgresConnections(ServerGlobalStructs::getPostgresPools());
+#endif
     pPlugin->getConfig().setup(injector);
     return pPlugin;
 }

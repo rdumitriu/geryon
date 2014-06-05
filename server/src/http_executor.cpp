@@ -26,10 +26,10 @@ std::shared_ptr<ServerApplication> HttpExecutor::getDispatchTarget(HttpServerReq
     std::string pathSegment = extractPath(request.getURIPath());
     LOG(geryon::util::Log::DEBUG) << "Searching for apps mapped on: " << pathSegment;
 
-    std::shared_ptr<ServerApplication> ret = ServerGlobalStucts::getApplication(pathSegment);
+    std::shared_ptr<ServerApplication> ret = ServerGlobalStructs::getApplication(pathSegment);
     if(!ret.get()) {
         //if not found, fallback to default app
-        ret = ServerGlobalStucts::getApplication("/");
+        ret = ServerGlobalStructs::getApplication("/");
     }
     return ret;
 }

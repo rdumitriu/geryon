@@ -13,17 +13,21 @@
 #include "mem_buf.hpp"
 #include "server_application.hpp"
 
+#ifdef G_HAS_PQXX
+#include "postgres_support.hpp"
+#endif
+
 namespace geryon { namespace server {
 
 ///
-/// \brief The ServerGlobalStucts class
+/// \brief The ServerGlobalStructs class
 ///
 /// Singleton, contains instances of the objects that belong to the whole life-cycle of the server (memory pools,
 /// defined applications, etc)
 ///
 /// Not thread safe, so it must be initialized before usage. No operations other than get when doing usual business.
 ///
-class ServerGlobalStucts {
+class ServerGlobalStructs {
 public:
     static void setMemoryPool(std::shared_ptr<GMemoryPool> pool);
 
@@ -46,14 +50,26 @@ public:
     static void addModuleDLL(void * ptr);
 
     static void clear();
+
+#ifdef G_HAS_PQXX
+    //::TODO:: we need to create a general mechanism for this
+    // For now, it works, but it is ugly.
+    static void addPostgresPool(const std::string & name, std::shared_ptr<geryon::server::PostgresInternalPoolImpl> intp);
+    static std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> getPostgresPools();
+#endif
+
 private:
-    ServerGlobalStucts() {}
-    ~ServerGlobalStucts();
-    static ServerGlobalStucts instance;
+    ServerGlobalStructs() {}
+    ~ServerGlobalStructs();
+    static ServerGlobalStructs instance;
 
     std::shared_ptr<GMemoryPool> memoryPool;
 
     std::map<std::string, std::shared_ptr<ServerApplication>> apps;
+
+#ifdef G_HAS_PQXX
+    std::map<std::string, std::shared_ptr<geryon::server::PostgresInternalPoolImpl>> postgresPools;
+#endif
 
     std::string serverToken;
 

@@ -65,8 +65,8 @@ ServerApplication::ServerApplication(std::shared_ptr<geryon::Application> & _app
                                      unsigned int cleanupInterval)
                     : application(_application),
                       path(_application->getConfig().getMountPath()),
-                      serverToken(ServerGlobalStucts::getServerToken()),
-                      serverNumber(ServerGlobalStucts::getServerId()),
+                      serverToken(ServerGlobalStructs::getServerToken()),
+                      serverNumber(ServerGlobalStructs::getServerId()),
                       nPartitions(_nPartitions),
                       sessTimeOut(_sessTimeOut),
                       sessionPartitions(new detail::SessionPartition[_nPartitions]),

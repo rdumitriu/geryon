@@ -29,6 +29,10 @@ SET (geryon_SRC
 #
 # GLOBALS
 #
+
+    ../include/postgres_support.hpp
+    postgres_support.cpp
+
     ../include/server_global_structs.hpp
     server_global_structs.cpp
 
@@ -105,6 +109,10 @@ SET (geryon_SRC
 #
 # MAIN
 #
+
+    ../include/geryon_configsql_postgres.hpp
+    geryon_configsql_postgres.cpp
+
     ../include/geryon_configapp.hpp
     geryon_configapp.cpp
 

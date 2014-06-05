@@ -2,9 +2,8 @@
 FUNCTIONAL
 ~~~~~~~~~~
 
-1/ SQL Pools - must
-2/ Introspection - buf
-3/ Introspection - app ses
+1/ Introspection - buf
+2/ Introspection - app ses
 
 
 STABILITY
@@ -12,6 +11,9 @@ STABILITY
 
 1/ Configuration - clear TODOs
 2/ Lots of tests needed
+3/ SQL pools were introduced in a hurry. That needs to be changed, since it's too dependent in many 
+places of the defines ... We must find some common ground for the sql pools. However, since it's on 
+server side, we can touch it when we'll add Mysql, or whatever.
 
 
 PERFORMANCE

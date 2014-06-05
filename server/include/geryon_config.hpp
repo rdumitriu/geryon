@@ -80,7 +80,6 @@ private:
     std::shared_ptr<ServerApplication> configureApplication(const boost::property_tree::ptree & node);
 
     void unconfigureApplications();
-    void unconfigureResources();
 
     std::string homeBase;
     unsigned int serverId;
