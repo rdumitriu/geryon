@@ -41,7 +41,7 @@ typedef geryon::sql::SQLPool<int> SQLPool_T;
 
 
 int main(int argn, const char * argv []) {
-    SQLConnectionOpsImpl_T impl("bla");
+    std::shared_ptr<SQLConnectionOpsImpl_T> impl = std::make_shared<SQLConnectionOpsImpl_T>("bla");
     SQLPool_T pool(1, 3, 3, 5, false, false, impl);
 
     geryon::sql::SQLConnection<int> c1(pool);

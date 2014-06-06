@@ -19,7 +19,7 @@ std::shared_ptr<pqxx::connection> PostgresSQLConnectionOpsImpl::open() throw(ger
     }
 }
 
-void close(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException) {
+void PostgresSQLConnectionOpsImpl::close(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException) {
     try {
         conn->disconnect();
     } catch(std::runtime_error & e) {
@@ -31,7 +31,7 @@ void close(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLExcep
     }
 }
 
-bool test(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException) {
+bool PostgresSQLConnectionOpsImpl::test(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException) {
     try {
         //::TODO:: a real sql test here, please
         return conn.get() && conn->is_open();

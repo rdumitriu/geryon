@@ -54,7 +54,7 @@ public:
 #ifdef G_HAS_PQXX
     //::TODO:: we need to create a general mechanism for this
     // For now, it works, but it is ugly.
-    static void addPostgresPool(const std::string & name, std::shared_ptr<geryon::server::PostgresInternalPoolImpl> intp);
+    static void addPostgresPool(const std::string & name, geryon::sql::postgres::PostgresConnectionPoolPtr intp);
     static std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> getPostgresPools();
 #endif
 
@@ -68,7 +68,7 @@ private:
     std::map<std::string, std::shared_ptr<ServerApplication>> apps;
 
 #ifdef G_HAS_PQXX
-    std::map<std::string, std::shared_ptr<geryon::server::PostgresInternalPoolImpl>> postgresPools;
+    std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> postgresPools;
 #endif
 
     std::string serverToken;

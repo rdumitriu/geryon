@@ -101,17 +101,13 @@ void ServerGlobalStructs::addModuleDLL(void * ptr) {
 
 #ifdef G_HAS_PQXX
 //static
-void ServerGlobalStructs::addPostgresPool(const std::string & name, std::shared_ptr<PostgresInternalPoolImpl> intp) {
+void ServerGlobalStructs::addPostgresPool(const std::string & name, geryon::sql::postgres::PostgresConnectionPoolPtr intp) {
     instance.postgresPools.insert(std::make_pair(name, intp));
 }
 
 //static
 std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> ServerGlobalStructs::getPostgresPools() {
-    std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> ret;
-    for(auto & s : instance.postgresPools) {
-        ret.insert(std::make_pair(s.first, s.second->pool));
-    }
-    return ret;
+    return instance.postgresPools;
 }
 
 #endif

@@ -197,7 +197,7 @@ public:
             pPool->queue = newq;
             //b. ensure minSz
             while(pPool->actualSize() < pPool->minSz) {
-                std::shared_ptr<T> ptr_conn = pPool->rOpsImpl.open();
+                std::shared_ptr<T> ptr_conn = pPool->rOpsImpl->open();
                 detail::SQLConnectionInternal<T> conn(ptr_conn);
                 pPool->queue.push_back(std::move(conn));
             }
@@ -229,12 +229,12 @@ public:
     SQLPool(unsigned int _minSz, unsigned int _maxSz,
             unsigned int _connTTL, unsigned int _checkInterval,
             bool _testOnBorrow, bool _testOnReturn,
-            configuration::SQLConnectionOpsImpl<T> & _rOpsImpl)
+            std::shared_ptr<configuration::SQLConnectionOpsImpl<T>> _rOpsImpl)
                 : minSz(_minSz), maxSz(_maxSz), connTTL(_connTTL),
                   testOnBorrow(_testOnBorrow), testOnReturn(_testOnReturn), noBorrowed(0),
                   rOpsImpl(_rOpsImpl), maintainer(_checkInterval, detail::SQLPoolMaintainer<T>(this)) {
         for(unsigned int i = 0; i < minSz; ++i) {
-            std::shared_ptr<T> _bc = rOpsImpl.open();
+            std::shared_ptr<T> _bc = rOpsImpl->open();
             queue.push_back(std::move(detail::SQLConnectionInternal<T>(_bc)));
         }
         maintainer.start();
@@ -296,7 +296,7 @@ protected:
                 queue.pop_front();
             } else if(actualSize() < maxSz){
                 //we must allocate a new one
-                std::shared_ptr<T> connptr = rOpsImpl.open();
+                std::shared_ptr<T> connptr = rOpsImpl->open();
                 conn = detail::SQLConnectionInternal<T>(connptr);
             } else {
                 while(actualSize() == maxSz) { //depleted, we must wait
@@ -306,7 +306,7 @@ protected:
             if(testOnBorrow) {
                 try {
                     std::shared_ptr<T> connptr = conn.connection_ptr();
-                    if(rOpsImpl.test(connptr)) {
+                    if(rOpsImpl->test(connptr)) {
                         closeConnection(conn);
                         mustTry = false;
                     }
@@ -333,7 +333,7 @@ protected:
         if(testOnReturn) {
             try {
                 std::shared_ptr<T> connptr = conn.connection_ptr();
-                if(rOpsImpl.test(connptr)) {
+                if(rOpsImpl->test(connptr)) {
                     queue.push_back(conn);
                 } else {
                     closeConnection(conn);
@@ -357,7 +357,7 @@ protected:
     void closeConnection(detail::SQLConnectionInternal<T> & conn) {
         try {
             std::shared_ptr<T> connptr = conn.connection_ptr();
-            rOpsImpl.close(connptr);
+            rOpsImpl->close(connptr);
         } catch( ... ) {} //ignore
     }
 
@@ -373,7 +373,7 @@ private:
     std::deque<detail::SQLConnectionInternal<T>> queue;
     unsigned int noBorrowed; /* we do not care for leaks, so this is enough*/
 
-    configuration::SQLConnectionOpsImpl<T> & rOpsImpl; /* implementation */
+    std::shared_ptr<configuration::SQLConnectionOpsImpl<T>> rOpsImpl; /* implementation */
     geryon::mt::RepetitiveRunnable maintainer;
 };
 

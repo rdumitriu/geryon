@@ -47,11 +47,14 @@ void GeryonPostgresConfigurator::setPoolParams(unsigned int _minSize, unsigned i
 
 void GeryonPostgresConfigurator::configure() {
 #ifdef G_HAS_PQXX
-    ServerGlobalStructs::addPostgresPool(name, std::make_shared<PostgresInternalPoolImpl>(connectString,
-                                                                                          minSize, maxSize,
-                                                                                          connectionTTL,
-                                                                                          maintenanceInterval,
-                                                                                          testOnBorrow, testOnReturn));
+    using namespace geryon::server::detail;
+    using namespace geryon::sql::postgres;
+    std::shared_ptr<PostgresSQLConnectionOpsImpl> impl = std::make_shared<PostgresSQLConnectionOpsImpl>(connectString);
+    ServerGlobalStructs::addPostgresPool(name, std::make_shared<PostgresConnectionPool>( minSize, maxSize,
+                                                                                         connectionTTL,
+                                                                                         maintenanceInterval,
+                                                                                         testOnBorrow, testOnReturn,
+                                                                                         impl));
 #endif
 }
 
