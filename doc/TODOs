@@ -28,6 +28,3 @@ That should minimize contention on executors
 a memory pool that offers different-sized buffers
 6/ Create real stock answers (unchanged buffers) 
 7/ Implement keep-alive
-8/ Implement a light-weight connection manager. I do not believe this adds too much to our server, 
-I do not need to track the connection all the time to terminate it gracefully. If the comm is broken
-so be it!

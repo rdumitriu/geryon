@@ -46,6 +46,17 @@ void SessionPartition::cleanup(unsigned int timeout) {
     }
 }
 
+SessionStats SessionPartition::getStats() {
+    SessionStats ret;
+    std::lock_guard<std::mutex> _(smutex);
+    ret.count = sessions.size();
+    ret.totalSize = 0;
+    for(std::map<std::string, std::shared_ptr<ServerSession>>::iterator p = sessions.begin(); p != sessions.end(); ++p) {
+        ret.totalSize += sizeof(*(p->second));
+    }
+    return ret;
+}
+
 
 } /*namespace detail*/
 
@@ -79,6 +90,14 @@ ServerApplication::ServerApplication(std::shared_ptr<geryon::Application> & _app
 
 ServerApplication::~ServerApplication() {
     delete [] sessionPartitions;
+}
+
+std::vector<detail::SessionStats> ServerApplication::getStats() {
+    std::vector<detail::SessionStats> ret;
+    for(unsigned int i = 0; i < nPartitions; ++i) {
+        ret.push_back(std::move(sessionPartitions[i].getStats()));
+    }
+    return ret;
 }
 
 void ServerApplication::start() {

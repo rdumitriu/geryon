@@ -10,7 +10,7 @@
 
 namespace geryon {
 
-const ApplicationConfig & ApplicationConfigAware::getModuleConfig() const throw(ApplicationException) {
+ApplicationConfig & ApplicationConfigAware::getModuleConfig() const throw(ApplicationException) {
     if(pApplicationModule) {
         return pApplicationModule->getConfig();
     }

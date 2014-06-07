@@ -276,6 +276,7 @@ bool GeryonConfigurator::configureServers() {
             cfg.nExecutors = serverNode.get("threads", 25);
             cfg.nAcceptors = serverNode.get("acceptors", 2);
             cfg.maxRequestLength = serverNode.get("max-req-len", 10485760);
+            cfg.trackConnections = serverNode.get("track-connections", false);
 
             httpServers.push_back(std::move(cfg));
         }

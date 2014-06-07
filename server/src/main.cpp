@@ -44,7 +44,7 @@ public:
     GAdminServer(const std::string & service)
             : GServer(),
               adminProtocol(),
-              adminserver("adminserver", "127.0.0.1", service, adminProtocol) {
+              adminserver("adminserver", "127.0.0.1", service, adminProtocol, true) {
         geryon::server::SingleThreadAcceptorTCPServer * pAdminServer = &adminserver;
 
         thr = std::shared_ptr<std::thread>(new std::thread([pAdminServer]() {
@@ -77,9 +77,9 @@ class GMHttpServer : public GHttpServer {
 public:
     GMHttpServer(const std::string & bindAddress, const std::string & service,
                  unsigned int nExecThreads, std::size_t maxRequestLen,
-                 unsigned int nAcceptorThreads)
+                 unsigned int nAcceptorThreads, bool trackConnections)
             : GHttpServer(nExecThreads, maxRequestLen),
-              httpserver("httpserver", bindAddress, service, httpProtocol, nAcceptorThreads) {
+              httpserver("httpserver", bindAddress, service, httpProtocol, nAcceptorThreads, trackConnections) {
         geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
 
         thr = std::shared_ptr<std::thread>(new std::thread([pHttpServer]() {
@@ -95,9 +95,9 @@ private:
 class GSHttpServer : public GHttpServer {
 public:
     GSHttpServer(const std::string & bindAddress, const std::string & service,
-                 unsigned int nExecThreads, std::size_t maxRequestLen)
+                 unsigned int nExecThreads, std::size_t maxRequestLen, bool trackConnections)
             : GHttpServer(nExecThreads, maxRequestLen),
-              httpserver("httpserver", bindAddress, service, httpProtocol) {
+              httpserver("httpserver", bindAddress, service, httpProtocol, trackConnections) {
         geryon::server::SingleThreadAcceptorTCPServer * pHttpServer = &httpserver;
 
         thr = std::shared_ptr<std::thread>(new std::thread([pHttpServer]() {
@@ -114,11 +114,11 @@ class WHttpServer : public GServer {
 public:
     WHttpServer(const std::string & bindAddress, const std::string & service,
                 std::size_t maxRequestLen,
-                unsigned int nAcceptorThreads)
+                unsigned int nAcceptorThreads, bool trackConnections)
             : GServer(),
               executor(),
               httpProtocol(executor, maxRequestLen),
-              httpserver("httpserver", bindAddress, service, httpProtocol, nAcceptorThreads) {
+              httpserver("httpserver", bindAddress, service, httpProtocol, nAcceptorThreads, trackConnections) {
         geryon::server::MultiThreadedAcceptorTCPServer * pHttpServer = &httpserver;
 
         thr = std::shared_ptr<std::thread>(new std::thread([pHttpServer]() {
@@ -204,7 +204,8 @@ int main(int argc, char* argv[]) {
                 servers.push_back(std::make_shared<GSHttpServer>(cfg.bindAddress,
                                                                  cfg.service,
                                                                  cfg.nExecutors,
-                                                                 cfg.maxRequestLength));
+                                                                 cfg.maxRequestLength,
+                                                                 cfg.trackConnections));
             } else if(cfg.nExecutors > 1) {
                 LOG(geryon::util::Log::INFO) << "Creating multi-acceptor server (" << cfg.nAcceptors
                                              << "), executor size:" << cfg.nExecutors;
@@ -212,14 +213,16 @@ int main(int argc, char* argv[]) {
                                                                  cfg.service,
                                                                  cfg.nExecutors,
                                                                  cfg.maxRequestLength,
-                                                                 cfg.nAcceptors));
+                                                                 cfg.nAcceptors,
+                                                                 cfg.trackConnections));
             } else {
                 LOG(geryon::util::Log::INFO) << "Creating multi-acceptor server (" << cfg.nAcceptors
                                              << "), in-thread execution";
                 servers.push_back(std::make_shared<WHttpServer>(cfg.bindAddress,
                                                                 cfg.service,
                                                                 cfg.maxRequestLength,
-                                                                cfg.nAcceptors));
+                                                                cfg.nAcceptors,
+                                                                cfg.trackConnections));
             }
         }
 

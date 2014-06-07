@@ -41,7 +41,8 @@ private:
 ///Connection manager, ST
 class STTCPConnectionManager : public TCPConnectionManager {
 public:
-    STTCPConnectionManager(TCPProtocol & _proto) : TCPConnectionManager(), proto(_proto) {
+    STTCPConnectionManager(TCPProtocol & _proto, bool trackConnections)
+                                        : TCPConnectionManager(trackConnections), proto(_proto) {
         LOG(geryon::util::Log::DEBUG) << "Initialized STTCP conn manager";
     }
     virtual ~STTCPConnectionManager() {
@@ -156,9 +157,11 @@ std::shared_ptr<TCPConnection> STTCPConnectionManager::create(boost::asio::ip::t
 
 SingleThreadAcceptorTCPServer::SingleThreadAcceptorTCPServer(const std::string & _srvName,
                                                              const std::string & _bindAddress,
-                                                             const std::string & _bindPort, TCPProtocol & _proto)
+                                                             const std::string & _bindPort,
+                                                             TCPProtocol & _proto,
+                                                             bool trackConnections)
             : TCPServer(_srvName, _bindAddress, _bindPort, _proto) {
-    connMgr = std::make_shared<detail::STTCPConnectionManager>(_proto);
+    connMgr = std::make_shared<detail::STTCPConnectionManager>(_proto, trackConnections);
 }
 
 void SingleThreadAcceptorTCPServer::run() {

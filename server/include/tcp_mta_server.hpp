@@ -23,7 +23,8 @@ namespace geryon { namespace server {
 class MultiThreadedAcceptorTCPServer : public TCPServer{
 public:
     MultiThreadedAcceptorTCPServer(const std::string & _srvName, const std::string & _bindAddress,
-                           const std::string & _bindPort, TCPProtocol & _proto, unsigned int _nThreads);
+                                   const std::string & _bindPort, TCPProtocol & _proto,
+                                   unsigned int _nThreads, bool trackConnections);
     /// Destructor
     virtual ~MultiThreadedAcceptorTCPServer() {}
 

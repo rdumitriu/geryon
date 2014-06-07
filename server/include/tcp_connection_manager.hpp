@@ -22,7 +22,7 @@ class TCPConnection;
 class TCPConnectionManager {
 public:
 
-    TCPConnectionManager() {}
+    TCPConnectionManager(bool _trackConnections) : trackConnections(_trackConnections) {}
     virtual ~TCPConnectionManager() {}
 
     ///Non-copyable
@@ -47,7 +47,7 @@ protected:
 private:
   /// The underlying connections.
   std::set<std::shared_ptr<TCPConnection>> connections;
-
+  bool trackConnections;
   std::mutex mutex;
 };
 

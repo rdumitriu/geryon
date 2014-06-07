@@ -22,6 +22,11 @@ namespace geryon { namespace server {
 
 namespace detail {
 
+struct SessionStats {
+    std::size_t count;
+    std::size_t totalSize;
+};
+
 class SessionPartition {
 public:
 
@@ -31,6 +36,8 @@ public:
     void registerSession(const std::string & cookie, std::shared_ptr<ServerSession> ses);
 
     void cleanup(unsigned int sessTimeOut);
+
+    SessionStats getStats();
 
 private:
     std::map<std::string, std::shared_ptr<ServerSession>> sessions;
@@ -54,10 +61,15 @@ public:
     void start();
     void stop();
 
-    inline const std::string & getPath() { return path; }
+    inline const std::string & getPath() const { return path; }
+
+    inline std::string getKey() const { return application->getKey(); }
+
+    inline ApplicationModule::Status getStatus() const { return application->getStatus(); }
 
     void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
 
+    std::vector<detail::SessionStats> getStats();
 private:
     std::shared_ptr<geryon::Application> application;
     std::string path;

@@ -23,7 +23,7 @@ namespace geryon { namespace server {
 class SingleThreadAcceptorTCPServer : public TCPServer {
 public:
     SingleThreadAcceptorTCPServer(const std::string & _srvName, const std::string & _bindAddress,
-                                  const std::string & _bindPort, TCPProtocol & _proto);
+                                  const std::string & _bindPort, TCPProtocol & _proto, bool trackConnections);
 
     /// Destructor
     virtual ~SingleThreadAcceptorTCPServer() {}

@@ -32,6 +32,7 @@ struct GeryonHttpServerConfig {
     unsigned int nAcceptors;
     unsigned int nExecutors;
     std::size_t maxRequestLength;
+    bool trackConnections;
 };
 
 namespace detail {

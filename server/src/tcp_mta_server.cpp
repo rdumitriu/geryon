@@ -50,7 +50,8 @@ private:
 ///Connection manager, MT
 class MTTCPConnectionManager : public TCPConnectionManager {
 public:
-    MTTCPConnectionManager(TCPProtocol & _proto) : TCPConnectionManager(), proto(_proto) {
+    MTTCPConnectionManager(TCPProtocol & _proto, bool trackConnections)
+                                        : TCPConnectionManager(trackConnections), proto(_proto) {
         LOG(geryon::util::Log::DEBUG) << "Initialized MTTCP conn manager";
     }
     virtual ~MTTCPConnectionManager() {
@@ -165,9 +166,10 @@ std::shared_ptr<TCPConnection> MTTCPConnectionManager::create(boost::asio::ip::t
 MultiThreadedAcceptorTCPServer::MultiThreadedAcceptorTCPServer(const std::string & _srvName,
                                                                const std::string & _bindAddress,
                                                                const std::string & _bindPort,
-                                                               TCPProtocol & _proto, unsigned int _nThreads)
+                                                               TCPProtocol & _proto, unsigned int _nThreads,
+                                                               bool trackConnections)
                         : TCPServer(_srvName, _bindAddress, _bindPort, _proto), nThreads(_nThreads) {
-    connMgr = std::make_shared<detail::MTTCPConnectionManager>(_proto);
+    connMgr = std::make_shared<detail::MTTCPConnectionManager>(_proto, trackConnections);
 }
 
 

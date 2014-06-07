@@ -44,7 +44,7 @@ public:
     /// \brief Returns the configuration for the current module
     /// \return the current config.
     ///
-    const ApplicationConfig & getModuleConfig() const throw(ApplicationException);
+    ApplicationConfig & getModuleConfig() const throw(ApplicationException);
 
 private:
     friend class ApplicationModule;
