@@ -135,6 +135,7 @@ void ServerApplication::execute(HttpServerRequest & request, HttpServerResponse 
     } catch( ... ) {
         response.setStatus(HttpServerResponse::SC_INTERNAL_SERVER_ERROR);
     }
+    response.flush();
     response.close(); //::TODO:: keep-alive should change that
 }
 

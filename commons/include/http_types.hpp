@@ -665,11 +665,6 @@ protected:
     ///Clears the response for reuse
     virtual void clear();
 
-    ///Call this to format the preamble of any HTTP message. Sending the headers will make impossible to change
-    /// afterwards any header, status, etc ::TODO:: maybe smarter, hidden into implementation ?!? we'll see.
-    /// It changes also the committed flag
-    void sendHeaders() throw (HttpException);
-
     ///
     /// \brief Checks if the response is committed.
     ///

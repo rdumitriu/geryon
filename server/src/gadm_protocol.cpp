@@ -21,7 +21,7 @@ class GAdmTCPProtocolHandler : public TCPProtocolHandler {
 public:
     GAdmTCPProtocolHandler(GMemoryPool * const _pMemoryPool) : TCPProtocolHandler(_pMemoryPool) {}
     virtual ~GAdmTCPProtocolHandler() {}
-    virtual void init(TCPConnection * _pConnection);
+    virtual void init(std::shared_ptr<TCPConnection> _pConnection);
     virtual void handleRead(GBufferHandler && currentBuffer, std::size_t nBytes);
     virtual void done();
 
@@ -48,7 +48,7 @@ void GAdmTCPProtocolHandler::writeString(const std::string & msg) {
     requestWrite(std::move(writeBuff));
 }
 
-void GAdmTCPProtocolHandler::init(TCPConnection * _pConnection) {
+void GAdmTCPProtocolHandler::init(std::shared_ptr<TCPConnection> _pConnection) {
     TCPProtocolHandler::init(_pConnection);
 
     LOG(geryon::util::Log::DEBUG) << "Connected to administrative interface (init)";
@@ -188,7 +188,7 @@ void GAdmTCPProtocolHandler::showApplicationSessions(std::shared_ptr<ServerAppli
     std::ostringstream out;
     out << "===\n\nTotal count: " << overallCount << "\tTotal size: " << overallSize << "\n";
     if(overallCount > 0) {
-        out << "Average session size:" << (overallSize / overallCount) << "bytes \n";
+        out << "Average session size: " << (overallSize / overallCount) << " bytes \n";
     }
     writeString(out.str());
 }

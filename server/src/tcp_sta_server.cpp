@@ -36,6 +36,10 @@ private:
     virtual void scheduleASIORead();
     virtual void scheduleASIOWrite();
     virtual void scheduleASIOClose();
+
+    virtual std::shared_ptr<TCPConnection> shared_this() {
+        return shared_from_this();
+    }
 };
 
 ///Connection manager, ST
@@ -88,7 +92,7 @@ void STTCPConnection::scheduleASIORead() {
                 protocolHandler()->handleRead(std::move(localbuff), nBytes);
                 rescheduleASIO();
             } else if (ec != boost::asio::error::operation_aborted) {
-                connectionManager().stop(shared_from_this());
+                connectionManager().stop(self);
             }
         } catch( ... ) {
             LOG(geryon::util::Log::ERROR) << "Fatal error in processing request. Connection aborted";
@@ -125,7 +129,7 @@ void STTCPConnection::scheduleASIOWrite() {
             rescheduleASIO();
         } else if (ec != boost::asio::error::operation_aborted) {
             LOG(geryon::util::Log::DEBUG) << "In write handler, error x=" << ec << " nb=" << nBytes;
-            connectionManager().stop(shared_from_this());
+            connectionManager().stop(self);
         }
     });
 }
@@ -137,7 +141,7 @@ void STTCPConnection::scheduleASIOClose() {
                              boost::asio::buffer(boost::asio::mutable_buffer(NULL, 0)),
                              [this, self](boost::system::error_code ec, std::size_t) {
         LOG(geryon::util::Log::DEBUG) << "Nice shutdown initiated.";
-        connectionManager().stop(shared_from_this());
+        connectionManager().stop(self);
     });
 }
 

@@ -122,6 +122,9 @@ protected:
     /// The write buffers (may accumulate!)
     std::deque<detail::TCPConnectionCommandPtr> commands;
 
+    ///
+    virtual std::shared_ptr<TCPConnection> shared_this() = 0;
+
 private:
     /// The socket
     boost::asio::ip::tcp::socket socket;
@@ -144,6 +147,8 @@ private:
 
     /// flip-flop flag to mark an operation in progress.
     bool asioOperationInProgress;
+    /// accept commands only if the close wasn't called
+    bool acceptCommands;
 };
 
 } }  /* namespace */

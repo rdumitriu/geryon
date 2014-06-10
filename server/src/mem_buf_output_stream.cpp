@@ -28,9 +28,12 @@ GOstreambuff::int_type GOstreambuff::overflow(GOstreambuff::int_type ch) {
 }
 
 int GOstreambuff::sync() {
-    pProtocolHandler->requestWrite(std::move(buf_handler));
-    GBufferHandler temp(pProtocolHandler->getMemoryPool());
-    buf_handler = std::move(temp);
+    GBuffer & gb = buf_handler.get();
+    if(gb.marker() > 0) {
+        pProtocolHandler->requestWrite(std::move(buf_handler));
+        GBufferHandler temp(pProtocolHandler->getMemoryPool());
+        buf_handler = std::move(temp);
+    }
     return 0;
 }
 

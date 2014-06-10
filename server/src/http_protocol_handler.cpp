@@ -31,9 +31,10 @@ HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecuto
     LOG(geryon::util::Log::DEBUG) << "Created protocol handler";
 }
 
-void HttpProtocolHandler::init(TCPConnection * _pConnection) {
+void HttpProtocolHandler::init(std::shared_ptr<TCPConnection> _pConnection) {
     LOG(geryon::util::Log::DEBUG) << "About to init the protocol handler";
     TCPProtocolHandler::init(_pConnection);
+    request.setConnection(_pConnection);
     parser.init(&request);
     try {
         GBufferHandler readBuff(getMemoryPool());

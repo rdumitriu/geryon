@@ -53,6 +53,10 @@ public:
         sessionCookie = _sessionCookie;
     }
 
+    void setConnection(std::shared_ptr<TCPConnection> _connection) {
+        connection = connection;
+    }
+
     const std::string & getSessionCookie() {
         return sessionCookie;
     }
@@ -97,6 +101,7 @@ public:
     friend class HttpRequestParser;
     friend class HttpServerRequestPart;
 private:
+    std::shared_ptr<TCPConnection> connection;
     std::vector<GBufferHandler> buffers;
     GIstreambuff buff;
     std::istream stream;
@@ -164,6 +169,16 @@ public:
     }
 
     ///
+    /// \brief flushes the stream.
+    ///
+    void flush() {
+        if(!responseCommitted()) {
+            sendHeaders();
+        }
+        stream.flush();
+    }
+
+    ///
     /// \brief close the stream (and flushes it)
     ///
     void close() {
@@ -175,6 +190,11 @@ public:
 
     friend class HttpProtocolHandler;
 private:
+    ///Call this to format the preamble of any HTTP message. Sending the headers will make impossible to change
+    /// afterwards any header, status, etc
+    /// It changes also the committed flag
+    void sendHeaders() throw (HttpException);
+
     GOstreambuff buff;
     std::ostream stream;
 };

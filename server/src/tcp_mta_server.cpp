@@ -42,6 +42,10 @@ private:
     virtual void scheduleASIOWrite();
     virtual void scheduleASIOClose();
 
+    virtual std::shared_ptr<TCPConnection> shared_this() {
+        return shared_from_this();
+    }
+
     /// Strand (mutex for asio, needed)
     boost::asio::io_service::strand strand;
 
@@ -101,7 +105,7 @@ void MTTCPConnection::scheduleASIORead() {
             }
         } catch( ... ) {
             LOG(geryon::util::Log::ERROR) << "Fatal error in processing request. Connection aborted";
-            connectionManager().stop(shared_from_this());
+            connectionManager().stop(self);
         }
       }));
 
@@ -134,7 +138,7 @@ void MTTCPConnection::scheduleASIOWrite() {
             rescheduleASIO();
         } else if (ec != boost::asio::error::operation_aborted) {
             LOG(geryon::util::Log::DEBUG) << "In write handler, error x=" << ec << " nb=" << nBytes;
-            connectionManager().stop(shared_from_this());
+            connectionManager().stop(self);
         }
     }));
 }
@@ -146,7 +150,7 @@ void MTTCPConnection::scheduleASIOClose() {
                              boost::asio::buffer(boost::asio::mutable_buffer(NULL, 0)),
                              ioStrand().wrap([this, self](boost::system::error_code ec, std::size_t) {
         LOG(geryon::util::Log::DEBUG) << "Nice shutdown initiated.";
-        connectionManager().stop(shared_from_this());
+        connectionManager().stop(self);
     }));
 }
 

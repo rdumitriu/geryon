@@ -49,6 +49,35 @@ std::istream & HttpServerRequest::getInputStream() {
     return stream;
 }
 
+void HttpServerResponse::sendHeaders() throw (HttpException) {
+    if(responseCommitted()) {
+        std::string msg = "Response already committed";
+        LOG(geryon::util::Log::ERROR) << msg;
+        throw HttpException(HttpException::HEADERS_ALREADY_SENT, msg);
+    }
+    committed = true;
+
+    //1: status
+    stream << getHttpStatusMessage(status);
+    //2: content length
+    if(contentLength) {
+        stream << "Content-Length: " << std::to_string(contentLength) << "\r\n";
+    }
+    //3: content type
+    if(contentType != "") {
+        stream << "Content-Type: " << contentType << "\r\n";
+    } else {
+        stream << "Content-Type: text/plain\r\n";
+    }
+    //4: the rest of the headers
+    for(std::map<std::string, HttpHeader>::iterator i = headers.begin(); i != headers.end(); ++i) {
+        for(std::vector<std::string>::iterator j = i->second.values.begin(); j != i->second.values.end(); ++j) {
+            stream << i->second.name << ": " << *j << "\r\n";
+        }
+    }
+    stream << "\r\n";
+}
+
 } }
 
 

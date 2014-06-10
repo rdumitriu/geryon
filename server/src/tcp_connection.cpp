@@ -21,7 +21,7 @@ TCPConnection::TCPConnection(boost::asio::ip::tcp::socket && _socket,
                         : socket(std::move(_socket)),
                           rConnectionManager(_connectionManager),
                           pProtocolHandler(_protocolHandler),
-                          asioOperationInProgress(false) {
+                          asioOperationInProgress(false), acceptCommands(true) {
 }
 
 TCPConnection::~TCPConnection() {
@@ -29,7 +29,7 @@ TCPConnection::~TCPConnection() {
 
 void TCPConnection::start() {
     try {
-        protocolHandler()->init(this);
+        protocolHandler()->init(shared_this());
     } catch( std::runtime_error & e) {
         LOG(geryon::util::Log::ERROR) << "Failed to initialize properly the protocol handler! Error was :" << e.what();
     } catch( ... ) {
@@ -58,8 +58,9 @@ void TCPConnection::scheduleRead(GBufferHandler && _readBuffer) {
     ptr->bufferHandler = std::move(_readBuffer);
 
     std::unique_lock<std::mutex> _(mutex);
-
-    commands.push_back(ptr);
+    if(acceptCommands) {
+        commands.push_back(ptr);
+    }
     if(!asioOperationInProgress) {
         scheduleNextOperation();
     }
@@ -72,8 +73,9 @@ void TCPConnection::scheduleWrite(GBufferHandler && _writeBuffer) {
     ptr->bufferHandler = std::move(_writeBuffer);
 
     std::unique_lock<std::mutex> _(mutex);
-
-    commands.push_back(ptr);
+    if(acceptCommands) {
+        commands.push_back(ptr);
+    }
     if(!asioOperationInProgress) {
         scheduleNextOperation();
     }
@@ -84,8 +86,10 @@ void TCPConnection::scheduleClose() {
     ptr->command = detail::TCPConnectionCommand::CLOSE;
 
     std::unique_lock<std::mutex> _(mutex);
-
-    commands.push_back(ptr);
+    if(acceptCommands) {
+        commands.push_back(ptr);
+        acceptCommands = false;
+    }
     if(!asioOperationInProgress) {
         scheduleNextOperation();
     }

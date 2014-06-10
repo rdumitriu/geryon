@@ -29,7 +29,7 @@ public:
     virtual ~HttpProtocolHandler() {}
 
     /// \brief Called just before the protocol is used
-    virtual void init(TCPConnection * _pConnection);
+    virtual void init(std::shared_ptr<TCPConnection> _pConnection);
 
     ///
     /// \brief We read the bytes, this is where we process them.

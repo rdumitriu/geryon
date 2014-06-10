@@ -36,7 +36,7 @@ public:
     TCPProtocolHandler & operator = (const TCPProtocolHandler &other) = delete;
     
     /// \brief Called just before the protocol is used
-    virtual void init(TCPConnection * _pConnection) {
+    virtual void init(std::shared_ptr<TCPConnection> _pConnection) {
         pConnection = _pConnection;
     }
 
@@ -52,7 +52,9 @@ public:
     virtual void handleRead(GBufferHandler && currentBuffer, std::size_t nBytes) = 0;
     
     /// \brief Called just before exit time
-    virtual void done() {}
+    virtual void done() {
+        pConnection.reset();
+    }
 
     /// \brief Gets the memory pool pointer
     inline GMemoryPool * const getMemoryPool() const { return pMemoryPool; }
@@ -82,7 +84,7 @@ private:
     GMemoryPool * pMemoryPool;
 
     /// \brief The connection this handler belongs to
-    TCPConnection * pConnection;
+    std::shared_ptr<TCPConnection> pConnection;
 };
     
 } } /* namespace */
