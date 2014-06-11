@@ -123,20 +123,37 @@ void ServerApplication::execute(HttpServerRequest & request, HttpServerResponse 
         prepareExecution(request, response);
         if(filterChain.doFilters(request, response)) {
             if(!servletDispatcher.doServlet(request, response)) {
-                response.setStatus(HttpServerResponse::SC_NOT_FOUND);
+                std::string msg = "Cannot find servlet or filter to deal with: " + request.getURI();
+                sendStandardResponse(response, HttpResponse::SC_NOT_FOUND, msg);
+                LOG(geryon::util::Log::ERROR) << msg;
             }
         }
     } catch(geryon::HttpException & e) {
-        response.setStatus(HttpServerResponse::SC_INTERNAL_SERVER_ERROR);
-        LOG(geryon::util::Log::ERROR) << "Internal error (HTTP):" << e.what();
+        std::string msg("Internal error (HTTP):");
+        msg += e.what();
+        sendStandardResponse(response, HttpResponse::SC_INTERNAL_SERVER_ERROR, msg);
+        LOG(geryon::util::Log::ERROR) << msg;
     } catch(std::runtime_error & e) {
-        response.setStatus(HttpServerResponse::SC_INTERNAL_SERVER_ERROR);
-        LOG(geryon::util::Log::ERROR) << "Internal error (RUNTIME):" << e.what();
+        std::string msg("Internal error (RUNTIME):");
+        msg += e.what();
+        sendStandardResponse(response, HttpResponse::SC_INTERNAL_SERVER_ERROR, msg);
+        LOG(geryon::util::Log::ERROR) << msg;
     } catch( ... ) {
-        response.setStatus(HttpServerResponse::SC_INTERNAL_SERVER_ERROR);
+        std::string msg("Internal error: unspecified, generic.");
+        sendStandardResponse(response, HttpResponse::SC_INTERNAL_SERVER_ERROR, msg);
+        LOG(geryon::util::Log::ERROR) << msg;
     }
     response.flush();
     response.close(); //::TODO:: keep-alive should change that
+}
+
+void ServerApplication::sendStandardResponse(HttpServerResponse & response,
+                                             HttpResponse::HttpStatusCode code,
+                                             const std::string & msg) {
+    //this may throw away if the response is already commited.
+    response.setStatus(code);
+    response.setContentType(HttpResponse::CT_TEXT);
+    response.getOutputStream() << msg;
 }
 
 void ServerApplication::prepareExecution(HttpServerRequest & request,
@@ -176,17 +193,6 @@ std::string ServerApplication::getSessionCookieValue(HttpServerRequest & request
         request.setSessionCookie(sessCookie.value);
         return sessCookie.value;
     }
-//    if(request.hasHeader(COOKIE_HEADER)) {
-//        const std::vector<std::string> cookies = request.getHeaderValues(COOKIE_HEADER);
-//        for(std::vector<std::string>::const_iterator i = cookies.begin(); i != cookies.end(); ++i) {
-//            //geryonsessid=
-//            if(geryon::util::startsWith(*i, SESSION_PREFIX)) {
-//                std::string cv((*i).c_str() + 13);
-//                request.setSessionCookie(cv);
-//                return request.getSessionCookie();
-//            }
-//        }
-//    }
     return "";
 }
 

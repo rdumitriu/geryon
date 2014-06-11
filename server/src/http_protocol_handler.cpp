@@ -123,19 +123,15 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
                                       << request.getURI() << ". Error was:" << e.what();
         try {
             sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR);
-            requestClose();
-        } catch( ... ) {
-            requestClose();
-        }
+        } catch( ... ) {}
+        requestClose();
     } catch( ... ) {
         LOG(geryon::util::Log::ERROR) << "Exception while serving resource:"
                                       << request.getURI() << ".";
         try {
             sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR);
-            requestClose();
-        } catch( ... ) {
-            requestClose();
-        } // just make sure.
+        } catch( ... ) {} // just make sure.
+        requestClose();
     }
 }
 
@@ -143,9 +139,15 @@ void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code
     //::TODO:: instead of these, real stock answers!
     //::TODO:: buffers should be already allocated and shared, such as I will avoid any error
     GBufferHandler writeBuff(getMemoryPool());
-    std::string ref = geryon::getHttpStatusMessage(http_code);
+
+    std::ostringstream stream;
+    stream << getHttpStatusMessage(http_code);
+    stream << "Content-Type: text/plain\r\n\r\n\r\nError! Response produced:";
+    stream << geryon::getHttpStatusMessage(http_code);
+
+    std::string ref = stream.str();
     std::strncpy(writeBuff.get().buffer(), ref.c_str(), writeBuff.get().size());
-    writeBuff.get().setMarker(ref.length()); //length of the header
+    writeBuff.get().setMarker(ref.length()); //length of the string
     requestWrite(std::move(writeBuff));
 }
 

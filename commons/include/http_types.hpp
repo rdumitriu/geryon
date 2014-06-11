@@ -467,9 +467,9 @@ public:
 
     ///
     ///\brief The session
-    ///\return a pointer to the session; if it does not exist, it is created.
+    ///\return a reference to the session; if it does not exist, it is created.
     ///
-    virtual Session * getSession() const = 0;
+    virtual Session & getSession() const = 0;
 
     ///
     ///\brief The input stream.

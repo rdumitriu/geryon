@@ -93,6 +93,10 @@ private:
     std::size_t getPartitionFromCookie(const std::string & cookie);
     std::shared_ptr<ServerSession> getSession(const std::string & cookie);
     std::shared_ptr<ServerSession> createSession(HttpServerRequest & request, HttpServerResponse & response);
+
+    void sendStandardResponse(HttpServerResponse & response,
+                              HttpResponse::HttpStatusCode code,
+                              const std::string & msg);
 };
 
 } } /*namespace */

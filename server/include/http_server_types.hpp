@@ -36,10 +36,13 @@ public:
 
     ///
     ///\brief The session
-    ///\return a pointer to the session; if it does not exist, it is created.
+    ///\return a reference to the session; if it does not exist, it is created.
     ///
-    virtual Session * getSession() const {
-        return session.get();
+    virtual Session & getSession() const {
+        if(session.get()) {
+            return *session;
+        }
+        throw HttpException("Internal error: Session not set ?!?");
     }
 
     ///

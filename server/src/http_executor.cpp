@@ -13,8 +13,12 @@ namespace geryon { namespace server {
 void HttpExecutor::execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) {
     std::shared_ptr<ServerApplication> papp = getDispatchTarget(request);
     if(!papp.get()) {
-        LOG(geryon::util::Log::DEBUG) << "No application found matching URI path: " << request.getURIPath();
+        std::string msg = "No application found matching URI path: " + request.getURIPath();
+        LOG(geryon::util::Log::DEBUG) << msg;
         response.setStatus(HttpServerResponse::SC_NOT_FOUND);
+        response.setContentType(HttpResponse::CT_TEXT);
+        response.getOutputStream() << msg;
+        response.flush();
         response.close();
     } else {
         LOG(geryon::util::Log::DEBUG) << "Application: " << papp->getPath() << " is matching URI path:" << request.getURIPath();
