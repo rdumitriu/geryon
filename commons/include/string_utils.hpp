@@ -124,6 +124,19 @@ inline std::string trimAndCopy(const std::string & s) {
     return boost::trim_copy(s);
 }
 
+///
+/// \brief split a string using delimiters.
+///
+/// \param s the string
+/// \param delimiters the delimiters
+/// \return the splitted string
+///
+inline std::vector<std::string> split(const std::string & s, const std::string & delimiters) {
+    std::vector<std::string> strs;
+    boost::split(strs, s, boost::is_any_of(delimiters));
+    return strs;
+}
+
 /* ===================================================================
  * H T T P  S U P P O R T
  * =================================================================== */

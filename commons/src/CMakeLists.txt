@@ -10,6 +10,8 @@ SET (commonslib_SRC
 #
 # This is not really needed...
 #
+    ../include/platform.hpp
+
     ../include/properties_file.hpp
     properties_file.cpp
 

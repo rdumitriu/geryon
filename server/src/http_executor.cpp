@@ -12,18 +12,32 @@ namespace geryon { namespace server {
 
 void HttpExecutor::execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) {
     std::shared_ptr<ServerApplication> papp = getDispatchTarget(request);
+    if(verifyDispatchTarget(papp, request, response)) {
+        LOG(geryon::util::Log::DEBUG) << "Application: " << papp->getPath() << " is matching URI path:" << request.getURIPath();
+        this->executeInternal(papp, request, response);
+    }
+}
+
+bool HttpExecutor::verifyDispatchTarget(std::shared_ptr<ServerApplication> papp,
+                                        HttpServerRequest & request, HttpServerResponse & response) {
+    std::string msg;
+    bool err = false;
     if(!papp.get()) {
-        std::string msg = "No application found matching URI path: " + request.getURIPath();
+        msg = "No application found matching URI path: " + request.getURIPath();
+        err = true;
+    } else if(papp->getStatus() != ApplicationModule::STARTED) {
+        msg = "Application found matching URI path: " + request.getURIPath() + " but it is not started!";
+        err = true;
+    }
+    if(err) {
         LOG(geryon::util::Log::DEBUG) << msg;
         response.setStatus(HttpServerResponse::SC_NOT_FOUND);
         response.setContentType(HttpResponse::CT_TEXT);
         response.getOutputStream() << msg;
         response.flush();
         response.close();
-    } else {
-        LOG(geryon::util::Log::DEBUG) << "Application: " << papp->getPath() << " is matching URI path:" << request.getURIPath();
-        this->executeInternal(papp, request, response);
     }
+    return !err;
 }
 
 std::shared_ptr<ServerApplication> HttpExecutor::getDispatchTarget(HttpServerRequest & request) {

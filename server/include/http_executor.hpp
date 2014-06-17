@@ -27,6 +27,8 @@ protected:
                                  HttpServerResponse & response) throw(geryon::HttpException) = 0;
 private:
     std::string extractPath(const std::string & path);
+    bool verifyDispatchTarget(std::shared_ptr<ServerApplication> papp,
+                              HttpServerRequest & request, HttpServerResponse & response);
 };
 
 } }

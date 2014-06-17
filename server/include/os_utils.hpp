@@ -9,14 +9,7 @@
 
 #include <string>
 
-//
-// ::TODO:: all possible detection of Windows platforms here
-//
-#if defined(_WIN32)
-    #define G_HAS_WIN32
-    #define G_HAS_WIN
-#endif
-
+#include "platform.hpp"
 
 #if defined(G_HAS_WIN)
 #include <windows.h>

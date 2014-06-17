@@ -12,8 +12,6 @@
 #include "string_utils.hpp"
 #include "log.hpp"
 
-//::TODO:: BIG Q: shall we run in isolation (try-catch) all the listeners and stuff ?
-
 namespace geryon {
 
 /* ====================================================================

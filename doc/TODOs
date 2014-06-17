@@ -1,19 +1,12 @@
+TODOs
+~~~~~~
 
-FUNCTIONAL
-~~~~~~~~~~
+1/ Proper mechanism to match REGEX on servlets and filters (tree paths)
+2/ Lots of tests needed (end to end, we'll buy time, using curl / perl?)
+3/ Finally choose a lib to deal with JSON:
+http://www.json.org/ (check out the list)
+(most probably) http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented
 
-1/ Introspection - buf
-2/ Introspection - app ses
-
-
-STABILITY
-~~~~~~~~~
-
-1/ Configuration - clear TODOs
-2/ Lots of tests needed
-3/ SQL pools were introduced in a hurry. That needs to be changed, since it's too dependent in many 
-places of the defines ... We must find some common ground for the sql pools. However, since it's on 
-server side, we can touch it when we'll add Mysql, or whatever.
 
 
 PERFORMANCE
@@ -28,3 +21,10 @@ That should minimize contention on executors
 a memory pool that offers different-sized buffers
 6/ Create real stock answers (unchanged buffers) 
 7/ Implement keep-alive
+
+FURTHER MODIFS
+~~~~~~~~~~~~~~
+1/ SQL pools were introduced in a hurry. That needs to be changed, since it's too dependent in many
+places of the defines ... We must find some common ground for the sql pools. However, since it's on
+server side, we can touch it when we'll add Mysql, or whatever. I may like this direct approach, though
+2/ Configuration - clear TODOs and simplify. In the future we may pack more on it

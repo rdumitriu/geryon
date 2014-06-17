@@ -68,6 +68,8 @@ SET (geryon_SRC
 #
 # SERVER APPLICATION
 #
+    ../include/matcher_tree.hpp
+
     ../include/server_session.hpp
 
     ../include/server_application_utils.hpp

@@ -172,10 +172,16 @@ bool GeryonConfigurator::configureApplications() {
     boost::property_tree::ptree rootNodes = configuration.get_child("geryon");
     for (const auto& kv : rootNodes) {
         if(kv.first == "application") {
-            std::shared_ptr<ServerApplication> appptr = configureApplication(kv.second);
-            if(appptr.get()) {
-                appptr->start();
-                geryon::server::ServerGlobalStructs::defineApplication(appptr);
+            try {
+                std::shared_ptr<ServerApplication> appptr = configureApplication(kv.second);
+                if(appptr.get()) {
+                    appptr->start();
+                    geryon::server::ServerGlobalStructs::defineApplication(appptr);
+                }
+            } catch(geryon::ApplicationException & e) {
+                LOG(geryon::util::Log::ERROR) << "Could not start application, error was:" << e.what();
+            } catch( ... ) {
+                LOG(geryon::util::Log::ERROR) << "Could not start an application; please connect to the console to see what failed.";
             }
         }
     }

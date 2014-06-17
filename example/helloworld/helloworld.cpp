@@ -68,7 +68,7 @@ public:
 } } } /* namespaces */
 
 //This is the entry point in the application
-extern "C"
+G_MODULE_EXPORT
 std::shared_ptr<geryon::Application> createApplication() {
     std::shared_ptr<geryon::Application> app = std::make_shared<geryon::Application>("demos");
 

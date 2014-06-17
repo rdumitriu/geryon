@@ -11,11 +11,7 @@
 
 #include "string_utils.hpp"
 
-namespace geryon {
-
-//::TODO:: at some point, we need to have a better way to deal with the conns
-
-namespace configuration {
+namespace geryon { namespace configuration {
 
 ///
 /// \brief The ApplicationConfigInjector class
@@ -42,7 +38,6 @@ public:
 ///
 /// The application config defines special properties.\n
 /// It also defines links to resources
-/// ::TODO:: SQL pools, resources, etc
 ///
 class ApplicationConfig {
 public:

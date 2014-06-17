@@ -7,6 +7,7 @@
 #ifndef APPCONFIG_AWARE_HPP_
 #define APPCONFIG_AWARE_HPP_
 
+#include "platform.hpp"
 #include "appexception.hpp"
 
 namespace geryon {
