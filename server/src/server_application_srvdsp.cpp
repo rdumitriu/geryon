@@ -22,6 +22,10 @@ void ServerApplicationServletDispatcher::init(std::shared_ptr<geryon::Applicatio
             regexMappedServlets.push_back(std::move(srvt));
         }
     }
+    for(unsigned int i = 0; i < regexMappedServlets.size(); ++i) {
+        detail::WrappedServlet & rws = regexMappedServlets.at(i);
+        regexMappedIndex.addNode(rws.mappedPath, i);
+    }
 }
 
 bool ServerApplicationServletDispatcher::doServlet(HttpServerRequest & request,
@@ -34,12 +38,19 @@ bool ServerApplicationServletDispatcher::doServlet(HttpServerRequest & request,
     return false;
 }
 
+//
+// Note: we keep it separate, we prefer the direct map for non-regex servlets (faster)
+// For regex servlets, we look into the index in an attempt to avoid matching as much as possible.
+// Since the tree has the most relevant match last, we use the reverse iterator on it.
+//
 std::shared_ptr<Servlet> ServerApplicationServletDispatcher::findServlet(HttpServerRequest & request) {
     std::map<std::string, std::shared_ptr<Servlet>>::iterator p = directMappedServlets.find(request.getURIPath());
     if(p != directMappedServlets.end()) {
         return p->second;
     }
-    for(auto regsrv : regexMappedServlets) {
+    std::vector<unsigned int> possMatches = regexMappedIndex.getDataForPath(request.getURIPath());
+    for(std::vector<unsigned int>::reverse_iterator ndx = possMatches.rbegin(); ndx != possMatches.rend(); ++ndx) {
+        detail::WrappedServlet & regsrv = regexMappedServlets.at(*ndx);
         if(requestMatches(regsrv, request)) {
             return regsrv.servlet;
         }

@@ -29,7 +29,9 @@ ADD_EXECUTABLE(test_buf_ostream ../src/mem_buf.cpp ../src/mem_buf_output_stream.
 INCLUDE_DIRECTORIES ("../include" "../../commons/include")
 TARGET_LINK_LIBRARIES (test_buf_ostream ${MLIB})
 
-
+ADD_EXECUTABLE(test_path_tree test_path_tree.cpp)
+INCLUDE_DIRECTORIES ("../include" "../../commons/include")
+TARGET_LINK_LIBRARIES (test_path_tree ${MLIB})
 
 ADD_TEST(test_mem_buf_ump1 test_mem_buf_ump)
 SET_TESTS_PROPERTIES (test_mem_buf_ump1
@@ -60,3 +62,8 @@ ADD_TEST(test_buf_ostream1 test_buf_ostream)
 SET_TESTS_PROPERTIES (test_buf_ostream1
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "ERROR.*")
+
+ADD_TEST(test_path_tree1 test_path_tree)
+SET_TESTS_PROPERTIES (test_path_tree1
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "FAILED.*")

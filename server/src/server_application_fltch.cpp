@@ -22,11 +22,19 @@ void ServerApplicationFilterChain::init(std::shared_ptr<geryon::Application> & a
         }
         filters.push_back(std::move(wf));
     }
+    for(unsigned int i = 0; i < filters.size(); ++i) {
+        detail::WrappedFilter & rwf = filters.at(i);
+        index.addNode(rwf.mappedPath, i);
+    }
 }
 
 bool ServerApplicationFilterChain::doFilters(HttpServerRequest & request,
                                              HttpServerResponse & response) throw(geryon::HttpException) {
-    for(auto wf : filters) {
+    std::vector<unsigned int> filterSet = index.getDataForPath(request.getURIPath());
+    //the filter set is ordered from root to most specific
+    //although may not be sane, we consider it a good rule to execute the filters
+    for(unsigned int ndx : filterSet) {
+        detail::WrappedFilter & wf = filters.at(ndx);
         if(!doFilter(wf, request, response)) { return false; }
     }
     return true;

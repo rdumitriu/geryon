@@ -12,6 +12,7 @@
 
 #include "application.hpp"
 #include "http_server_types.hpp"
+#include "path_tree.hpp"
 
 namespace geryon { namespace server {
 
@@ -38,6 +39,7 @@ public:
     bool doFilters(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
 private:
     std::vector<detail::WrappedFilter> filters;
+    PathTree<unsigned int> index;
 
     bool doFilter(detail::WrappedFilter & flt,
                   HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
