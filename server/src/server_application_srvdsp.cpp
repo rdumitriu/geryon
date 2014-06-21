@@ -43,6 +43,8 @@ bool ServerApplicationServletDispatcher::doServlet(HttpServerRequest & request,
 // For regex servlets, we look into the index in an attempt to avoid matching as much as possible.
 // Since the tree has the most relevant match last, we use the reverse iterator on it.
 //
+// Note: we keep only indexes here, but we could easily store the entire servlet regex structure
+// However, the overhead is minimal (an indexed call)
 std::shared_ptr<Servlet> ServerApplicationServletDispatcher::findServlet(HttpServerRequest & request) {
     std::map<std::string, std::shared_ptr<Servlet>>::iterator p = directMappedServlets.find(request.getURIPath());
     if(p != directMappedServlets.end()) {
@@ -58,8 +60,8 @@ std::shared_ptr<Servlet> ServerApplicationServletDispatcher::findServlet(HttpSer
     return std::shared_ptr<Servlet>(0);
 }
 
-bool ServerApplicationServletDispatcher::requestMatches(detail::WrappedServlet & srv,
-                                                        HttpServerRequest & request) {
+bool ServerApplicationServletDispatcher::requestMatches(const detail::WrappedServlet & srv,
+                                                        const HttpServerRequest & request) {
     return std::regex_match(request.getURIPath(), srv.regex);
 }
 

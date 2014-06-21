@@ -1,22 +1,29 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET (commonslib_SRC
+    #
+    # Utilities
+    #
     ../include/monitor_queue.hpp
     ../include/repetitive_runnable.hpp
     ../include/thread_pool.hpp
 
     ../include/string_utils.hpp
     string_utils.cpp
-#
-# This is not really needed...
-#
-    ../include/platform.hpp
 
+    # Not really needed, we may remove it
     ../include/properties_file.hpp
     properties_file.cpp
 
     ../include/log.hpp
     log.cpp
+
+    ../include/platform.hpp
+
+    #
+    # JSON Support
+    #
+    ../include/json/json.hpp
 
     ../include/http_types.hpp
     http_types.cpp
@@ -51,7 +58,7 @@ SET (commonslib_SRC
 
 INCLUDE_DIRECTORIES ("../include" )
 
-ADD_LIBRARY(geryon-commons STATIC ${commonslib_SRC})
+ADD_LIBRARY(geryon-commons SHARED ${commonslib_SRC})
 
 TARGET_LINK_LIBRARIES(geryon-commons ${LIBS})
 

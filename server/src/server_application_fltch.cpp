@@ -33,6 +33,9 @@ bool ServerApplicationFilterChain::doFilters(HttpServerRequest & request,
     std::vector<unsigned int> filterSet = index.getDataForPath(request.getURIPath());
     //the filter set is ordered from root to most specific
     //although may not be sane, we consider it a good rule to execute the filters
+
+    // Note: we keep only indexes here, but we could easily store the entire filter structure
+    // However, the overhead is minimal (an indexed call for each filter)
     for(unsigned int ndx : filterSet) {
         detail::WrappedFilter & wf = filters.at(ndx);
         if(!doFilter(wf, request, response)) { return false; }
@@ -40,7 +43,7 @@ bool ServerApplicationFilterChain::doFilters(HttpServerRequest & request,
     return true;
 }
 
-bool ServerApplicationFilterChain::doFilter(detail::WrappedFilter & flt,
+bool ServerApplicationFilterChain::doFilter(const detail::WrappedFilter & flt,
                                             HttpServerRequest & request,
                                             HttpServerResponse & response) throw(geryon::HttpException) {
     if(requestMatches(flt, request)) {
@@ -49,8 +52,8 @@ bool ServerApplicationFilterChain::doFilter(detail::WrappedFilter & flt,
     return true;
 }
 
-bool ServerApplicationFilterChain::requestMatches(detail::WrappedFilter & flt,
-                                                  HttpServerRequest & request) {
+bool ServerApplicationFilterChain::requestMatches(const detail::WrappedFilter & flt,
+                                                  const HttpServerRequest & request) {
     return flt.isRegex
             ? std::regex_match(request.getURIPath(), flt.regex)
             : (request.getURIPath() == flt.mappedPath);

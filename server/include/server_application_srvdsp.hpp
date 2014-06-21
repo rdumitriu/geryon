@@ -43,7 +43,7 @@ private:
     PathTree<unsigned int> regexMappedIndex;
 
     std::shared_ptr<Servlet> findServlet(HttpServerRequest & request);
-    bool requestMatches(detail::WrappedServlet & srv, HttpServerRequest & request);
+    bool requestMatches(const detail::WrappedServlet & srv, const HttpServerRequest & request);
 };
 
 } }

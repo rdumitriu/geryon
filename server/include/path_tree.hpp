@@ -18,36 +18,36 @@ namespace geryon { namespace server {
 
 namespace detail {
 
-template <typename T>
-struct PathTreeNode {
-    std::string pathFragment;
-    std::set<T> data;
-    std::vector<PathTreeNode<T>> children;
+    template <typename T>
+    struct PathTreeNode {
+        std::string pathFragment;
+        std::set<T> data;
+        std::vector<PathTreeNode<T>> children;
 
-    PathTreeNode() {}
-    ~PathTreeNode() {}
+        PathTreeNode() {}
+        ~PathTreeNode() {}
 
-    PathTreeNode<T> * getChild(const std::string & fragment) {
-        for(unsigned int i = 0; i < children.size(); ++i) {
-            PathTreeNode<T> * pc = &(children.at(i));
-            if(pc->pathFragment == fragment) {
-                return pc;
+        PathTreeNode<T> * getChild(const std::string & fragment) {
+            for(unsigned int i = 0; i < children.size(); ++i) {
+                PathTreeNode<T> * pc = &(children.at(i));
+                if(pc->pathFragment == fragment) {
+                    return pc;
+                }
             }
+            return 0;
         }
-        return 0;
-    }
 
-    PathTreeNode<T> * addChild(const std::string & fragment) {
-        PathTreeNode<T> child;
-        child.pathFragment = fragment;
-        children.push_back(std::move(child));
-        return &(children.at(children.size() - 1));
-    }
+        PathTreeNode<T> * addChild(const std::string & fragment) {
+            PathTreeNode<T> child;
+            child.pathFragment = fragment;
+            children.push_back(std::move(child));
+            return &(children.at(children.size() - 1));
+        }
 
-    inline void addData(const T & d) {
-        data.insert(d);
-    }
-};
+        inline void addData(const T & d) {
+            data.insert(d);
+        }
+    };
 
 }
 
@@ -90,7 +90,6 @@ public:
             }
             pNode = pChild;
         }
-        //std::reverse(ret.begin(),ret.end()); //most specific first ...
         return ret;
     }
 

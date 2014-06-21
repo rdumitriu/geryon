@@ -1,0 +1,17 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+enable_testing ()
+
+if(JSON_SPIRIT_SUPPORT)
+    ADD_SUBDIRECTORY ("json_spirit")
+    ADD_DEFINITIONS(-DG_HAS_JSON_SPIRIT)
+    ADD_DEFINITIONS(-DBOOST_SPIRIT_THREADSAFE)
+
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/json_spirit/json_spirit"
+            DESTINATION "${AGRADE_INSTALL_DEPS}/json_spirit"
+        FILES_MATCHING PATTERN "*.h")
+
+    INSTALL(FILES ${CMAKE_BINARY_DIR}/commons/dependencies/json_spirit/json_spirit/libjson_spirit.so
+            DESTINATION "${AGRADE_INSTALL_LIB}")
+endif(JSON_SPIRIT_SUPPORT)
+

@@ -41,10 +41,10 @@ private:
     std::vector<detail::WrappedFilter> filters;
     PathTree<unsigned int> index;
 
-    bool doFilter(detail::WrappedFilter & flt,
+    bool doFilter(const detail::WrappedFilter & flt,
                   HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
 
-    bool requestMatches(detail::WrappedFilter & flt, HttpServerRequest & request);
+    bool requestMatches(const detail::WrappedFilter & flt, const HttpServerRequest & request);
 };
 
 } }
