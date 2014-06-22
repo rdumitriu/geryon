@@ -4,8 +4,8 @@
 ///  Created on: Dec 08, 2011, refactored on 1st of March 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef SERVLET_HPP_
-#define SERVLET_HPP_
+#ifndef GERYON_SERVLET_HPP_
+#define GERYON_SERVLET_HPP_
 
 #include "http_types.hpp"
 #include "appconfig_aware.hpp"

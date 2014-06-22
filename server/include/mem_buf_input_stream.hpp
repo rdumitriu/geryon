@@ -5,8 +5,8 @@
 ///      Author: rdumitriu at gmail.com
 ///
 
-#ifndef MEMBUFINPUTSTREAM_HPP_
-#define MEMBUFINPUTSTREAM_HPP_
+#ifndef GERYON_MEMBUFINPUTSTREAM_HPP_
+#define GERYON_MEMBUFINPUTSTREAM_HPP_
 
 #include <vector>
 #include <algorithm>

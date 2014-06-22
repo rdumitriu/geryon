@@ -5,8 +5,8 @@
  * Author: rdumitriu
  */
 
-#ifndef SERVERGLOBALSTRUCTS_HPP_
-#define SERVERGLOBALSTRUCTS_HPP_
+#ifndef GERYON_SERVERGLOBALSTRUCTS_HPP_
+#define GERYON_SERVERGLOBALSTRUCTS_HPP_
 
 #include <memory>
 

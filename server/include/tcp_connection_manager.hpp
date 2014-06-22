@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
 
-#ifndef TCPCONNECTIONMANAGER_HPP_
-#define TCPCONNECTIONMANAGER_HPP_
+#ifndef GERYON_TCPCONNECTIONMANAGER_HPP_
+#define GERYON_TCPCONNECTIONMANAGER_HPP_
 
 #include <set>
 #include <mutex>

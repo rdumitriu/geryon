@@ -4,8 +4,8 @@
 ///  Created on: May 22, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef HTTPEXECUTOR_HPP_
-#define HTTPEXECUTOR_HPP_
+#ifndef GERYON_HTTPEXECUTOR_HPP_
+#define GERYON_HTTPEXECUTOR_HPP_
 
 #include "http_server_types.hpp"
 #include "server_application.hpp"

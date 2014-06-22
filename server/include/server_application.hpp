@@ -4,8 +4,8 @@
 ///  Created on: May 23, 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef SERVERAPPLICATION_HPP_
-#define SERVERAPPLICATION_HPP_
+#ifndef GERYON_SERVERAPPLICATION_HPP_
+#define GERYON_SERVERAPPLICATION_HPP_
 
 #include <map>
 #include <vector>

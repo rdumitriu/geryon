@@ -6,8 +6,8 @@
  * Created on: Jun 04, 2014
  * Author: rdumitriu at gmail.com
  */
-#ifndef SQL_POSTGRES_SUPPORT_HPP_
-#define SQL_POSTGRES_SUPPORT_HPP_
+#ifndef GERYON_SQL_POSTGRES_SUPPORT_HPP_
+#define GERYON_SQL_POSTGRES_SUPPORT_HPP_
 
 #include "sql/sql_pool.hpp"
 

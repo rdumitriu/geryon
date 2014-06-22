@@ -1,11 +1,12 @@
-/**
- * \file thread_pool.hpp
- *
- * Created on: Feb 21, 2014
- * Author: rdumitriu at gmail.com
- */
-#ifndef THREAD_POOL_HPP_
-#define THREAD_POOL_HPP_
+///
+/// \file thread_pool.hpp
+///
+/// Created on: Feb 21, 2014
+/// Author: rdumitriu at gmail.com
+///
+
+#ifndef GERYON_THREAD_POOL_HPP_
+#define GERYON_THREAD_POOL_HPP_
 
 #include <vector>
 #include <memory>
@@ -25,7 +26,7 @@ namespace detail {
 ///
 /// \brief Fixed pool of threads
 ///
-/// A fixed pool of threads, each worker thread takes a job from the queue and executes it.
+/// A fixed pool of threads, each worker thread takes a job from the queue and executes it.\n
 /// The type T must be copyable and represents the data the function is processing (all tasks will do the same).
 ///
 template <typename T>
@@ -89,6 +90,9 @@ private:
 
 namespace detail {
 
+    ///
+    /// The actual struct, wrapping the message and the action
+    ///
     template <typename T>
     struct QTPMessage {
         int action;

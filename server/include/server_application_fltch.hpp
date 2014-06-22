@@ -4,8 +4,8 @@
 ///  Created on: May 23, 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef SERVERAPPLICATIONFLTCH_HPP_
-#define SERVERAPPLICATIONFLTCH_HPP_
+#ifndef GERYON_SERVERAPPLICATIONFLTCH_HPP_
+#define GERYON_SERVERAPPLICATIONFLTCH_HPP_
 
 #include <vector>
 #include <regex>

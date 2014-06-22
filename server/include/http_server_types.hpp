@@ -5,8 +5,8 @@
  *      Author: rdumitriu at gmail dot com
  */
 
-#ifndef HTTPSERVERTYPES_HPP_
-#define HTTPSERVERTYPES_HPP_
+#ifndef GERYON_HTTPSERVERTYPES_HPP_
+#define GERYON_HTTPSERVERTYPES_HPP_
 
 #include <vector>
 

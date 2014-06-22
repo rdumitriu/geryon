@@ -4,8 +4,8 @@
 ///  Created on: May 22, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef HTTPSINGLETHREADEXECUTOR_HPP_
-#define HTTPSINGLETHREADEXECUTOR_HPP_
+#ifndef GERYON_HTTPSINGLETHREADEXECUTOR_HPP_
+#define GERYON_HTTPSINGLETHREADEXECUTOR_HPP_
 
 #include "http_executor.hpp"
 

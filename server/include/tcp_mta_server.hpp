@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
 
-#ifndef TCP_MTA_SERVER_H_
-#define TCP_MTA_SERVER_H_
+#ifndef GERYON_TCP_MTA_SERVER_H_
+#define GERYON_TCP_MTA_SERVER_H_
 
 #include <string>
 

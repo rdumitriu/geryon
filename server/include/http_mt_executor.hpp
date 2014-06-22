@@ -4,8 +4,8 @@
 ///  Created on: May 22, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef HTTPMULTITHREADEXECUTOR_HPP_
-#define HTTPMULTITHREADEXECUTOR_HPP_
+#ifndef GERYON_HTTPMULTITHREADEXECUTOR_HPP_
+#define GERYON_HTTPMULTITHREADEXECUTOR_HPP_
 
 #include "http_executor.hpp"
 #include "thread_pool.hpp"

@@ -5,8 +5,8 @@
 ///      Author: rdumitriu at gmail.com
 ///
 
-#ifndef MEMBUFOUTPUTSTREAM_HPP_
-#define MEMBUFOUTPUTSTREAM_HPP_
+#ifndef GERYON_MEMBUFOUTPUTSTREAM_HPP_
+#define GERYON_MEMBUFOUTPUTSTREAM_HPP_
 
 #include <streambuf>
 

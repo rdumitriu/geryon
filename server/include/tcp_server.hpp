@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
 
-#ifndef TCPSERVER_H_
-#define TCPSERVER_H_
+#ifndef GERYON_TCPSERVER_H_
+#define GERYON_TCPSERVER_H_
 
 #include <string>
 

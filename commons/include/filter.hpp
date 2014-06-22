@@ -4,8 +4,8 @@
 ///  Created on: Dec 08, 2011, refactored on 2nd of March 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef FILTER_HPP_
-#define FILTER_HPP_
+#ifndef GERYON_FILTER_HPP_
+#define GERYON_FILTER_HPP_
 
 #include "http_types.hpp"
 #include "appconfig_aware.hpp"

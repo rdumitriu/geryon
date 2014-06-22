@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
 
-#ifndef TCPCONNECTION_HPP_
-#define TCPCONNECTION_HPP_
+#ifndef GERYON_TCPCONNECTION_HPP_
+#define GERYON_TCPCONNECTION_HPP_
 
 #include <boost/asio.hpp>
 #include <boost/array.hpp>

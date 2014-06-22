@@ -4,8 +4,8 @@
 ///  Created on: Mar 13, 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef APPLICATION_CONFIG_HPP_
-#define APPLICATION_CONFIG_HPP_
+#ifndef GERYON_APPLICATION_CONFIG_HPP_
+#define GERYON_APPLICATION_CONFIG_HPP_
 
 #include "resources.hpp"
 
@@ -22,11 +22,23 @@ public:
     ApplicationConfigInjector() {}
     virtual ~ApplicationConfigInjector() {}
 
+    ///
+    /// \brief Returns the mount path
+    /// \return the mount path
+    ///
     virtual std::string getMountPath() = 0;
 
+    ///
+    /// \brief The application properties to be injected into the configuration
+    /// \return the properties map (strings)
+    ///
     virtual std::map<std::string, std::string> getProperties() = 0;
 
 #ifdef G_HAS_PQXX
+    ///
+    /// \brief All the available postgres connections pools
+    /// \return the connections pool
+    ///
     virtual std::map<std::string, geryon::sql::postgres::PostgresConnectionPoolPtr> postgresConnections() = 0;
 #endif
 };
@@ -41,7 +53,15 @@ public:
 ///
 class ApplicationConfig {
 public:
-    enum SQLPoolType { NOT_DEFINED, POSTGRES };
+    ///
+    /// \brief The SQLPoolType enum
+    ///
+    enum SQLPoolType {
+        /// Not defined
+        NOT_DEFINED,
+        /// Postgres
+        POSTGRES
+    };
 
     /// Constructor
     explicit ApplicationConfig() {
@@ -94,13 +114,18 @@ public:
     }
 
 #ifdef G_HAS_PQXX
+    ///
+    /// \brief Gets the postgres pool by name
+    /// \param name the name
+    /// \return the postgres pool, or throws exception if the pool is not defined.
+    ///
     geryon::sql::postgres::PostgresConnectionPool & getPostgresPool(const std::string & name);
 #endif
 
     SQLPoolType getSQLPoolType(const std::string & name);
 
     ///
-    /// \brief setup the config
+    /// \brief Setup the config. Called by the application server.
     /// \param injector the config injector
     ///
     void setup(configuration::ApplicationConfigInjector & injector);

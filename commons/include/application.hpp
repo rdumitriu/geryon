@@ -4,8 +4,8 @@
 ///  Created on: Dec 08, 2011, remodified
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef APPLICATION_HPP_
-#define APPLICATION_HPP_
+#ifndef GERYON_APPLICATION_HPP_
+#define GERYON_APPLICATION_HPP_
  
 #include <string>
 #include <map>
@@ -229,6 +229,8 @@ protected:
 ///
 /// \brief A module of modules
 ///
+/// Plugin container
+/// ::TODO:: start / stop modules individually. At some point in time, soon
 class ApplicationModuleContainer : public ApplicationModule {
 public:
     ApplicationModuleContainer(const std::string & _key,
@@ -241,8 +243,6 @@ public:
 
     ///Called by the container. By default, notifies all the configured listeners of the module.
     virtual void stop();
-
-    //::TODO:: start / stop modules individually. At some point in time, soon
 
     ///
     /// \brief Adds a module

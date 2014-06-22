@@ -4,8 +4,8 @@
 ///  Created on: May 23, 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef SERVERAPPLICATIONUTILS_HPP_
-#define SERVERAPPLICATIONUTILS_HPP_
+#ifndef GERYON_SERVERAPPLICATIONUTILS_HPP_
+#define GERYON_SERVERAPPLICATIONUTILS_HPP_
 
 #include "application.hpp"
 

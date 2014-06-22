@@ -5,8 +5,8 @@
 ///      Author: rdumitriu at gmail.com
 ///
 
-#ifndef GERYONCONFIGSQL_POSTGRES_HPP_
-#define GERYONCONFIGSQL_POSTGRES_HPP_
+#ifndef GERYON_CONFIGSQL_POSTGRES_HPP_
+#define GERYON_CONFIGSQL_POSTGRES_HPP_
 
 #include <memory>
 

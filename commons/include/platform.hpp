@@ -1,12 +1,12 @@
-/**
- * \file platform.hpp
- *
- *  Created on: Jun 16, 2014
- *  Author: rdumitriu at gmail.com
- */
+///
+/// \file platform.hpp
+///
+///  Created on: Jun 16, 2014
+///  Author: rdumitriu at gmail.com
+///
 
-#ifndef PLATFORM_HPP_
-#define PLATFORM_HPP_
+#ifndef GERYON_PLATFORM_HPP_
+#define GERYON_PLATFORM_HPP_
 
 #define G_PLATFORM_LIN 1
 #define G_PLATFORM_WIN 2

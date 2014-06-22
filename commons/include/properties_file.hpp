@@ -1,12 +1,12 @@
-/**
- * \file properties_file.hpp
- *
- *  Created on: Mar 22, 2011
- *  Author: rdumitriu at gmail.com
- */
+///
+/// \file properties_file.hpp
+///
+///  Created on: Mar 22, 2011
+///  Author: rdumitriu at gmail.com
+///
 
-#ifndef PROPERTIESFILE_HPP_
-#define PROPERTIESFILE_HPP_
+#ifndef GERYON_PROPERTIESFILE_HPP_
+#define GERYON_PROPERTIESFILE_HPP_
 
 #include <string>
 #include <map>

@@ -4,13 +4,12 @@
 ///  Created on: Jun 17, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef PATH_TREE_HPP_
-#define PATH_TREE_HPP_
+#ifndef GERYON_PATH_TREE_HPP_
+#define GERYON_PATH_TREE_HPP_
 
 #include <string>
 #include <set>
 #include <vector>
-//#include <algorithm>
 
 #include "string_utils.hpp"
 

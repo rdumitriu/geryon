@@ -1,6 +1,6 @@
 
-#ifndef TCPPROTOCOL_HPP_
-#define TCPPROTOCOL_HPP_
+#ifndef GERYON_TCPPROTOCOL_HPP_
+#define GERYON_TCPPROTOCOL_HPP_
 
 #include <string>
 

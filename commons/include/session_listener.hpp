@@ -4,8 +4,8 @@
 ///  Created on: March 4, 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef SESSION_LISTENER_HPP_
-#define SESSION_LISTENER_HPP_
+#ifndef GERYON_SESSION_LISTENER_HPP_
+#define GERYON_SESSION_LISTENER_HPP_
  
 #include <string>
 #include <boost/any.hpp>

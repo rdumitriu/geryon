@@ -5,8 +5,8 @@
 ///      Author: rdumitriu at gmail.com
 ///
 
-#ifndef GERYONCONFIGAPP_HPP_
-#define GERYONCONFIGAPP_HPP_
+#ifndef GERYON_GERYONCONFIGAPP_HPP_
+#define GERYON_GERYONCONFIGAPP_HPP_
 
 #include <map>
 #include <string>

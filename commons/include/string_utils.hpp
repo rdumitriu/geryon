@@ -1,9 +1,12 @@
-/**
- * \file string_utils.hpp
- *
- * Created on: Feb 25, 2014
- * Author: rdumitriu at gmail.com
- */
+///
+/// \file string_utils.hpp
+///
+/// \brief Different conversions, to hide out our dependency on boost (where we can)
+///
+/// Created on: Feb 25, 2014
+/// Author: rdumitriu at gmail.com
+///
+
 #ifndef GERYON_STRING_UTILS_HPP_
 #define GERYON_STRING_UTILS_HPP_
 
@@ -16,11 +19,6 @@
 #include <boost/algorithm/string.hpp>
 
 namespace geryon { namespace util {
-
-///
-/// \brief Different conversions, to hide out our dependency on boost
-/// (where we can)
-///
 
 
 ///

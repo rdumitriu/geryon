@@ -1,11 +1,11 @@
- /**
+/**
  * \file tcp_protocol_handler.hpp
  *
  *  Created on: Aug 19, 2011, reformatted on Mar 23, 2014
  *      Author: rdumitriu
  */
-#ifndef TCPPROTOCOLHANDLER_HPP_
-#define TCPPROTOCOLHANDLER_HPP_
+#ifndef GERYON_TCPPROTOCOLHANDLER_HPP_
+#define GERYON_TCPPROTOCOLHANDLER_HPP_
 
 #include <deque>
 

@@ -4,8 +4,8 @@
 ///  Created on: May 24, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef SERVERSESSION_HPP_
-#define SERVERSESSION_HPP_
+#ifndef GERYON_SERVERSESSION_HPP_
+#define GERYON_SERVERSESSION_HPP_
 
 #include "session.hpp"
 

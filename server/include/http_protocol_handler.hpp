@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
 
-#ifndef HTTPPROTOCOL_HANDLER_HPP_
-#define HTTPPROTOCOL_HANDLER_HPP_
+#ifndef GERYON_HTTPPROTOCOL_HANDLER_HPP_
+#define GERYON_HTTPPROTOCOL_HANDLER_HPP_
 
 #include "http_executor.hpp"
 #include "tcp_protocol_handler.hpp"

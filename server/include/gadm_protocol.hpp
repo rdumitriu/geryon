@@ -4,8 +4,8 @@
 ///  Created on: May 11, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef GADMPROTOCOL_HPP_
-#define GADMPROTOCOL_HPP_
+#ifndef GERYON_GADMPROTOCOL_HPP_
+#define GERYON_GADMPROTOCOL_HPP_
 
 #include <memory>
 

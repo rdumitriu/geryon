@@ -1,11 +1,11 @@
 ///
-/// Session.hpp
+/// \file session.hpp
 ///
 ///  Created on: Dec 08, 2011, re-worked on 1st of March, 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef SESSION_HPP_
-#define SESSION_HPP_
+#ifndef GERYON_SESSION_HPP_
+#define GERYON_SESSION_HPP_
  
 #include <string>
 #include <map>

@@ -4,8 +4,8 @@
  * Created on: Feb 17, 2014
  * Author: rdumitriu at gmail.com
  */
-#ifndef MONITOR_QUEUE_HPP_
-#define MONITOR_QUEUE_HPP_
+#ifndef GERYON_MONITOR_QUEUE_HPP_
+#define GERYON_MONITOR_QUEUE_HPP_
 
 #include <mutex>
 #include <condition_variable>
@@ -15,7 +15,7 @@ namespace geryon { namespace mt {
 ///
 /// \brief A monitor queue
 ///
-/// The buffer queue is basis of any monitor. The type T must be copyable.
+/// The buffer queue is basis of any monitor. The type T must be copyable.\n\n
 /// Destruction of the queue will destroy all objects in it, so make sure the processing is complete.
 ///
 template <typename T>
@@ -34,7 +34,12 @@ public:
         delete [] buffer;
     }
 
-    ///Puts something in our buffer. Blocks if not enough space
+    ///
+    /// \brief put into queue
+    /// \param obj the copyable object to be placed in queue.
+    ///
+    /// Puts something in our buffer. Blocks if not enough space
+    ///
     void put(T obj) {
         std::unique_lock<std::mutex> lock(mutex);
 
@@ -49,7 +54,12 @@ public:
         cond.notify_one();
     }
 
-    ///Gets something from the buffer. Blocks if nothing is in there
+    ///
+    /// \brief Gets an copyable object from the queue.
+    /// \return the object
+    ///
+    ///  Gets something from the buffer. Blocks if nothing is in there
+    ///
     T get() {
         std::unique_lock<std::mutex> lock(mutex);
         while (sz == 0) {

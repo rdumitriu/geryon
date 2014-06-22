@@ -4,8 +4,8 @@
 ///  Created on: May 11, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef HTTPPROTOCOL_HPP_
-#define HTTPPROTOCOL_HPP_
+#ifndef GERYON_HTTPPROTOCOL_HPP_
+#define GERYON_HTTPPROTOCOL_HPP_
 
 #include <memory>
 

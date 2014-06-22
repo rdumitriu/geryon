@@ -3,8 +3,8 @@
 ///
 /// Contains the SQLPool related classes.
 ///
-#ifndef SQLPOOL_HPP__
-#define SQLPOOL_HPP__
+#ifndef GERYON_SQLPOOL_HPP__
+#define GERYON_SQLPOOL_HPP__
 
 #include <string>
 #include <queue>

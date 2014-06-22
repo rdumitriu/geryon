@@ -4,8 +4,8 @@
 ///  Created on: Dec 08, 2011
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef APPCONFIG_AWARE_HPP_
-#define APPCONFIG_AWARE_HPP_
+#ifndef GERYON_APPCONFIG_AWARE_HPP_
+#define GERYON_APPCONFIG_AWARE_HPP_
 
 #include "platform.hpp"
 #include "appexception.hpp"

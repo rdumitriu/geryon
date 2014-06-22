@@ -5,8 +5,8 @@
 ///      Author: rdumitriu at gmail.com
 ///
 
-#ifndef HTTP_TYPES_HPP_
-#define HTTP_TYPES_HPP_
+#ifndef GERYON_HTTP_TYPES_HPP_
+#define GERYON_HTTP_TYPES_HPP_
 
 #include <string>
 #include <istream>
@@ -553,12 +553,19 @@ public:
         SC_HTTP_VERSION_NOT_SUPPORTED = 505 //http version not supported
     };
 
+    ///Standard content type
     enum HttpContentType {
+        ///text/plain; charset=UTF-8
         CT_TEXT,
+        ///application/octet-stream
         CT_BINARY,
+        ///text/xml; charset=UTF-8
         CT_TEXTXML,
+        ///text/html; charset=UTF-8
         CT_TEXTHTML,
+        ///application/xml; charset=UTF-8
         CT_APPLICATIONXML,
+        ///application/json; charset=UTF-8
         CT_APPLICATIONJSON
     };
 

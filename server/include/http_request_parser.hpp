@@ -5,8 +5,8 @@
  *      Author: rdumitriu
  */
  
-#ifndef HTTPREQUEST_PARSER_HPP_
-#define HTTPREQUEST_PARSER_HPP_
+#ifndef GERYON_HTTPREQUEST_PARSER_HPP_
+#define GERYON_HTTPREQUEST_PARSER_HPP_
 
 #include <cstdio>
 #include <string>

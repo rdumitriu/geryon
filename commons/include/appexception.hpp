@@ -1,11 +1,11 @@
 ///
-/// \file application.hpp
+/// \file appexception.hpp
 ///
 /// Created on: Mar 23, 2014
 /// Author: rdumitriu at gmail.com
 ///
-#ifndef APP_EXCEPTION_HPP_
-#define APP_EXCEPTION_HPP_
+#ifndef GERYON_APP_EXCEPTION_HPP_
+#define GERYON_APP_EXCEPTION_HPP_
  
 #include <string>
 

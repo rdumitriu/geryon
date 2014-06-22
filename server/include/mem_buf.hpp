@@ -4,8 +4,8 @@
 ///  Created on: Apr 18, 2014
 ///      Author: rdumitriu at gmail.com
 
-#ifndef MEM_BUF_HPP_
-#define MEM_BUF_HPP_
+#ifndef GERYON_MEM_BUF_HPP_
+#define GERYON_MEM_BUF_HPP_
 
 #include <string>
 #include <deque>

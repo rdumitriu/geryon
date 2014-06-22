@@ -1,11 +1,12 @@
-/**
- * \file repetitive_runnable.hpp
- *
- * Created on: Feb 18, 2014
- * Author: rdumitriu at gmail.com
- */
-#ifndef REPETITIVE_RUNNABLE_HPP_
-#define REPETITIVE_RUNNABLE_HPP_
+///
+/// \file repetitive_runnable.hpp
+///
+/// Created on: Feb 18, 2014
+/// Author: rdumitriu at gmail.com
+///
+
+#ifndef GERYON_REPETITIVE_RUNNABLE_HPP_
+#define GERYON_REPETITIVE_RUNNABLE_HPP_
 
 #include <thread>
 #include <mutex>
@@ -20,7 +21,7 @@ namespace geryon { namespace mt {
 ///
 /// \brief The RepetitiveRunnable class.
 ///
-/// It sleeps for a number of seconds; no result is returned.
+/// It sleeps for a number of seconds; no result is returned.\n
 /// You need to call start() for this to run your task. Calling stop() is optional, as it will be
 /// called by destructor if needed.
 ///

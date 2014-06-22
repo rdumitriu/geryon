@@ -4,8 +4,8 @@
 ///  Created on: Dec 08, 2011, retroffited for geryon in Mar 2014
 ///      Author: rdumitriu at gmail.com
 ///
-#ifndef OSUTILS_HPP_
-#define OSUTILS_HPP_
+#ifndef GERYON_OSUTILS_HPP_
+#define GERYON_OSUTILS_HPP_
 
 #include <string>
 
