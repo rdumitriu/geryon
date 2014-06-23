@@ -1,5 +1,8 @@
 
 #include "application.hpp"
+//#ifdef G_HAS_JSON_SPIRIT
+#include "json/json.hpp"
+//#endif
 
 namespace geryon { namespace examples { namespace helloworld {
 
@@ -24,10 +27,21 @@ public:
         } else {
         	greetings = "Hello " + fname + " " + lname + " !";
         }
+#ifndef G_HAS_JSON_SPIRIT
         //2: Set the content type
         reply.setContentType("text/plain");
         //3: Serialize it
         reply.getOutputStream() << greetings;
+#else
+        //2: Set the content type
+        reply.setContentType(HttpResponse::CT_APPLICATIONJSON);
+        //3: Use Json spirit to spit it out
+        json_spirit::Object val;
+        val.push_back(json_spirit::Pair("greetings", greetings));
+        val.push_back(json_spirit::Pair("first-name", fname));
+        val.push_back(json_spirit::Pair("last-name", lname));
+        json_spirit::write(val, reply.getOutputStream(), json_spirit::Output_options::pretty_print);
+#endif
     }
 
     void doPost(geryon::HttpRequest & request,

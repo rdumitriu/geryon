@@ -18,9 +18,9 @@ void * openDynamicLibrary(const char * path) {
         #if defined(G_HAS_WIN)
             //::TODO::
         #else
-            LOG(geryon::util::Log::WARNING) << "Reason '" << dlerror();
+            LOG(geryon::util::Log::WARNING) << "Reason :" << dlerror();
         #endif
-        return NULL;
+        return 0;
     }
     return moduleHandler;
 }

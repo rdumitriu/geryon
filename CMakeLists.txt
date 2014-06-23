@@ -23,7 +23,7 @@ SET(AGRADE_INSTALL_TMPLPROFILE "${AGRADE_INSTALL_PROFILES}/template")
 SET(AGRADE_INSTALL_SRV0PROFILE "${AGRADE_INSTALL_PROFILES}/server0")
 
 SET(GERYON_DEBUG "true")
-OPTION(JSON_SPIRIT_SUPPORT "Set it to on to get support for JSON SPIRIT" ON)
+OPTION(JSON_NATIVE_SUPPORT "Set it to on to get support for JSON native" ON)
 #SET(GERYON_TEST_COVERAGE "false")
 
 #
@@ -42,6 +42,15 @@ ENDIF(NOT PQXX_FOUND)
 
 
 SET(DBLIBS ${PQXXLIBS})
+
+#
+# JSON
+#
+if(JSON_NATIVE_SUPPORT)
+    ADD_DEFINITIONS(-DG_HAS_NATIVE_JSON)
+    message ("Will include JSON native support.")
+endif(JSON_NATIVE_SUPPORT)
+
 
 #
 # Versioning

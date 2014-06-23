@@ -55,7 +55,8 @@ public:
     explicit GeryonConfigurator(const std::string & _homeBase,
                                 unsigned int _serverId,
                                 const std::string & _configFile,
-                                const std::string & _modulesBase);
+                                const std::string & _modulesBase,
+                                const std::string & _libsBase);
     ~GeryonConfigurator();
 
     bool configure();
@@ -70,6 +71,7 @@ private:
     bool calculatePaths();
 
     bool configureLog();
+    bool configureLibraries();
     bool configureMemoryStructs();
     bool configureResources();
     bool configureApplications();
@@ -86,12 +88,14 @@ private:
     unsigned int serverId;
     const std::string configFile;
     const std::string modulesBase;
+    const std::string libsBase;
     std::vector<detail::GeryonConfigIssue> issues;
     boost::property_tree::ptree configuration;
     boost::filesystem::path homeBasePath;
     boost::filesystem::path configFilePath;
     boost::filesystem::path modulesBasePath;
     boost::filesystem::path profileBasePath;
+    boost::filesystem::path libsBasePath;
 
     GeryonAdminServerConfig adminCfg;
     std::vector<GeryonHttpServerConfig> httpServers;

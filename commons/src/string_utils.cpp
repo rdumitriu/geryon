@@ -12,6 +12,7 @@ namespace geryon { namespace util {
 
 /* ==================== HTTP UTILITIES ====================================== */
 
+namespace http {
 
 const char http_special_chars[] = {'(', ')', '<', '>', '@', ',', ';', ':', '\\', '"', '/', '[', ']', '?', '=', '{', '}', ' ', '\t', 0};
 
@@ -25,6 +26,8 @@ bool isHTTPSpecial(char c) {
     }
     return false;
 }
+
+} /* namespace http */
 
 
 bool decodeURL(const std::string& in, std::string& out) {

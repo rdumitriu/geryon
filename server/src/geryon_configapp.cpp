@@ -58,7 +58,7 @@ GeryonAppBaseConfigurator::GeryonAppBaseConfigurator(const boost::filesystem::pa
     if(boost::filesystem::exists(soFile) && boost::filesystem::is_regular_file(soFile)) {
         moduleDLL = openDynamicLibrary(soFile.c_str());
     } else {
-        LOG(geryon::util::Log::ERROR) << "Could not load dynamic library :" << soFile.c_str();
+        LOG(geryon::util::Log::ERROR) << "Could not load dynamic library (application):" << soFile.c_str();
     }
 }
 

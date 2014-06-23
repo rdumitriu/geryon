@@ -139,22 +139,58 @@ inline std::vector<std::string> split(const std::string & s, const std::string &
  * H T T P  S U P P O R T
  * =================================================================== */
 
+
+namespace http {
+
+///
+/// \brief isHTTPChar (0 - 127)
+/// \param c the char
+/// \return true if ascii standard
+///
 inline bool isHTTPChar(char c) {
     return c >= 0 && c <= 127;
 }
 
+///
+/// \brief isHTTPCtl (0-31, 127)
+/// \param c the char
+/// \return true if it is control char
+///
 inline bool isHTTPCtl(char c) {
     return (c >= 0 && c <= 31) || (c == 127);
 }
 
+///
+/// \brief isHTTPDigit (0 - 9)
+/// \param c the char
+/// \return true if it is digit
+///
 inline bool isHTTPDigit(char c) {
     return c >= '0' && c <= '9';
 }
 
+///
+/// \brief isHTTPSpecial (special chars)
+/// \param c the char
+/// \return true if it is special
+///
 bool isHTTPSpecial(char c);
 
+} /*namespace http */
+
+///
+/// \brief decodeURL decodes an URL
+/// \param in the encoded URL
+/// \param out the decoded URL
+/// \return true if decode is ok
+///
 bool decodeURL(const std::string& in, std::string& out);
 
+///
+/// \brief encodeURL encodes an URL
+/// \param in the decoded, plain URL
+/// \param out the encoded, standard URL
+///
 void encodeURL(const std::string& in, std::string& out);
 
 } }

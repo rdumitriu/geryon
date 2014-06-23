@@ -138,6 +138,7 @@ int main(int argc, char* argv[]) {
     std::string home;
     std::string config;
     std::string modules;
+    std::string libs;
 
     boost::program_options::options_description desc("Command-line options");
     desc.add_options()
@@ -148,6 +149,8 @@ int main(int argc, char* argv[]) {
                     "Configuration file. [<GERYON_HOME>/profiles/server<SID>/server.conf]")
         ("modules,m", boost::program_options::value<std::string>()->implicit_value(std::string("")),
                     "Specifies the modules directory [<GERYON_HOME>/modules/]")
+        ("libraries,l", boost::program_options::value<std::string>()->implicit_value(std::string("")),
+                        "Specifies the modules directory [<GERYON_HOME>/lib/]")
         ("serverId,i", boost::program_options::value<unsigned int>()->implicit_value(0),
                     "Specifies the server id (SID).")
     ;
@@ -176,6 +179,9 @@ int main(int argc, char* argv[]) {
         if(vm.count("modules")) {
             modules = vm["modules"].as<std::string>();
         }
+        if(vm.count("libraries")) {
+            libs = vm["libraries"].as<std::string>();
+        }
         if(vm.count("serverId")) {
             serverId = vm["serverId"].as<unsigned int>();
         }
@@ -186,7 +192,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Booting " << GERYON_VERSION_FULL_STRING << " Server Id: " << serverId << std::endl;
 
-    geryon::server::GeryonConfigurator configurator(home, serverId, config, modules);
+    geryon::server::GeryonConfigurator configurator(home, serverId, config, modules, libs);
     if(!configurator.configure()) {
         return 1;
     }

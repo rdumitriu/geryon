@@ -138,7 +138,9 @@ geryon::HttpResponse::HttpStatusCode HttpRequestParser::validate() {
 }
 
 bool HttpRequestParser::consumeStart(char input, geryon::HttpResponse::HttpStatusCode & error) {
-    if(!geryon::util::isHTTPChar(input) || geryon::util::isHTTPCtl(input) || geryon::util::isHTTPSpecial(input)) {
+    if(!geryon::util::http::isHTTPChar(input)
+       || geryon::util::http::isHTTPCtl(input)
+       || geryon::util::http::isHTTPSpecial(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     }
@@ -152,7 +154,7 @@ bool HttpRequestParser::consumeMethod(char input, geryon::HttpResponse::HttpStat
       state = URI;
       return false;
     }
-    else if(!geryon::util::isHTTPChar(input) || geryon::util::isHTTPCtl(input) || geryon::util::isHTTPSpecial(input)) {
+    else if(!geryon::util::http::isHTTPChar(input) || geryon::util::http::isHTTPCtl(input) || geryon::util::http::isHTTPSpecial(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     }
@@ -173,7 +175,7 @@ bool HttpRequestParser::consumeURI(char input, geryon::HttpResponse::HttpStatusC
     } else if(input == '\r') {
         state = NEWLINE_1;
         return false;
-    } else if (geryon::util::isHTTPCtl(input)) {
+    } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     }
@@ -191,7 +193,7 @@ bool HttpRequestParser::consumeHttpVersion(char input, geryon::HttpResponse::Htt
         return false;
     }
     else if (input == 'H' || input == 'T' || input == 'P' ||
-             input == '/' || input == '.' || geryon::util::isHTTPDigit(input)) {
+             input == '/' || input == '.' || geryon::util::http::isHTTPDigit(input)) {
         pRequest->httpVersion.push_back(input);
         //HTTP/1.1 = 8 bytes
         if(pRequest->httpVersion.size() > MAX_HTTPVERSION_LENGTH) {
@@ -229,7 +231,7 @@ bool HttpRequestParser::consumeHeaderName(char input,geryon::HttpResponse::HttpS
     } else if (input == ' ' || input == '\t') {
         state = HEADER_LWS;
         return false;
-    } else if (!geryon::util::isHTTPChar(input) || geryon::util::isHTTPCtl(input) || geryon::util::isHTTPSpecial(input)) {
+    } else if (!geryon::util::http::isHTTPChar(input) || geryon::util::http::isHTTPCtl(input) || geryon::util::http::isHTTPSpecial(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     }
@@ -249,7 +251,7 @@ bool HttpRequestParser::consumeHeaderLWS(char input,geryon::HttpResponse::HttpSt
         headerValue.clear();
         state = NEWLINE_1;
         return false;
-    } else if (input == ' ' || input == '\t' || geryon::util::isHTTPCtl(input)) {
+    } else if (input == ' ' || input == '\t' || geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     }
@@ -270,7 +272,7 @@ bool HttpRequestParser::consumeHeaderValue(char input,geryon::HttpResponse::Http
         headerValue.clear();
         state = NEWLINE_1;
         return false;
-    } else if (geryon::util::isHTTPCtl(input)) {
+    } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     }
@@ -300,7 +302,7 @@ bool HttpRequestParser::consumePostMultipartBoundary(char input, geryon::HttpRes
         }
         multipartSeparatorIndex = 0;
         return (state == END);
-    } else if (geryon::util::isHTTPCtl(input)) {
+    } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     } else {
@@ -326,7 +328,7 @@ bool HttpRequestParser::consumePostMultipartHeaderOrContent(char input, geryon::
         //prepare for content, after the next newline
         state = (state == END) ? END : POST_MULTIPART_EATNEWLINE_3;
         return (state == END);
-    } else if (geryon::util::isHTTPCtl(input)) {
+    } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     } else {
@@ -349,7 +351,7 @@ bool HttpRequestParser::consumePostMultipartHeaderLine(char input, geryon::HttpR
                                       << " CT:" << multipartCountentType;
         multipartHeaderLine.clear();
         state = state == END ? END : POST_MULTIPART_EATNEWLINE_2;
-    } else if (geryon::util::isHTTPCtl(input)) {
+    } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
         return true;
     } else {

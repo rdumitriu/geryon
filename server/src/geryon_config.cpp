@@ -13,6 +13,8 @@
 
 #include "server_global_structs.hpp"
 
+#include "os_utils.hpp"
+
 #include "log.hpp"
 
 namespace geryon { namespace server {
@@ -22,8 +24,10 @@ namespace geryon { namespace server {
 GeryonConfigurator::GeryonConfigurator(const std::string & _homeBase,
                                        unsigned int _serverId,
                                        const std::string & _configFile,
-                                       const std::string & _modulesBase)
-                    : homeBase(_homeBase), serverId(_serverId), configFile(_configFile), modulesBase(_modulesBase) {
+                                       const std::string & _modulesBase,
+                                       const std::string & _libsBase)
+                    : homeBase(_homeBase), serverId(_serverId), configFile(_configFile),
+                      modulesBase(_modulesBase), libsBase(_libsBase) {
 }
 
 GeryonConfigurator::~GeryonConfigurator() {
@@ -62,6 +66,15 @@ bool GeryonConfigurator::calculatePaths() {
         std::cerr << "Modules directory " << modulesBasePath.c_str() << " does not exist!" << std::endl;
         return false;
     }
+    if(libsBase == "") {
+        libsBasePath = homeBasePath / "lib";
+    } else {
+        libsBasePath = boost::filesystem::path(libsBase);
+    }
+    if(!boost::filesystem::exists(libsBasePath) || !boost::filesystem::is_directory(libsBasePath)) {
+        std::cerr << "Libraries directory " << libsBasePath.c_str() << " does not exist!" << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -78,6 +91,7 @@ bool GeryonConfigurator::configure() {
     }
 
     bool ret = configureLog() &&
+               configureLibraries() &&
                configureMemoryStructs() &&
                configureResources() &&
                configureApplications() &&
@@ -104,6 +118,30 @@ bool GeryonConfigurator::configureLog() {
 
     LOG(geryon::util::Log::INFO) << "======================================";
     LOG(geryon::util::Log::INFO) << "Starting " << GERYON_VERSION_FULL_STRING << " - server ID :" << serverId << " LL:" << cfgLevel;
+    return true;
+}
+
+bool GeryonConfigurator::configureLibraries() {
+    boost::property_tree::ptree rootNodes = configuration.get_child("geryon");
+    for (const auto& kv : rootNodes) {
+        if(kv.first == "library") {
+            boost::property_tree::ptree node = kv.second;
+            std::string libname = node.get_value_optional<std::string>().get();
+        #if defined(G_HAS_WIN)
+            boost::filesystem::path soFile = libsBasePath / (libname + ".dll");
+        #else
+            boost::filesystem::path soFile = libsBasePath / (libname + ".so");
+        #endif
+            if(boost::filesystem::exists(soFile) && boost::filesystem::is_regular_file(soFile)) {
+                void * mod_handler = openDynamicLibrary(soFile.c_str());
+                if(mod_handler) {
+                    geryon::server::ServerGlobalStructs::addModuleDLL(mod_handler);
+                }
+            } else {
+                LOG(geryon::util::Log::ERROR) << "Could not load dynamic library:" << soFile.c_str();
+            }
+        }
+    }
     return true;
 }
 
