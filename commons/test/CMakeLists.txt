@@ -48,7 +48,6 @@ ADD_EXECUTABLE(test_sql_pool test_sql_pool.cpp)
 INCLUDE_DIRECTORIES ("../include")
 TARGET_LINK_LIBRARIES (test_sql_pool  ${MLIB})
 
-
 ADD_TEST(testlog1 testlog)
 SET_TESTS_PROPERTIES (testlog1
                       PROPERTIES

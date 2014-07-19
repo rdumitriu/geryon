@@ -20,11 +20,6 @@ SET (commonslib_SRC
 
     ../include/platform.hpp
 
-    #
-    # JSON Support
-    #
-    ../include/json/json.hpp
-
     ../include/http_types.hpp
     http_types.cpp
 

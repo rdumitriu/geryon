@@ -2,9 +2,6 @@ TODOs
 ~~~~~~
 
 1/ Lots of tests needed (end to end, we'll buy time, using curl / perl?)
-2/ Finally choose a lib to deal with JSON:
-http://www.json.org/ (check out the list)
-(most probably) http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented
 
 
 

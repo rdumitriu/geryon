@@ -1,0 +1,11 @@
+
+# Use ll1gen utility to generate this bean
+
+namespace geryon
+namespace examples
+namespace helloworld
+
+class HelloResponse
+  firstName string
+  lastName string
+  greetings string
