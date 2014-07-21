@@ -61,15 +61,8 @@ if ! [ -d "$SERVERPROFDIR/run" ]; then
 fi
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GERYON_HOME/lib
-$PRGDIR/geryon -h $GERYON_HOME -i $SERVERID &
+$PRGDIR/geryon -h $GERYON_HOME -i $SERVERID > /dev/null &
 YPID=$!
 echo "$YPID" > $SERVERPROFDIR/run/pid
-
-c=0
-while [ $c -eq 0 ]
-do
-    sleep 1
-    c=`ps -adef | grep geryon | grep $YPID | wc -l`
-done;
 
 echo "Server $SERVERID started."
