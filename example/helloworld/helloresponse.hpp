@@ -74,15 +74,15 @@ std::ostream& operator<< (std::ostream& __stream, const HelloResponse& __bean) {
     __stream << "{";
     //ll1gen::field_ostream_begin
 
-        __stream << "\"firstName\":\"" << ll1gen::json::encodeJsonString(__bean._firstName) << "\"";
+        __stream << "\"firstName\":\"" << ll1gen::json::detail::encodeJsonString(__bean._firstName) << "\"";
 
 
 __stream << ",";
-    __stream << "\"lastName\":\"" << ll1gen::json::encodeJsonString(__bean._lastName) << "\"";
+    __stream << "\"lastName\":\"" << ll1gen::json::detail::encodeJsonString(__bean._lastName) << "\"";
 
 
 __stream << ",";
-    __stream << "\"greetings\":\"" << ll1gen::json::encodeJsonString(__bean._greetings) << "\"";
+    __stream << "\"greetings\":\"" << ll1gen::json::detail::encodeJsonString(__bean._greetings) << "\"";
 
 
 //ll1gen::field_ostream_end
@@ -91,41 +91,41 @@ __stream << ",";
 }
 
 std::istream& operator>> (std::istream& __stream, HelloResponse& __bean) {
-    char __startObjectMrk = ll1gen::json::lookUpAndEat(__stream, "{n");
+    char __startObjectMrk = ll1gen::json::detail::lookUpAndEat(__stream, "{n");
     if(__startObjectMrk == 'n') {
-        ll1gen::json::lookUpTokenRemainder(__stream, __startObjectMrk, "null");
+        ll1gen::json::detail::lookUpTokenRemainder(__stream, __startObjectMrk, "null");
         return __stream;
     }
     for(unsigned int __i = 0; __i < 3; ++__i) {
-        ll1gen::json::lookUpAndEat(__stream, "\"");
-        std::string __propertyName = ll1gen::json::lookUp(__stream, "\"");
-        ll1gen::json::lookUpAndEat(__stream, ":");
+        ll1gen::json::detail::lookUpAndEat(__stream, "\"");
+        std::string __propertyName = ll1gen::json::detail::lookUp(__stream, "\"");
+        ll1gen::json::detail::lookUpAndEat(__stream, ":");
 
         //ll1gen::field_istream_begin
 
             if(__propertyName == "firstName") {
-        if(!ll1gen::json::parseString(__stream, __bean._firstName)) {
+        if(!ll1gen::json::detail::parseString(__stream, __bean._firstName)) {
             throw new std::runtime_error("JSON: null not supported for field firstName (string). Check definition.");
         }
     }
 
 else
     if(__propertyName == "lastName") {
-        if(!ll1gen::json::parseString(__stream, __bean._lastName)) {
+        if(!ll1gen::json::detail::parseString(__stream, __bean._lastName)) {
             throw new std::runtime_error("JSON: null not supported for field lastName (string). Check definition.");
         }
     }
 
 else
     if(__propertyName == "greetings") {
-        if(!ll1gen::json::parseString(__stream, __bean._greetings)) {
+        if(!ll1gen::json::detail::parseString(__stream, __bean._greetings)) {
             throw new std::runtime_error("JSON: null not supported for field greetings (string). Check definition.");
         }
     }
 
 //ll1gen::field_istream_end
 
-        if('{' == ll1gen::json::lookUpAndEat(__stream, "},")) {
+        if('}' == ll1gen::json::detail::lookUpAndEat(__stream, "},")) {
             break;
         }
     }

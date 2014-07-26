@@ -18,6 +18,8 @@
 
 namespace ll1gen { namespace json {
 
+namespace detail {
+
 void encodeJsonString(const std::string & orig, std::string & final) {
     char * c = const_cast<char *>(orig.c_str());
     while(*c) {
@@ -187,7 +189,7 @@ std::string lookUp(std::istream& stream, const std::string & ends) {
 
 bool parseString(std::istream& stream, std::string & s) {
     s.clear();
-    char c = ll1gen::json::lookUpAndEat(stream, "\"n");
+    char c = lookUpAndEat(stream, "\"n");
     if(c == 'n') {
         lookUpTokenRemainder(stream, c, "null");
         return false;
@@ -197,7 +199,7 @@ bool parseString(std::istream& stream, std::string & s) {
 }
 
 bool parseBool(std::istream& stream, bool & b) {
-    char c = ll1gen::json::lookUpAndEat(stream, "ntf");
+    char c = lookUpAndEat(stream, "ntf");
     switch(c) {
         case 'n':
             lookUpTokenRemainder(stream, c, "null");
@@ -251,6 +253,217 @@ bool lookUpEmptyArray(std::istream& stream) {
         }
     } while( 1 );
     return false;
+}
+
+} /*namespace detail */
+
+void serializeVector(std::ostream &stream, const std::vector<std::string> &v) {
+    stream << "[";
+    if(!v.empty()) {
+        for(unsigned int i = 0; i < v.size() - 1; ++i) {
+            auto & item = v.at(i);
+            stream << "\"" << ll1gen::json::detail::encodeJsonString(item) << "\"" << ",";
+        }
+        stream << "\"" << ll1gen::json::detail::encodeJsonString(v.at(v.size() - 1)) << "\"";
+    }
+    stream << "]";
+}
+
+void deserializeVector(std::istream & stream, std::vector<std::string> &v) {
+    v.clear();
+    ll1gen::json::detail::lookUpAndEat(stream, "[");
+    if(!ll1gen::json::detail::lookUpEmptyArray(stream)) {
+        while(1) {
+            std::string item;
+            if(!ll1gen::json::detail::parseString(stream, item)) {
+                throw new std::runtime_error("JSON: null not supported for vector/string. Check definition.");
+            }
+            v.push_back(std::move(item));
+            char nextChar = ll1gen::json::detail::lookUpAndEat(stream, ",]");
+            if(nextChar == ']') { break; }
+        }
+    }
+}
+
+void serializeVector(std::ostream &stream, const std::vector<bool> &v) {
+    stream << "[";
+    if(!v.empty()) {
+        for(unsigned int i = 0; i < v.size() - 1; ++i) {
+            stream << (v.at(i) ? "true" : "false") << ",";
+        }
+        stream << (v.at(v.size() - 1) ? "true" : "false");
+    }
+    stream << "]";
+}
+
+void deserializeVector(std::istream &stream, std::vector<bool> &v) {
+    v.clear();
+    ll1gen::json::detail::lookUpAndEat(stream, "[");
+    if(!ll1gen::json::detail::lookUpEmptyArray(stream)) {
+        while(1) {
+            bool item;
+            if(!ll1gen::json::detail::parseBool(stream, item)) {
+                throw std::runtime_error("JSON: null is not supported for vector/bool. Check definition.");
+            }
+            v.push_back(item);
+            char nextChar = ll1gen::json::detail::lookUpAndEat(stream, ",]");
+            if(nextChar == ']') { break; }
+        }
+    }
+}
+
+template <typename T>
+void serializeVector(std::ostream & stream, const std::vector<T> & v) {
+    stream << "[";
+    if(!v.empty()) {
+        for(unsigned int i = 0; i < v.size() - 1; ++i) {
+            auto & item = v.at(i);
+            stream << item;
+            stream << ",";
+        }
+        stream << v.at(v.size() - 1);
+    }
+    stream << "]";
+}
+
+template <typename T>
+void deserializeVector(std::istream & stream, std::vector<T> & v) {
+    v.clear();
+    ll1gen::json::detail::lookUpAndEat(stream, "[");
+    if(!ll1gen::json::detail::lookUpEmptyArray(stream)) {
+        while(1) {
+            T item;
+            if(!ll1gen::json::detail::lookUpNull(stream)) {
+                stream >> item;
+            } else {
+                throw std::runtime_error("JSON: null not supported for vector. Check definition");
+            }
+            v.push_back(std::move(item));
+            char nextChar = ll1gen::json::detail::lookUpAndEat(stream, ",]");
+            if(nextChar == ']') { break; }
+        }
+    }
+}
+
+void serializeRefVector(std::ostream &stream, const std::vector<std::shared_ptr<std::string>> &v) {
+    if(!v.empty()) {
+        for(unsigned int i = 0; i < v.size() - 1; ++i) {
+            auto & item = v.at(i);
+            if(item.get()) {
+                stream << "\"" << ll1gen::json::detail::encodeJsonString(*item) << "\"";
+            } else {
+                stream << "null";
+            }
+            stream << ",";
+        }
+        auto & item = v.at(v.size() - 1);
+        if(item.get()) {
+            stream << "\"" << ll1gen::json::detail::encodeJsonString(*item) << "\"";
+        } else {
+            stream << "null";
+        }
+    }
+    stream << "]";
+}
+
+void deserializeRefVector(std::istream &stream, std::vector<std::shared_ptr<std::string>> &v) {
+    v.clear();
+    ll1gen::json::detail::lookUpAndEat(stream, "[");
+    if(!ll1gen::json::detail::lookUpEmptyArray(stream)) {
+        while(1) {
+            std::shared_ptr<std::string> item = std::make_shared<std::string>();
+            if(!ll1gen::json::detail::lookUpNull(stream)) {
+                ll1gen::json::detail::parseString(stream, *item);
+            } else {
+               item.reset();
+            }
+            v.push_back(std::move(item));
+            char nextChar = ll1gen::json::detail::lookUpAndEat(stream, ",]");
+            if(nextChar == ']') { break; }
+        }
+    }
+}
+
+
+void serializeRefVector(std::ostream &stream, const std::vector<std::shared_ptr<bool>> &v) {
+    if(!v.empty()) {
+        for(unsigned int i = 0; i < v.size() - 1; ++i) {
+            auto & item = v.at(i);
+            if(item.get()) {
+                stream << ((*item) ? "true" : "false");
+            } else {
+                stream << "null";
+            }
+            stream << ",";
+        }
+        auto & item = v.at(v.size() - 1);
+        if(item.get()) {
+            stream << ((*item) ? "true" : "false");
+        } else {
+            stream << "null";
+        }
+    }
+    stream << "]";
+}
+
+void deserializeRefVector(std::istream & stream, std::vector<std::shared_ptr<bool>> & v) {
+    v.clear();
+    ll1gen::json::detail::lookUpAndEat(stream, "[");
+    if(!ll1gen::json::detail::lookUpEmptyArray(stream)) {
+        while(1) {
+            std::shared_ptr<bool> item = std::make_shared<bool>();
+            if(!ll1gen::json::detail::lookUpNull(stream)) {
+                ll1gen::json::detail::parseBool(stream, *item);
+            } else {
+               item.reset();
+            }
+            v.push_back(item);
+            char nextChar = ll1gen::json::detail::lookUpAndEat(stream, ",]");
+            if(nextChar == ']') { break; }
+        }
+    }
+}
+
+template <typename T>
+void serializeRefVector(std::ostream & stream, const std::vector<std::shared_ptr<T>> & v) {
+    stream << "[";
+    if(!v.empty()) {
+        for(unsigned int i = 0; i < v.size() - 1; ++i) {
+            auto & item = v.at(i);
+            if(item.get()) {
+                stream << *item;
+            } else {
+                stream << "null";
+            }
+            stream << ",";
+        }
+        auto & item = v.at(v.size() - 1);
+        if(item.get()) {
+            stream << *item;
+        } else {
+            stream << "null";
+        }
+    }
+    stream << "]";
+}
+
+template <typename T>
+void deserializeRefVector(std::istream & stream, std::vector<std::shared_ptr<T>> & v) {
+    v.clear();
+    ll1gen::json::detail::lookUpAndEat(stream, "[");
+    if(!ll1gen::json::detail::lookUpEmptyArray(stream)) {
+        while(1) {
+            std::shared_ptr<T> item = std::make_shared<T>();
+            if(!ll1gen::json::detail::lookUpNull(stream)) {
+                stream >> *item;
+            } else {
+               item.reset();
+            }
+            v.push_back(std::move(item));
+            char nextChar = ll1gen::json::detail::lookUpAndEat(stream, ",]");
+            if(nextChar == ']') { break; }
+        }
+    }
 }
 
 
