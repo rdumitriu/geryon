@@ -346,6 +346,7 @@ void deserializeVector(std::istream & stream, std::vector<T> & v) {
 }
 
 void serializeRefVector(std::ostream &stream, const std::vector<std::shared_ptr<std::string>> &v) {
+    stream << "[";
     if(!v.empty()) {
         for(unsigned int i = 0; i < v.size() - 1; ++i) {
             auto & item = v.at(i);
@@ -386,6 +387,7 @@ void deserializeRefVector(std::istream &stream, std::vector<std::shared_ptr<std:
 
 
 void serializeRefVector(std::ostream &stream, const std::vector<std::shared_ptr<bool>> &v) {
+    stream << "[";
     if(!v.empty()) {
         for(unsigned int i = 0; i < v.size() - 1; ++i) {
             auto & item = v.at(i);
