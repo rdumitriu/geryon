@@ -53,7 +53,6 @@ public:
     ///
     /// If you need some properties, or some SQL connection, here's the time to
     /// initialize the filter.
-    /// \param app the application
     ///
     virtual void init() {}
 

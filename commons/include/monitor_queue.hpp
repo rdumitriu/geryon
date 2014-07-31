@@ -1,9 +1,9 @@
-/**
- * \file monitor_queue.hpp
- *
- * Created on: Feb 17, 2014
- * Author: rdumitriu at gmail.com
- */
+///
+/// \file monitor_queue.hpp
+///
+/// Created on: Feb 17, 2014
+/// Author: rdumitriu at gmail.com
+///
 #ifndef GERYON_MONITOR_QUEUE_HPP_
 #define GERYON_MONITOR_QUEUE_HPP_
 

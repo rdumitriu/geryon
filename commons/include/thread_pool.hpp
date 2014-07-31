@@ -34,7 +34,7 @@ class QueuedThreadPool {
 public:
 
     ///Constructor.
-    /// \param f the function to be run (e.g. \code void f(const T& _t)) \code )
+    /// \param f the function to be run (e.g. \code void f(const T& _t)) \endcode )
     /// \param _nT the number of threads
     /// \param _nQ the queue size, usually at least as the no of threads
     explicit

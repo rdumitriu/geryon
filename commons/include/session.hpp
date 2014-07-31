@@ -30,8 +30,8 @@ namespace geryon {
 /// @endcode
 /// ... where x is a copyable object.\n\n
 /// The session is thread safe, but values stored inside are NOT! You have to remember that multiple threads may
-/// access the same session. However, since you're working on copies, you need to enforce these semantics only when
-/// you have pointers inside your session.
+/// access the same session. Session use internally boost::any to care for your values.
+/// @todo Design an interf to offer no-lock semantics (mutex is already available, but it is not re-entrant, so ...)
 ///
 class Session : public ApplicationConfigAware {
 protected:

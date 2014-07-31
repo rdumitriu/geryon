@@ -27,12 +27,12 @@ public:
         }
         //2: Set the content type
         reply.setContentType(HttpResponse::CT_APPLICATIONJSON);
-        //3: spit it out
+        //3: spit it out. Note we used LL1GEN to generate the bean
         HelloResponse hresp;
         hresp.firstName() = fname;
         hresp.lastName() = lname;
         hresp.greetings() = greetings;
-        reply.getOutputStream() << hresp;
+        reply.getOutputStream() << hresp; //isn't it wonderful ?
     }
 
     void doPost(geryon::HttpRequest & request,
@@ -48,11 +48,13 @@ public:
 
     void doGet(geryon::HttpRequest & request,
                geryon::HttpResponse & reply) {
+        //Text response, no JSON
+        reply.setContentType(HttpResponse::CT_TEXT);
+#ifdef G_HAS_PQXX
         geryon::sql::postgres::PostgresConnection pconn_wrp(getModuleConfig().getPostgresPool("psqltest"));
         pqxx::nontransaction uow(pconn_wrp.connection());
         pqxx::result r = uow.exec("SELECT a.val, a.vdesc, b.val, b.vdesc FROM awdemonmb a, awdemonmb b");
 
-        reply.setContentType(HttpResponse::CT_TEXT);
         for(std::size_t i = 0; i < r.size(); ++i) {
             unsigned long n1;
             unsigned long n2;
@@ -62,6 +64,9 @@ public:
             std::string d2(r[i][3].c_str());
             reply.getOutputStream() << n1 << " - " << d1 << " -- " << n2 << " - " << d2 << "\n";
         }
+#else
+        reply.getOutputStream() << "Please allow in Postgres support for this example to work\n";
+#endif
     }
 
     void doPost(geryon::HttpRequest & request,

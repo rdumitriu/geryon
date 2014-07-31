@@ -78,7 +78,6 @@ public:
     /// We want an application be composed from multiple modules, but these share the same behavior
     ///
     /// \param _key the key of the module
-    /// \param _configFile the configuration file
     /// \param _parent the parent
     ///
     ApplicationModule(const std::string & _key,
@@ -87,6 +86,9 @@ public:
     ///Destructor
     virtual ~ApplicationModule();
 
+    ///
+    /// \brief The Status of the application
+    ///
     enum Status {
         /// Configuration phase: all modules are born this way
         INIT,
@@ -121,7 +123,7 @@ public:
     /// Listeners on the lifecycle of the application are owned by this object.\n
     /// Once added, the listener will be destroyed by the application destructor
     ///
-    /// \param listener the listener address (MUST be pointer, MUST be allocated with 'new')
+    /// \param listener the listener address (shared pointer, @see std::shared_ptr)
     ///
     void addLifecycleListener(std::shared_ptr<ApplicationModuleLifecycleListener> listener) {
         listener->setApplicationModule(this);
@@ -136,7 +138,7 @@ public:
     /// Listeners on the lifecycle of the session are owned by this object.\n
     /// Once added, the listener will be destroyed by the application destructor
     ///
-    /// \param listener the listener address (MUST be pointer, MUST be allocated with 'new')
+    /// \param listener the listener address (shared pointer, @see std::shared_ptr)
     ///
     void addSessionListener(std::shared_ptr<SessionLifecycleListener> listener) {
         listener->setApplicationModule(this);
@@ -152,7 +154,7 @@ public:
     /// Filters intercept the request and they are able to interrupt the processing of a request.\n
     ///
     /// Filters are added on the application module and they are owned by the application module object.
-    /// \param filter the filter pointer (allocated with 'new')
+    /// \param filter the filter pointer (shared pointer, @see std::shared_ptr)
     ///
     void addFilter(std::shared_ptr<Filter> filter) {
         filter->setApplicationModule(this);
@@ -167,7 +169,7 @@ public:
     /// Servlets are the main processing units. \n
     /// Servlets are added on the application and they are owned by the application module object, and subsequently
     /// destroyed by the current application module object.\n
-    /// \param servlet the servlet pointer (allocated with 'new')
+    /// \param servlet the servlet pointer (shared pointer, @see std::shared_ptr')
     ///
     void addServlet(std::shared_ptr<Servlet> servlet) {
         servlet->setApplicationModule(this);
@@ -233,9 +235,17 @@ protected:
 /// ::TODO:: start / stop modules individually. At some point in time, soon
 class ApplicationModuleContainer : public ApplicationModule {
 public:
+    ///
+    /// \brief Constructor
+    /// The container of the apps.
+    ///
+    /// \param _key the key
+    /// \param _parent the parent
+    ///
     ApplicationModuleContainer(const std::string & _key,
                                ApplicationModule * const _parent = 0);
 
+    ///Destructor
     virtual ~ApplicationModuleContainer();
 
     ///Called by the container. By default, notifies all the configured listeners of the module.
@@ -247,6 +257,8 @@ public:
     ///
     /// \brief Adds a module
     /// \param module the module pointer
+    ///
+    /// shared pointer, @see std::shared_ptr
     ///
     void addModule(std::shared_ptr<ApplicationModule> module) {
         module->parent = this;

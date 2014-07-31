@@ -2,7 +2,7 @@
 /// \file http_types.hpp
 ///
 ///  Created on: Jul 7, 2011, refactored to geryon (and corrected bugs) on 24 Feb 2014
-///      Author: rdumitriu at gmail.com
+///  Author: rdumitriu at gmail.com
 ///
 
 #ifndef GERYON_HTTP_TYPES_HPP_
@@ -686,6 +686,11 @@ protected:
     bool committed;
 };
 
+///
+/// \brief Returns the status message for a given HTTP code
+/// \param status the status
+/// \return the message
+///
 const std::string & getHttpStatusMessage(HttpResponse::HttpStatusCode status);
 
 }

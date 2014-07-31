@@ -1,11 +1,11 @@
-/**
- * \file sql_postgres_support.hpp
- * 
- * Contains the tailoring of the SQLPool related classes to Postgres.
- * 
- * Created on: Jun 04, 2014
- * Author: rdumitriu at gmail.com
- */
+///
+/// \file sql_postgres_support.hpp
+///
+/// Contains the tailoring of the SQLPool related classes to Postgres.
+///
+/// Created on: Jun 04, 2014
+/// Author: rdumitriu at gmail.com
+///
 #ifndef GERYON_SQL_POSTGRES_SUPPORT_HPP_
 #define GERYON_SQL_POSTGRES_SUPPORT_HPP_
 

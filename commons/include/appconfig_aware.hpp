@@ -36,7 +36,7 @@ public:
     /// May throw if the object has not been added to some application module. Module will not change during the
     /// life of this object.
     ///
-    /// \return the application module \b where is is defined \b.
+    /// \return the application module \bold where is is defined \bold.
     ///
     ApplicationModule & getApplicationModule() const throw(ApplicationException);
 
