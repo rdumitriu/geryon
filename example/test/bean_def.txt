@@ -1,0 +1,13 @@
+
+# Use ll1gen utility to generate this bean
+
+namespace geryon
+namespace test
+
+class FilterResponse
+  message string
+
+class ServletResponse
+  ok bool
+  code unsigned int
+  message string

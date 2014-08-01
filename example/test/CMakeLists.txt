@@ -1,6 +1,15 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET (livetest_SRC
+    test_filter_global.hpp
+    test_filter_global.cpp
+
+    test_filter_nrm.hpp
+    test_filter_nrm.cpp
+
+    test_servlet.hpp
+    test_servlet.cpp
+
     livetest.cpp
 	)
 
