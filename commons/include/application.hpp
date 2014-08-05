@@ -31,7 +31,7 @@ class ApplicationModuleContainer;
 /// The application module must be configured when started with all the listeners.\n
 /// Code MUST be thread safe
 ///
-class ApplicationModuleLifecycleListener : public ApplicationConfigAware {
+class G_CLASS_EXPORT ApplicationModuleLifecycleListener : public ApplicationConfigAware {
 public:
     ///
     /// Constructor
@@ -70,7 +70,7 @@ public:
 /// Take care: when destroyed, this objects destroys all servlets, filters, and listeners as well. So don't worry
 /// about deletes.
 ///
-class ApplicationModule {
+class G_CLASS_EXPORT ApplicationModule {
 public:
     ///
     /// \brief The basic application block.
@@ -233,7 +233,7 @@ protected:
 ///
 /// Plugin container
 /// ::TODO:: start / stop modules individually. At some point in time, soon
-class ApplicationModuleContainer : public ApplicationModule {
+class G_CLASS_EXPORT ApplicationModuleContainer : public ApplicationModule {
 public:
     ///
     /// \brief Constructor

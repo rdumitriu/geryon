@@ -22,7 +22,7 @@ class ApplicationModule;
 ///
 /// Paths may contain '*' symbols to signal that accepts everything on that position.
 ///
-class Filter : public ApplicationConfigAware {
+class G_CLASS_EXPORT Filter : public ApplicationConfigAware {
 public:
     ///
     /// \brief The constructor

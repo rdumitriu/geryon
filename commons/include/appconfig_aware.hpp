@@ -16,7 +16,7 @@ class ApplicationModule;
 class ApplicationConfig;
 
 /// Base class to carry over the config
-class ApplicationConfigAware {
+class G_CLASS_EXPORT ApplicationConfigAware {
 protected:
     /// Constructor
     ApplicationConfigAware(ApplicationModule * const _pApp = 0) : pApplicationModule(_pApp){}
@@ -38,14 +38,14 @@ public:
     ///
     /// \return the application module \bold where is is defined \bold.
     ///
-    ApplicationModule & getApplicationModule() const throw(ApplicationException);
+    ApplicationModule & getApplicationModule() const;
 
 
     ///
     /// \brief Returns the configuration for the current module
     /// \return the current config.
     ///
-    ApplicationConfig & getModuleConfig() const throw(ApplicationException);
+    ApplicationConfig & getModuleConfig() const;
 
 private:
     friend class ApplicationModule;

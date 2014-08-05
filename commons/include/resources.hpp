@@ -10,6 +10,8 @@
 #ifndef GERYON_RESOURCES_HPP_
 #define GERYON_RESOURCES_HPP_
 
+#include "platform.hpp"
+
 #include "sql/sql_pool.hpp"
 
 #ifdef G_HAS_PQXX

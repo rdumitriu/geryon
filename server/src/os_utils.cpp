@@ -11,7 +11,7 @@ void * openDynamicLibrary(const char * path) {
     #if defined(G_HAS_WIN)
         moduleHandler = LoadLibraryA(path);
     #else
-        moduleHandler = dlopen(path, RTLD_LAZY | RTLD_LOCAL);
+        moduleHandler = dlopen(path, RTLD_LAZY | RTLD_GLOBAL);
     #endif
     if(!moduleHandler) {
         LOG(geryon::util::Log::WARNING) << "Cannot load dynamic library from path :" << path;

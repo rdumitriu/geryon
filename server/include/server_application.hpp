@@ -67,7 +67,7 @@ public:
 
     inline ApplicationModule::Status getStatus() const { return application->getStatus(); }
 
-    void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+    void execute(HttpServerRequest & request, HttpServerResponse & response);
 
     std::vector<detail::SessionStats> getStats();
 private:
@@ -87,7 +87,7 @@ private:
     ServerApplicationServletDispatcher servletDispatcher;
 
 
-    void prepareExecution(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+    void prepareExecution(HttpServerRequest & request, HttpServerResponse & response);
 
     std::string getSessionCookieValue(HttpServerRequest & request);
     std::size_t getPartitionFromCookie(const std::string & cookie);

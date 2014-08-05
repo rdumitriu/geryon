@@ -389,7 +389,7 @@ const std::vector<std::string> HttpRequest::getParameterValues(const std::string
  * HttpResponse implementation
  * ================================================================== */
 
-void HttpResponse::addHeader(const std::string & hdrName, const std::string & hdrValue) throw (HttpException) {
+void HttpResponse::addHeader(const std::string & hdrName, const std::string & hdrValue) {
     if(responseCommitted()) {
         std::string msg = "Header '" + hdrName + "' cannot be modified";
         LOG(geryon::util::Log::ERROR) << msg;
@@ -406,7 +406,7 @@ void HttpResponse::addHeader(const std::string & hdrName, const std::string & hd
     }
 }
 
-void HttpResponse::addCookie(const HttpCookie & cookie) throw (HttpException) {
+void HttpResponse::addCookie(const HttpCookie & cookie) {
     if(!cookie.isValid()) {
         std::string msg = "Cannot add malformed cookie '" + cookie.name + "'.";
         LOG(geryon::util::Log::ERROR) << msg;
@@ -439,7 +439,7 @@ void HttpResponse::addCookie(const HttpCookie & cookie) throw (HttpException) {
     addHeader(SET_COOKIE_HEADER_NAME, hv.str());
 }
 
-void HttpResponse::removeHeader(const std::string & hdrName) throw (HttpException) {
+void HttpResponse::removeHeader(const std::string & hdrName) {
     if(responseCommitted()) {
         std::string msg = "Header '" + hdrName + "' cannot be deleted";
         LOG(geryon::util::Log::ERROR) << msg;
@@ -448,7 +448,7 @@ void HttpResponse::removeHeader(const std::string & hdrName) throw (HttpExceptio
     headers.erase(hdrName);
 }
 
-void HttpResponse::setStatus(HttpStatusCode _status) throw (HttpException) {
+void HttpResponse::setStatus(HttpStatusCode _status) {
     if(responseCommitted()) {
         std::string msg = "Status '" + std::to_string(_status) + "' cannot be set, already sent";
         LOG(geryon::util::Log::ERROR) << msg;
@@ -463,7 +463,7 @@ void HttpResponse::clear() {
     committed = false;
 }
 
-void HttpResponse::setContentType(HttpContentType ct) throw (HttpException) {
+void HttpResponse::setContentType(HttpContentType ct) {
     setContentType(getHttpContentTypeStd(ct));
 }
 

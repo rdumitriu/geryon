@@ -36,7 +36,7 @@ public:
 
     void init(std::shared_ptr<geryon::Application> & app);
 
-    bool doServlet(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+    bool doServlet(HttpServerRequest & request, HttpServerResponse & response);
 private:
     std::map<std::string, std::shared_ptr<Servlet>> directMappedServlets;
     std::vector<detail::WrappedServlet> regexMappedServlets;

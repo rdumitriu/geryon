@@ -49,7 +49,7 @@ std::istream & HttpServerRequest::getInputStream() {
     return stream;
 }
 
-void HttpServerResponse::sendHeaders() throw (HttpException) {
+void HttpServerResponse::sendHeaders() {
     if(responseCommitted()) {
         std::string msg = "Response already committed";
         LOG(geryon::util::Log::ERROR) << msg;

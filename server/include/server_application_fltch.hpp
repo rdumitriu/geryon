@@ -36,13 +36,13 @@ public:
 
     void init(std::shared_ptr<geryon::Application> & app);
 
-    bool doFilters(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+    bool doFilters(HttpServerRequest & request, HttpServerResponse & response);
 private:
     std::vector<detail::WrappedFilter> filters;
     PathTree<unsigned int> index;
 
     bool doFilter(const detail::WrappedFilter & flt,
-                  HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+                  HttpServerRequest & request, HttpServerResponse & response);
 
     bool requestMatches(const detail::WrappedFilter & flt, const HttpServerRequest & request);
 };

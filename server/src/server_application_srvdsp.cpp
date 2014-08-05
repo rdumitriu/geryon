@@ -29,7 +29,7 @@ void ServerApplicationServletDispatcher::init(std::shared_ptr<geryon::Applicatio
 }
 
 bool ServerApplicationServletDispatcher::doServlet(HttpServerRequest & request,
-                                                   HttpServerResponse & response) throw(geryon::HttpException) {
+                                                   HttpServerResponse & response) {
     std::shared_ptr<Servlet> servlet = findServlet(request);
     if(servlet.get()) {
         servlet->execute(request, response);

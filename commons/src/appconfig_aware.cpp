@@ -10,14 +10,14 @@
 
 namespace geryon {
 
-ApplicationConfig & ApplicationConfigAware::getModuleConfig() const throw(ApplicationException) {
+ApplicationConfig & ApplicationConfigAware::getModuleConfig() const {
     if(pApplicationModule) {
         return pApplicationModule->getConfig();
     }
     throw ApplicationException("There's no application module configured. Out of here.");
 }
 
-ApplicationModule & ApplicationConfigAware::getApplicationModule() const throw(ApplicationException) {
+ApplicationModule & ApplicationConfigAware::getApplicationModule() const {
     if(pApplicationModule) {
         return *pApplicationModule;
     }

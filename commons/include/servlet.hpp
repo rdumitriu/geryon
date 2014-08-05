@@ -21,7 +21,7 @@ namespace geryon {
 /// For matcher paths (i.e. paths containing '*'), application will prepend its own path, then the matcher will be
 /// created.
 ///
-class Servlet : public ApplicationConfigAware {
+class G_CLASS_EXPORT Servlet : public ApplicationConfigAware {
 protected:
     ///
     /// \brief Constructor.

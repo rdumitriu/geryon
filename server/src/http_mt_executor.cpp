@@ -1,4 +1,6 @@
 
+#include "log.hpp"
+
 #include "http_mt_executor.hpp"
 
 #define QUEUE_CAPACITY_FACTOR 10
@@ -17,7 +19,7 @@ HttpMultiThreadExecutor::HttpMultiThreadExecutor(unsigned int _nThreads)
 
 void HttpMultiThreadExecutor::executeInternal(std::shared_ptr<ServerApplication> papp,
                                  HttpServerRequest & request,
-                                 HttpServerResponse & response) throw(geryon::HttpException) {
+                                 HttpServerResponse & response) {
     messageQueue.execute(std::move(detail::HMTMessage(papp, request, response)));
 }
 

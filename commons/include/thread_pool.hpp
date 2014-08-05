@@ -30,7 +30,7 @@ namespace detail {
 /// The type T must be copyable and represents the data the function is processing (all tasks will do the same).
 ///
 template <typename T>
-class QueuedThreadPool {
+class G_CLASS_EXPORT QueuedThreadPool {
 public:
 
     ///Constructor.

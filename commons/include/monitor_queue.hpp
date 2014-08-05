@@ -10,6 +10,8 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "platform.hpp"
+
 namespace geryon { namespace mt {
 
 ///
@@ -19,7 +21,7 @@ namespace geryon { namespace mt {
 /// Destruction of the queue will destroy all objects in it, so make sure the processing is complete.
 ///
 template <typename T>
-class MonitorQueue {
+class G_CLASS_EXPORT MonitorQueue {
 public:
 
     ///Constructor.

@@ -6,15 +6,17 @@
 ///
 #ifndef GERYON_APP_EXCEPTION_HPP_
 #define GERYON_APP_EXCEPTION_HPP_
- 
+
 #include <string>
+
+#include "platform.hpp"
 
 namespace geryon {
 
 ///
 /// \brief The application exception
 ///
-class ApplicationException : public std::runtime_error {
+class G_CLASS_EXPORT ApplicationException : public std::runtime_error {
 public:
     ///
     /// \brief Constructor.

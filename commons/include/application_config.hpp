@@ -17,7 +17,7 @@ namespace geryon { namespace configuration {
 /// \brief The ApplicationConfigInjector class
 /// Used to inject the config
 ///
-class ApplicationConfigInjector {
+class G_CLASS_EXPORT ApplicationConfigInjector {
 public:
     ApplicationConfigInjector() {}
     virtual ~ApplicationConfigInjector() {}

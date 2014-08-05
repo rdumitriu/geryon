@@ -25,11 +25,11 @@ public:
                         : geryon::sql::configuration::SQLConnectionOpsImpl<pqxx::connection>(connectString) {}
     virtual ~PostgresSQLConnectionOpsImpl() {}
 
-    virtual std::shared_ptr<pqxx::connection> open() throw(geryon::sql::SQLException);
+    virtual std::shared_ptr<pqxx::connection> open();
 
-    virtual void close(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException);
+    virtual void close(std::shared_ptr<pqxx::connection> & conn);
 
-    virtual bool test(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException);
+    virtual bool test(std::shared_ptr<pqxx::connection> & conn);
 };
 
 }

@@ -6,7 +6,7 @@
 namespace geryon { namespace server { namespace detail {
 
 
-std::shared_ptr<pqxx::connection> PostgresSQLConnectionOpsImpl::open() throw(geryon::sql::SQLException) {
+std::shared_ptr<pqxx::connection> PostgresSQLConnectionOpsImpl::open() {
     try {
         LOG(geryon::util::Log::DEBUG) << "Connect using the connect string:" << getConnectString();
         return std::make_shared<pqxx::connection>(getConnectString());
@@ -19,7 +19,7 @@ std::shared_ptr<pqxx::connection> PostgresSQLConnectionOpsImpl::open() throw(ger
     }
 }
 
-void PostgresSQLConnectionOpsImpl::close(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException) {
+void PostgresSQLConnectionOpsImpl::close(std::shared_ptr<pqxx::connection> & conn) {
     try {
         conn->disconnect();
     } catch(std::runtime_error & e) {
@@ -30,7 +30,7 @@ void PostgresSQLConnectionOpsImpl::close(std::shared_ptr<pqxx::connection> & con
     }
 }
 
-bool PostgresSQLConnectionOpsImpl::test(std::shared_ptr<pqxx::connection> & conn) throw(geryon::sql::SQLException) {
+bool PostgresSQLConnectionOpsImpl::test(std::shared_ptr<pqxx::connection> & conn) {
     try {
         if(!conn.get() || !conn->is_open()) {
             return false;

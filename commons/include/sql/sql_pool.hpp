@@ -10,6 +10,7 @@
 #include <queue>
 #include <memory>
 
+#include "platform.hpp"
 #include "repetitive_runnable.hpp"
 
 #include "log.hpp"
@@ -22,7 +23,7 @@ namespace geryon { namespace sql {
 /// Exception thrown when something is wrong within our SQL. It will serve as a
 /// base class for our SQL exception hierarchy
 ///
-class SQLException : public std::runtime_error {
+class G_CLASS_EXPORT SQLException : public std::runtime_error {
 public:
     ///Constructor
     explicit SQLException(std::string msg) : std::runtime_error(msg) {}
@@ -44,7 +45,7 @@ namespace configuration {
 /// Providers should implement this (PostgreSQL, MySQL, etc)
 ///
 template <typename T>
-class SQLConnectionOpsImpl {
+class  G_CLASS_EXPORT SQLConnectionOpsImpl {
 public:
     ///
     /// The SQL maintainer constructor
@@ -67,17 +68,17 @@ public:
     ///
     /// Open a connection
     ///
-    virtual std::shared_ptr<T> open() throw(SQLException) = 0;
+    virtual std::shared_ptr<T> open() = 0;
 
     ///
     /// Close a connection
     ///
-    virtual void close(std::shared_ptr<T> & conn) throw(SQLException) = 0;
+    virtual void close(std::shared_ptr<T> & conn) = 0;
 
     ///
     /// Test the connection
     ///
-    virtual bool test(std::shared_ptr<T> & conn) throw(SQLException) = 0;
+    virtual bool test(std::shared_ptr<T> & conn) = 0;
 
     ///
     /// Gets the connect string
@@ -101,7 +102,7 @@ namespace detail {
 /// This is not a simple connection, it's augmented with createdAt timestamp
 ///
 template <typename T>
-class SQLConnectionInternal {
+class  G_CLASS_EXPORT SQLConnectionInternal {
 private:
     std::shared_ptr<T> connection;
     std::chrono::system_clock::time_point createdTimeStamp;
@@ -170,7 +171,7 @@ public:
 
 
 template <typename T>
-class SQLPoolMaintainer {
+class  G_CLASS_EXPORT SQLPoolMaintainer {
 public:
     SQLPoolMaintainer(SQLPool<T> * _pPool) : pPool(_pPool) {}
     ~SQLPoolMaintainer() {}
@@ -221,7 +222,7 @@ private:
 ///
 /// Access to the pool will only be made via SQLConnection
 template <typename T>
-class SQLPool {
+class  G_CLASS_EXPORT SQLPool {
 public:
 
     ///Constructor.
@@ -381,7 +382,7 @@ private:
 /// The wrapper over the basic connection. Movable, but not copyable
 ///
 template <typename T>
-class SQLConnection {
+class  G_CLASS_EXPORT SQLConnection {
 public:
     SQLConnection() : pool(0) {
     }

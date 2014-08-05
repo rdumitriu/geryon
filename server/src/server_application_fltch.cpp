@@ -29,7 +29,7 @@ void ServerApplicationFilterChain::init(std::shared_ptr<geryon::Application> & a
 }
 
 bool ServerApplicationFilterChain::doFilters(HttpServerRequest & request,
-                                             HttpServerResponse & response) throw(geryon::HttpException) {
+                                             HttpServerResponse & response) {
     std::vector<unsigned int> filterSet = index.getDataForPath(request.getURIPath());
     //the filter set is ordered from root to most specific
     //although may not be sane, we consider it a good rule to execute the filters
@@ -45,7 +45,7 @@ bool ServerApplicationFilterChain::doFilters(HttpServerRequest & request,
 
 bool ServerApplicationFilterChain::doFilter(const detail::WrappedFilter & flt,
                                             HttpServerRequest & request,
-                                            HttpServerResponse & response) throw(geryon::HttpException) {
+                                            HttpServerResponse & response) {
     if(requestMatches(flt, request)) {
         return flt.filter->doFilter(request, response);
     }

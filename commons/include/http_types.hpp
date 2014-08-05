@@ -31,7 +31,7 @@ namespace geryon {
 ///  HTTP headers may be defined twice in a request. There are some headers that
 /// will not have any value but they carry one bit of information by mere presence.
 ///
-struct HttpHeader {
+struct G_CLASS_EXPORT HttpHeader {
     ///the name of the header
     std::string name;
     ///the value(s) of the header
@@ -54,7 +54,7 @@ struct HttpHeader {
 ///
 /// \todo Fully Support RFC6265 (even for cookies not set by this server)
 ///
-struct HttpCookie {
+struct G_CLASS_EXPORT HttpCookie {
     ///the name of the cookie; it must exist
     std::string name;
     ///the value of the cookie; it must exist
@@ -90,7 +90,7 @@ struct HttpCookie {
 ///
 /// \brief Exception if something goes wrong within the HTTP (incorrect usage, bad karma)
 ///
-class HttpException : public std::runtime_error {
+class G_CLASS_EXPORT HttpException : public std::runtime_error {
 public:
     enum HttpExceptionCode {
         GENERIC_HTTP_ERROR,
@@ -135,7 +135,7 @@ public:
 ///
 /// \todo Cookies improvements\n
 ///
-class HttpMessage {
+class G_CLASS_EXPORT HttpMessage {
 protected:
     /// \brief The HTTP message constructor
     HttpMessage() : contentLength(0) {}
@@ -296,7 +296,7 @@ private:
 /// Multipart requests are standard form requests where enctype="multipart/form-data" They are usually used to post
 /// files on servers.
 ///
-class HttpRequestPart {
+class G_CLASS_EXPORT HttpRequestPart {
 public:
     HttpRequestPart(const std::string & _name, const std::string & _fileName, const std::string & _contentType)
         : name(_name), fileName(_fileName), contentType(_contentType) {}
@@ -332,7 +332,7 @@ class Session;
 ///
 /// This is where your request parameters lies, along with potential useful headers.
 ///
-class HttpRequest : public HttpMessage {
+class G_CLASS_EXPORT HttpRequest : public HttpMessage {
 public:
 
     ///
@@ -503,7 +503,7 @@ protected:
 /// This is what developers are allowed to modify. Operations are guarded, so you
 /// cannot send something, then modify a header (a MessageException will pop up).
 ///
-class HttpResponse : public HttpMessage {
+class G_CLASS_EXPORT HttpResponse : public HttpMessage {
 
 public:
     ///
@@ -589,7 +589,7 @@ public:
     /// \param hdrName the header name
     /// \param hdrValue the values
     ///
-    void addHeader(const std::string & hdrName, const std::string & hdrValue) throw (HttpException);
+    void addHeader(const std::string & hdrName, const std::string & hdrValue);
 
     ///
     /// \brief Convenience method to add a 'Set-Cookie' header
@@ -597,7 +597,7 @@ public:
     /// Creates a 'Set-Cookie' header and adds it on the response.
     /// \param cookie the cookie
     ///
-    void addCookie(const HttpCookie & cookie) throw (HttpException);
+    void addCookie(const HttpCookie & cookie);
 
     ///
     /// \brief Removes a certain header.
@@ -606,14 +606,14 @@ public:
     ///
     /// \param hdrName the header name
     ///
-    void removeHeader(const std::string & hdrName) throw (HttpException);
+    void removeHeader(const std::string & hdrName);
 
     ///
     /// \brief Sets the content length
     ///
     /// \param _contentLength the content length
     ///
-    void setContentLength(std::size_t _contentLength) throw (HttpException) {
+    void setContentLength(std::size_t _contentLength) {
         if(responseCommitted()) {
             std::string msg = "Content-Length cannot be modified";
             LOG(geryon::util::Log::ERROR) << msg;
@@ -627,7 +627,7 @@ public:
     ///
     /// \param contentType the content type
     ///
-    void setContentType(const std::string & _contentType) throw (HttpException) {
+    void setContentType(const std::string & _contentType) {
         if(responseCommitted()) {
             std::string msg = "Content-Type cannot be modified";
             LOG(geryon::util::Log::ERROR) << msg;
@@ -640,14 +640,14 @@ public:
     /// \brief Convenience method to set the content type
     /// \param ct the content type
     ///
-    void setContentType(HttpContentType ct) throw (HttpException);
+    void setContentType(HttpContentType ct);
 
     ///
     /// \brief Sets the status
     ///
     /// \param status the status code (HTTPStatusCode::SC_X)
     ///
-    void setStatus(HttpStatusCode _status) throw (HttpException);
+    void setStatus(HttpStatusCode _status);
 
     ///
     /// \brief Gets the status
@@ -691,7 +691,7 @@ protected:
 /// \param status the status
 /// \return the message
 ///
-const std::string & getHttpStatusMessage(HttpResponse::HttpStatusCode status);
+G_FUNCTION_EXPORT const std::string & getHttpStatusMessage(HttpResponse::HttpStatusCode status);
 
 }
 

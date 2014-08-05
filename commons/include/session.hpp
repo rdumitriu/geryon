@@ -33,7 +33,7 @@ namespace geryon {
 /// access the same session. Session use internally boost::any to care for your values.
 /// @todo Design an interf to offer no-lock semantics (mutex is already available, but it is not re-entrant, so ...)
 ///
-class Session : public ApplicationConfigAware {
+class G_CLASS_EXPORT Session : public ApplicationConfigAware {
 protected:
     ///
     /// \brief Constructor

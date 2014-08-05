@@ -11,3 +11,8 @@ class ServletResponse
   ok bool
   code unsigned int
   message string
+
+class PostRequest
+  msg string
+  other_msgs + string
+  do_something * bool

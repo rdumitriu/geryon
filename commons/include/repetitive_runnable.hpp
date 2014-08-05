@@ -25,7 +25,7 @@ namespace geryon { namespace mt {
 /// You need to call start() for this to run your task. Calling stop() is optional, as it will be
 /// called by destructor if needed.
 ///
-class RepetitiveRunnable {
+class G_CLASS_EXPORT RepetitiveRunnable {
 public:
     ///
     /// \brief Constructor

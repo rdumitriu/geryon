@@ -24,7 +24,7 @@ class Session;
 /// Code MUST be thread safe. The proper access is required (get the mutex)\n\n
 /// We prefer to keep listeners as classes with behavior instead of having pointers to functions for that matter.
 ///
-class SessionLifecycleListener : public ApplicationConfigAware {
+class G_CLASS_EXPORT SessionLifecycleListener : public ApplicationConfigAware {
 public:
     ///
     /// \brief Constructor
@@ -100,7 +100,7 @@ public:
 ///
 /// All methods are empty. You need to subclass it before use \n
 ///
-class SessionLifecycleListenerAdapter : public SessionLifecycleListener {
+class G_CLASS_EXPORT SessionLifecycleListenerAdapter : public SessionLifecycleListener {
 protected:
     ///Protected constructor, you need to subclass to use
     SessionLifecycleListenerAdapter() : SessionLifecycleListener() {}

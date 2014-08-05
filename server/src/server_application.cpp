@@ -118,7 +118,7 @@ void ServerApplication::stop() {
     application->stop();
 }
 
-void ServerApplication::execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) {
+void ServerApplication::execute(HttpServerRequest & request, HttpServerResponse & response) {
     try {
         prepareExecution(request, response);
         if(filterChain.doFilters(request, response)) {
@@ -157,7 +157,7 @@ void ServerApplication::sendStandardResponse(HttpServerResponse & response,
 }
 
 void ServerApplication::prepareExecution(HttpServerRequest & request,
-                                         HttpServerResponse & response) throw(geryon::HttpException) {
+                                         HttpServerResponse & response) {
     //new request, session not set, we should do it
     std::string sessionCookieValue = getSessionCookieValue(request);
 

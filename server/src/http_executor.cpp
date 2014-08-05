@@ -10,7 +10,7 @@
 
 namespace geryon { namespace server {
 
-void HttpExecutor::execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException) {
+void HttpExecutor::execute(HttpServerRequest & request, HttpServerResponse & response) {
     std::shared_ptr<ServerApplication> papp = getDispatchTarget(request);
     if(verifyDispatchTarget(papp, request, response)) {
         LOG(geryon::util::Log::DEBUG) << "Application: " << papp->getPath() << " is matching URI path:" << request.getURIPath();

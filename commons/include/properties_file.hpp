@@ -21,7 +21,7 @@ namespace geryon { namespace util {
 /// The class is a very simple properties reader (which is somehow tolerant to errors). We didn't want to complicate
 /// things, so here it is.
 ///
-class PropertiesFile {
+class G_CLASS_EXPORT PropertiesFile {
 public:
     ///
     /// \brief Constructor - using a file.

@@ -13,6 +13,8 @@
 #include <sstream>
 #include <string>
 
+#include "platform.hpp"
+
 namespace geryon { namespace util {
 
 /// \brief The log class
@@ -26,7 +28,7 @@ namespace geryon { namespace util {
 /// 4/ Should measure performance and check if not the actual log should be a thread, taking log messages from a queue.
 /// The idea would be NOT to write files in the thread actually doing the work, since it's detriemental to perf.
 
-class Log {
+class G_CLASS_EXPORT Log {
 public:
     ///
     /// The log level

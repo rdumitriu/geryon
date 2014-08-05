@@ -196,7 +196,7 @@ private:
     ///Call this to format the preamble of any HTTP message. Sending the headers will make impossible to change
     /// afterwards any header, status, etc
     /// It changes also the committed flag
-    void sendHeaders() throw (HttpException);
+    void sendHeaders();
 
     GOstreambuff buff;
     std::ostream stream;

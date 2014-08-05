@@ -1,5 +1,8 @@
+#include <sstream>
+
 #include "test_servlet.hpp"
 #include "servletresponse.hpp"
+#include "postrequest.hpp"
 
 namespace geryon { namespace test {
 
@@ -39,8 +42,69 @@ std::vector<std::shared_ptr<STest>> POST_TESTS;
 std::vector<std::shared_ptr<STest>> PUT_TESTS;
 std::vector<std::shared_ptr<STest>> DEL_TESTS;
 
+// Servlet test: can get a param
+class SimpleParamTest : public STest {
+public:
+    SimpleParamTest() : STest() {}
+    virtual ~SimpleParamTest() {}
+
+    virtual void runTest(HttpRequest & request, HttpResponse & reply) {
+        ServletResponse sr;
+        reply.setContentType(HttpResponse::CT_APPLICATIONJSON);
+        std::string s = request.getParameterValue("param");
+        sr.code() = 0;
+        sr.message() = s;
+        sr.ok() = true;
+        reply.getOutputStream() << sr;
+    }
+};
+
+
+//Global filter test : filter executes
+class GlobalFilterTest : public STest {
+public:
+    GlobalFilterTest() : STest() {}
+    virtual ~GlobalFilterTest() {}
+
+    virtual void runTest(HttpRequest & request, HttpResponse & reply) {
+        ServletResponse sr;
+        reply.setContentType(HttpResponse::CT_APPLICATIONJSON);
+        std::string s;
+        request.getAttribute("global.filter.attr", s);
+        sr.code() = 0;
+        sr.message() = s;
+        sr.ok() = s == "GFT.PASSED";
+        reply.getOutputStream() << sr;
+    }
+};
+
+class PostRequestTest : public STest {
+public:
+    PostRequestTest() : STest() {}
+    virtual ~PostRequestTest() {}
+
+    virtual void runTest(HttpRequest & request, HttpResponse & reply) {
+        PostRequest pr;
+        ServletResponse sr;
+        request.getInputStream() >> pr;
+        reply.setContentType(HttpResponse::CT_APPLICATIONJSON);
+        sr.code() = 0;
+        sr.ok() = true;
+        std::ostringstream str;
+        str << pr.msg() << "-" << pr.other_msgs().size() << "-" << (pr.do_something().get() ? *pr.do_something() : false);
+        sr.message() = str.str();
+        reply.getOutputStream() << sr;
+    }
+};
+
 //virtual
 void TestServlet::init() {
+    GET_TESTS.push_back(std::make_shared<SimpleParamTest>());
+    GET_TESTS.push_back(std::make_shared<GlobalFilterTest>());
+
+    POST_TESTS.push_back(std::make_shared<SimpleParamTest>());
+    POST_TESTS.push_back(std::make_shared<GlobalFilterTest>());
+    POST_TESTS.push_back(std::make_shared<PostRequestTest>());
 }
 
 //virtual

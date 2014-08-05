@@ -17,14 +17,14 @@ public:
     HttpExecutor() {}
     virtual ~HttpExecutor() {}
 
-    void execute(HttpServerRequest & request, HttpServerResponse & response) throw(geryon::HttpException);
+    void execute(HttpServerRequest & request, HttpServerResponse & response);
 
 protected:
     std::shared_ptr<ServerApplication> getDispatchTarget(HttpServerRequest & request);
 
     virtual void executeInternal(std::shared_ptr<ServerApplication> papp,
                                  HttpServerRequest & request,
-                                 HttpServerResponse & response) throw(geryon::HttpException) = 0;
+                                 HttpServerResponse & response) = 0;
 private:
     std::string extractPath(const std::string & path);
     bool verifyDispatchTarget(std::shared_ptr<ServerApplication> papp,

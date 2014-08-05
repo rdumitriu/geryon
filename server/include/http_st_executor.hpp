@@ -19,7 +19,7 @@ public:
 protected:
     virtual void executeInternal(std::shared_ptr<ServerApplication> papp,
                                  HttpServerRequest & request,
-                                 HttpServerResponse & response) throw(geryon::HttpException);
+                                 HttpServerResponse & response);
 };
 
 } }

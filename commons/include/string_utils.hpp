@@ -18,6 +18,8 @@
 #include <boost/date_time.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "platform.hpp"
+
 namespace geryon { namespace util {
 
 
@@ -28,7 +30,7 @@ namespace geryon { namespace util {
 /// \param defaultValue the default value, optional
 ///
 template <typename T>
-inline T convertTo(const std::string & s, T defaultValue) {
+G_FUNCTION_EXPORT inline T convertTo(const std::string & s, T defaultValue) {
     try {
         if(!s.empty()) {
             return boost::lexical_cast<T>(s);
@@ -46,7 +48,7 @@ inline T convertTo(const std::string & s, T defaultValue) {
 /// \param s the string, in the form yyyy-MMM-dd hh:mm:ss
 /// \return the time, or a zero initialized structure if it fails
 ///
-inline std::time_t convertISODateTime(const std::string & s) {
+G_FUNCTION_EXPORT inline std::time_t convertISODateTime(const std::string & s) {
     try {
         boost::posix_time::ptime pt;
         std::stringstream ss(s);
@@ -65,7 +67,7 @@ inline std::time_t convertISODateTime(const std::string & s) {
 /// \param t the time_t struct
 /// \return the textual representation of it
 ///
-inline std::string formatISODateTime(const std::time_t & t) {
+G_FUNCTION_EXPORT inline std::string formatISODateTime(const std::time_t & t) {
     std::stringstream ss;
     boost::posix_time::ptime pt = boost::posix_time::from_time_t(t);
     ss << pt;
@@ -78,7 +80,7 @@ inline std::string formatISODateTime(const std::time_t & t) {
 /// \param begin the string to be searched
 /// \return true if the string starts with the second param
 ///
-inline bool startsWith(const std::string & s, const std::string & begin) {
+G_FUNCTION_EXPORT inline bool startsWith(const std::string & s, const std::string & begin) {
     return boost::starts_with(s, begin);
 }
 
@@ -88,7 +90,7 @@ inline bool startsWith(const std::string & s, const std::string & begin) {
 /// \param end the end of the string
 /// \return true if the string ends with the second param
 ///
-inline bool endsWith(const std::string & s, const std::string & end) {
+G_FUNCTION_EXPORT inline bool endsWith(const std::string & s, const std::string & end) {
     return boost::ends_with(s, end);
 }
 
@@ -96,7 +98,7 @@ inline bool endsWith(const std::string & s, const std::string & end) {
 /// \brief toUpper
 /// \param s the string
 ///
-inline void toUpper(std::string & s) {
+G_FUNCTION_EXPORT inline void toUpper(std::string & s) {
     boost::to_upper(s);
 }
 
@@ -107,7 +109,7 @@ inline void toUpper(std::string & s) {
 ///
 /// \param s the string
 ///
-inline void trim(std::string & s) {
+G_FUNCTION_EXPORT inline void trim(std::string & s) {
     boost::trim(s);
 }
 
@@ -118,7 +120,7 @@ inline void trim(std::string & s) {
 ///
 /// \param s the string
 ///
-inline std::string trimAndCopy(const std::string & s) {
+G_FUNCTION_EXPORT inline std::string trimAndCopy(const std::string & s) {
     return boost::trim_copy(s);
 }
 
@@ -129,7 +131,7 @@ inline std::string trimAndCopy(const std::string & s) {
 /// \param delimiters the delimiters
 /// \return the splitted string
 ///
-inline std::vector<std::string> split(const std::string & s, const std::string & delimiters) {
+G_FUNCTION_EXPORT inline std::vector<std::string> split(const std::string & s, const std::string & delimiters) {
     std::vector<std::string> strs;
     boost::split(strs, s, boost::is_any_of(delimiters));
     return strs;
@@ -147,7 +149,7 @@ namespace http {
 /// \param c the char
 /// \return true if ascii standard
 ///
-inline bool isHTTPChar(char c) {
+G_FUNCTION_EXPORT inline bool isHTTPChar(char c) {
     return c >= 0 && c <= 127;
 }
 
@@ -156,7 +158,7 @@ inline bool isHTTPChar(char c) {
 /// \param c the char
 /// \return true if it is control char
 ///
-inline bool isHTTPCtl(char c) {
+G_FUNCTION_EXPORT inline bool isHTTPCtl(char c) {
     return (c >= 0 && c <= 31) || (c == 127);
 }
 
@@ -165,7 +167,7 @@ inline bool isHTTPCtl(char c) {
 /// \param c the char
 /// \return true if it is digit
 ///
-inline bool isHTTPDigit(char c) {
+G_FUNCTION_EXPORT inline bool isHTTPDigit(char c) {
     return c >= '0' && c <= '9';
 }
 
@@ -174,7 +176,7 @@ inline bool isHTTPDigit(char c) {
 /// \param c the char
 /// \return true if it is special
 ///
-bool isHTTPSpecial(char c);
+G_FUNCTION_EXPORT bool isHTTPSpecial(char c);
 
 } /*namespace http */
 
@@ -184,14 +186,14 @@ bool isHTTPSpecial(char c);
 /// \param out the decoded URL
 /// \return true if decode is ok
 ///
-bool decodeURL(const std::string& in, std::string& out);
+G_FUNCTION_EXPORT bool decodeURL(const std::string& in, std::string& out);
 
 ///
 /// \brief encodeURL encodes an URL
 /// \param in the decoded, plain URL
 /// \param out the encoded, standard URL
 ///
-void encodeURL(const std::string& in, std::string& out);
+G_FUNCTION_EXPORT void encodeURL(const std::string& in, std::string& out);
 
 } }
 

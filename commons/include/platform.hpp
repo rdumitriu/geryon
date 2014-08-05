@@ -32,5 +32,6 @@
 #endif
 
 #define G_MODULE_EXPORT extern "C" G_FUNCTION_EXPORT
+#define G_CLASS_EXPORT G_FUNCTION_EXPORT
 
 #endif

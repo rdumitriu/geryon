@@ -1,6 +1,7 @@
 
 #include "application.hpp"
 
+#include "test_servlet.hpp"
 #include "test_filter_global.hpp"
 #include "test_filter_nrm.hpp"
 
@@ -11,6 +12,7 @@ std::shared_ptr<geryon::Application> createApplication() {
 
     app->addFilter(std::make_shared<geryon::test::TestFilterGlobal>("*"));
     app->addFilter(std::make_shared<geryon::test::TestFilterNrm>("/filter/nrm/*"));
+    app->addServlet(std::make_shared<geryon::test::TestServlet>("/servlet/basic/*"));
 
     return app;
 }
