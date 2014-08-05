@@ -438,7 +438,7 @@ const char * const MULTIPARTFORMDATA = "multipart/form-data";
 
 bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & error) {
     ++consumedChars;
-    //LOG(Log::DEBUG) << "Consume char [" << c << "] State:" << state;
+    LOG(geryon::util::Log::DEBUG) << "Consume char [" << c << "] State:" << state;
     switch(state) {
         case START:
             return consumeStart(c, error);
@@ -462,6 +462,8 @@ bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & er
             consumeNewline(c, error, END);
             error = validate();
             pRequest->setStreamStartIndex(consumedChars); //here is where the raw stream begins
+            LOG(geryon::util::Log::DEBUG) << "Resetting initial stream to index:" << consumedChars;
+
             if((error == geryon::HttpResponse::SC_OK || error == geryon::HttpResponse::SC_CONTINUE) &&
                pRequest->getMethodCode() == geryon::HttpRequest::POST) {
                 paramName.clear();
@@ -484,6 +486,8 @@ bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & er
                     state = POST_MULTIPART_BOUNDARY;
                     return false;
                 } else {
+                    //::TODO:: dont't be an a** leave the req to develop (too restrictive)
+                    //uninterpreted
                     error = geryon::HttpResponse::SC_BAD_REQUEST;
                     return true;
                 }

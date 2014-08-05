@@ -39,6 +39,7 @@ void HttpServerRequest::addPart(std::shared_ptr<HttpRequestPart> ptr) {
 std::istream & HttpServerRequest::getInputStream() {
     //NOTE: from the practical point of view, the stream will never!ever start at position 0. So it is safe
     //to assume that zero is a magical value here (signals that the value is not set).
+    LOG(geryon::util::Log::DEBUG) << "Getting the INPUT stream [" << startStreamIndex << "," << endStreamIndex << "]";
     if(0 == endStreamIndex) { //yes, keep it explicit !
         for(unsigned int i = 0; i < buffers.size(); ++i) {
             endStreamIndex += buffers.at(i).get().marker();

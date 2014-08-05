@@ -25,15 +25,19 @@ test() {
   url=`cat $testdir/url`
   expected=`cat $testdir/expected`
 
-  CURL_PARAMS=
   if [ -f $testdir/post-params ]
   then
     prms=`cat $testdir/post-params`
-    CURL_PARAMS="-X POST -d \"$prms\""
+    v=`$CURL -X POST -d "$prms" "$url"`
+  else
+    if [ -f $testdir/json ]
+    then
+      echo $CURL -H "Accept: application/json" -H "Content-type: application/json" -X POST --data @$testdir/json "$url"
+      v=`$CURL -H 'Accept: application/json' -H 'Content-type: application/json' -X POST --data @$testdir/json "$url"`
+    else
+      v=`$CURL "$url"`
+    fi
   fi  
-
-  echo $CURL $CURL_PARAMS "$url"
-  v=`$CURL $CURL_PARAMS "$url"`
   
   if [ "$v" != "$expected" ]
   then

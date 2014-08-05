@@ -1,5 +1,6 @@
 
 #include "mem_buf_input_stream.hpp"
+#include "log.hpp"
 
 namespace geryon { namespace server {
 
@@ -17,6 +18,8 @@ void GIstreambuff::setup(std::size_t _start, std::size_t _end) {
     absoluteEndIndex = _end,
     absoluteCurrentIndex = _start;
     adjustIndexes();
+    LOG(geryon::util::Log::DEBUG) << "Input stream starts at:" << absoluteStartIndex
+                                  << " and ends at:" << absoluteEndIndex;
 }
 
 void GIstreambuff::adjustIndexes() {
