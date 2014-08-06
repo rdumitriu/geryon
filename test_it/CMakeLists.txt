@@ -17,7 +17,7 @@ SET (MLIB geryon-commons ${LIBS})
 
 ADD_LIBRARY(livetest SHARED ${livetest_SRC})
 
-INCLUDE_DIRECTORIES ("../../commons/include")
+INCLUDE_DIRECTORIES ("../commons/include")
 
 TARGET_LINK_LIBRARIES(livetest ${MLIB})
 
