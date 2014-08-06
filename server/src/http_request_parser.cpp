@@ -206,7 +206,8 @@ bool HttpRequestParser::consumeHttpVersion(char input, geryon::HttpResponse::Htt
     return true;
 }
 
-bool HttpRequestParser::consumeChar(char expected, char input,geryon::HttpResponse::HttpStatusCode & error,
+bool HttpRequestParser::consumeChar(char expected, char input,
+                                    geryon::HttpResponse::HttpStatusCode & error,
                                     HttpRequestParser::State nextState) {
     if (input == expected) {
         state = nextState;
@@ -216,7 +217,8 @@ bool HttpRequestParser::consumeChar(char expected, char input,geryon::HttpRespon
     return true;
 }
 
-bool HttpRequestParser::consumeNewline(char input,geryon::HttpResponse::HttpStatusCode & error,
+bool HttpRequestParser::consumeNewline(char input,
+                                       geryon::HttpResponse::HttpStatusCode & error,
                                        HttpRequestParser::State nextState) {
     return consumeChar('\n', input, error, nextState);
 }
@@ -433,12 +435,17 @@ bool HttpRequestParser::consumePostMultipartEnd(char input, geryon::HttpResponse
     return true;
 }
 
+bool HttpRequestParser::consumeUninterpretedRemainder(char input) {
+    countPostBytes();
+    return (state == END); //if true, it will end processing
+}
+
 const char * const WWWFORMURLENCODED = "application/x-www-form-urlencoded";
 const char * const MULTIPARTFORMDATA = "multipart/form-data";
 
-bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & error) {
+bool HttpRequestParser::consume(char c, geryon::HttpResponse::HttpStatusCode & error) {
     ++consumedChars;
-    LOG(geryon::util::Log::DEBUG) << "Consume char [" << c << "] State:" << state;
+    //LOG(geryon::util::Log::DEBUG) << "Consume char [" << c << "] State:" << state;
     switch(state) {
         case START:
             return consumeStart(c, error);
@@ -465,7 +472,7 @@ bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & er
             LOG(geryon::util::Log::DEBUG) << "Resetting initial stream to index:" << consumedChars;
 
             if((error == geryon::HttpResponse::SC_OK || error == geryon::HttpResponse::SC_CONTINUE) &&
-               pRequest->getMethodCode() == geryon::HttpRequest::POST) {
+               (pRequest->getMethodCode() == geryon::HttpRequest::POST || pRequest->getMethodCode() == geryon::HttpRequest::PUT)) {
                 paramName.clear();
                 paramValue.clear();
 
@@ -486,10 +493,9 @@ bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & er
                     state = POST_MULTIPART_BOUNDARY;
                     return false;
                 } else {
-                    //::TODO:: dont't be an a** leave the req to develop (too restrictive)
-                    //uninterpreted
-                    error = geryon::HttpResponse::SC_BAD_REQUEST;
-                    return true;
+                    //otherwise, leave it uninterpreted
+                    state = REMAINDER;
+                    return false;
                 }
             }
             return true;
@@ -513,6 +519,8 @@ bool HttpRequestParser::consume(char c,geryon::HttpResponse::HttpStatusCode & er
             return consumePostMultipartNextPartOrEnd(c, error);
         case POST_MULTIPART_END:
             return consumePostMultipartEnd(c, error);
+        case REMAINDER:
+            return consumeUninterpretedRemainder(c);
         case END:
             return true;
         default:

@@ -93,22 +93,24 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
             if(statusCode != geryon::HttpResponse::SC_OK) {
                 sendStockAnswer(statusCode);
                 requestClose();
+                return;
             } else {
                 LOG(geryon::util::Log::DEBUG) << "Request completed.";
                 //1: add last buffer
+                buff.advanceMarker(nBytes);
                 request.buffers.push_back(std::move(currentBuffer));
                 //2: now, do the dispatch
                 LOG(geryon::util::Log::DEBUG) << "Request about to be dispatched.";
                 executor.execute(request, response);
-
             }
         } else {
             //read a bit more
             //::TODO:: at this stage, we should know in some cases the amount of bytes to read, so we should be able
             //::TODO:: to request bigger or smaller buffers. In any case, we'll reuse the buffer if we have 2k left
-            if(buff.size() - buff.marker() - nBytes > 2048) {
+            buff.advanceMarker(nBytes);
+            LOG(geryon::util::Log::DEBUG) << "Request completed.";
+            if(buff.size() - buff.marker() > 2048) {
                 //reuse the buffer
-                buff.advanceMarker(nBytes);
                 requestRead(std::move(currentBuffer));
             } else {
                 //push the current buffer in request
@@ -142,6 +144,7 @@ void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code
 
     std::ostringstream stream;
     stream << getHttpStatusMessage(http_code);
+    stream << "Connection: close\r\n";
     stream << "Content-Type: text/plain\r\n\r\n\r\nError! Response produced:";
     stream << geryon::getHttpStatusMessage(http_code);
 

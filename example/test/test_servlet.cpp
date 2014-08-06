@@ -91,7 +91,8 @@ public:
         sr.code() = 0;
         sr.ok() = true;
         std::ostringstream str;
-        str << pr.msg() << "-" << pr.other_msgs().size() << "-" << (pr.do_something().get() ? *pr.do_something() : false);
+        std::string s = (pr.do_something().get() ? (*pr.do_something() ? "truth" : "fake") : "inconclusive");
+        str << pr.msg() << "-" << pr.other_msgs().size() << "-" << s;
         sr.message() = str.str();
         reply.getOutputStream() << sr;
     }

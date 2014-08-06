@@ -59,6 +59,7 @@ private:
         POST_MULTIPART_CONTENT,
         POST_MULTIPART_NEXT_PART_OR_END,
         POST_MULTIPART_END,
+        REMAINDER,
         END
     };
     
@@ -104,6 +105,8 @@ private:
     bool consumePostMultipartContent(char input, geryon::HttpResponse::HttpStatusCode & error);
     bool consumePostMultipartNextPartOrEnd(char input, geryon::HttpResponse::HttpStatusCode & error);
     bool consumePostMultipartEnd(char input, geryon::HttpResponse::HttpStatusCode & error);
+
+    bool consumeUninterpretedRemainder(char input);
     
     //URI_break_down
     std::string paramName;

@@ -1,1 +1,5 @@
-{"msg" : "msgTest", [], null}
+{
+  "msg" : "msgTest", 
+  "other_msgs" : ["a", "b", "c"], 
+  "do_something" : null
+}
