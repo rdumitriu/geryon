@@ -144,9 +144,12 @@ void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code
 
     std::ostringstream stream;
     stream << getHttpStatusMessage(http_code);
-    stream << "Connection: close\r\n";
-    stream << "Content-Type: text/plain\r\n\r\n\r\nError! Response produced:";
-    stream << geryon::getHttpStatusMessage(http_code);
+    stream << "Content-Type: text/plain\r\n";
+    if(http_code != HttpResponse::HttpStatusCode::SC_CONTINUE) {
+        stream << "Connection: close\r\n";
+        stream << "\r\n\r\nError! Response produced:";
+        stream << geryon::getHttpStatusMessage(http_code);
+    }
 
     std::string ref = stream.str();
     std::strncpy(writeBuff.get().buffer(), ref.c_str(), writeBuff.get().size());
