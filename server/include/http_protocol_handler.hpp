@@ -49,6 +49,8 @@ private:
 
     void sendStockAnswer(HttpResponse::HttpStatusCode http_code);
 
+    void send100ContinueAnswer();
+
     HttpExecutor & executor;
 
     geryon::server::HttpServerRequest request;

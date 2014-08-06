@@ -32,7 +32,6 @@ test() {
   else
     if [ -f $testdir/json ]
     then
-      echo $CURL -H "Accept: application/json" -H "Content-type: application/json" -X POST --data @$testdir/json "$url"
       v=`$CURL -H 'Accept: application/json' -H 'Content-type: application/json' -X POST --data @$testdir/json "$url"`
     else
       v=`$CURL "$url"`

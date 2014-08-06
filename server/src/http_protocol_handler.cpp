@@ -58,14 +58,14 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
             if(chunkedState) {
                 done = parseChunkedTESize(c, statusCode);
                 if(!chunkedState && !done) { //chunkedState might be modified in here!
-                    sendStockAnswer(geryon::HttpResponse::SC_CONTINUE);
+                    send100ContinueAnswer();
                 }
             } else {
                 done = parser.consume(c, statusCode);
                 if(!done) {
                     if(statusCode == geryon::HttpResponse::SC_CONTINUE) {
                         chunkTransferredSz = 0L;
-                        sendStockAnswer(geryon::HttpResponse::SC_CONTINUE);
+                        send100ContinueAnswer();
                         statusCode = geryon::HttpResponse::SC_OK;
                         if("" == request.getHeaderValue("Transfer-Encoding")) {
                             //not really a chunked transfer
@@ -137,6 +137,19 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
     }
 }
 
+void HttpProtocolHandler::send100ContinueAnswer() {
+    GBufferHandler writeBuff(getMemoryPool());
+
+    std::ostringstream stream;
+    stream << getHttpStatusMessage(HttpResponse::SC_CONTINUE);
+    stream << "\r\n";
+    std::string ref = stream.str();
+    std::strncpy(writeBuff.get().buffer(), ref.c_str(), writeBuff.get().size());
+    writeBuff.get().setMarker(ref.length()); //length of the string
+    requestWrite(std::move(writeBuff));
+
+}
+
 void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code) {
     //::TODO:: instead of these, real stock answers!
     //::TODO:: buffers should be already allocated and shared, such as I will avoid any error
@@ -145,11 +158,8 @@ void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code
     std::ostringstream stream;
     stream << getHttpStatusMessage(http_code);
     stream << "Content-Type: text/plain\r\n";
-    if(http_code != HttpResponse::HttpStatusCode::SC_CONTINUE) {
-        stream << "Connection: close\r\n";
-        stream << "\r\n\r\nError! Response produced:";
-        stream << geryon::getHttpStatusMessage(http_code);
-    }
+    stream << "Connection: close\r\n\r\n\r\nError! Response produced:";
+    stream << geryon::getHttpStatusMessage(http_code);
 
     std::string ref = stream.str();
     std::strncpy(writeBuff.get().buffer(), ref.c_str(), writeBuff.get().size());
