@@ -17,12 +17,21 @@
 
 namespace geryon { namespace server {
 
+namespace detail {
+    struct GISBuffGap {
+        std::size_t start;
+        std::size_t stop;
+    };
+}
+
 class GIstreambuff : public std::streambuf {
 public:
     explicit GIstreambuff(std::vector<GBufferHandler> & buffers, std::size_t begin = 0, std::size_t end = 0);
     virtual ~GIstreambuff() {}
 
     void setup(std::size_t start, std::size_t end);
+
+    void addGap(std::size_t start, std::size_t end);
 
     ///Non-Copyable
     GIstreambuff(const GIstreambuff & other) = delete;
@@ -37,6 +46,7 @@ protected:
 private:
     void adjustIndexes();
     std::vector<GBufferHandler> & buffers;
+    std::vector<detail::GISBuffGap> gaps;
     std::size_t absoluteStartIndex;
     std::size_t absoluteEndIndex;
 

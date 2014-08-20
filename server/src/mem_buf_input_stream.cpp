@@ -22,6 +22,13 @@ void GIstreambuff::setup(std::size_t _start, std::size_t _end) {
                                   << " and ends at:" << absoluteEndIndex;
 }
 
+void GIstreambuff::addGap(std::size_t start, std::size_t end) {
+    detail::GISBuffGap gap;
+    gap.start = start;
+    gap.stop = end;
+    gaps.push_back(std::move(gap));
+}
+
 void GIstreambuff::adjustIndexes() {
     currentBuffer = 0;
     currentIndex = 0;
@@ -57,12 +64,13 @@ GIstreambuff::int_type GIstreambuff::underflow() {
 
 
 GIstreambuff::int_type GIstreambuff::uflow() {
-    if (absoluteCurrentIndex == absoluteEndIndex) {
+    if (absoluteCurrentIndex == absoluteEndIndex) { //::TODO:: absolute end may be in a gap
         return traits_type::eof();
     }
     GBuffer b = buffers.at(currentBuffer).get();
     int_type ret = traits_type::to_int_type(b.buffer()[currentIndex]);
     //now increment me
+    //::TODO:: care about the gap
     ++absoluteCurrentIndex;
     ++currentIndex;
     if(currentIndex == b.marker() && currentBuffer < buffers.size() - 1) {
@@ -74,10 +82,11 @@ GIstreambuff::int_type GIstreambuff::uflow() {
 
 
 GIstreambuff::int_type GIstreambuff::pbackfail(int_type ch) {
-    if (absoluteCurrentIndex == absoluteStartIndex) {
+    if (absoluteCurrentIndex == absoluteStartIndex) { //::TODO:: absolute start may be in a gap
         return traits_type::eof();
     }
     //now decrement me
+    //::TODO:: care about the gap
     GBuffer b = buffers.at(currentBuffer).get();
     --absoluteCurrentIndex;
     if(currentIndex > 0) {
@@ -92,7 +101,7 @@ GIstreambuff::int_type GIstreambuff::pbackfail(int_type ch) {
 
 
 std::streamsize GIstreambuff::showmanyc() {
-    return absoluteEndIndex - absoluteCurrentIndex;
+    return absoluteEndIndex - absoluteCurrentIndex; //::TODO:: care about the gaps starting from current index
 }
 
 
