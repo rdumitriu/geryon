@@ -53,6 +53,12 @@ private:
     std::size_t absoluteCurrentIndex; //the index, absolute
     std::size_t currentBuffer; //the current buffer
     std::size_t currentIndex; // the current index in the current buffer
+    
+    std::size_t currentGapIndex;
+    detail::GISBuffGap * currentGap;
+    
+    virtual void advanceIndex();
+    virtual void rollbackIndex();
 };
 
 
