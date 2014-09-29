@@ -78,10 +78,10 @@ public:
     }
 };
 
-class PostRequestTest : public STest {
+class JsonRequestTest : public STest {
 public:
-    PostRequestTest() : STest() {}
-    virtual ~PostRequestTest() {}
+    JsonRequestTest() : STest() {}
+    virtual ~JsonRequestTest() {}
 
     virtual void runTest(HttpRequest & request, HttpResponse & reply) {
         PostRequest pr;
@@ -105,7 +105,9 @@ void TestServlet::init() {
 
     POST_TESTS.push_back(std::make_shared<SimpleParamTest>());
     POST_TESTS.push_back(std::make_shared<GlobalFilterTest>());
-    POST_TESTS.push_back(std::make_shared<PostRequestTest>());
+    POST_TESTS.push_back(std::make_shared<JsonRequestTest>());
+
+    PUT_TESTS.push_back(std::make_shared<JsonRequestTest>());
 }
 
 //virtual

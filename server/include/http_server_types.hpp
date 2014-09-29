@@ -27,7 +27,7 @@ public:
     ///
     /// Constructor of the request
     ///
-    HttpServerRequest() : HttpRequest(), buff(buffers), stream(&buff), startStreamIndex(0), endStreamIndex(0) {}
+    HttpServerRequest() : HttpRequest(), buff(buffers), stream(&buff), startStreamIndex(0), endStreamIndex(0), hdrExpect(-1) {}
 
     ///
     /// Destructor of the request
@@ -98,12 +98,24 @@ public:
     ///
     void addPart(std::shared_ptr<HttpRequestPart> ptr);
 
-    void setStreamStartIndex(std::size_t n) { startStreamIndex = n; }
-
     friend class HttpProtocolHandler;
     friend class HttpRequestParser;
     friend class HttpServerRequestPart;
 private:
+    inline void setStreamStartIndex(std::size_t n) { startStreamIndex = n; }
+
+    inline void addInputStreamGap(std::size_t begin, std::size_t end) {
+        buff.addGap(begin, end);
+    }
+
+    bool hasExpectHeader() {
+        if(hdrExpect == -1) {
+            hdrExpect = hasHeader("Expect") ? 1 : 0;
+            //we do not check for '100-continue' value, we will expect this was addressed in the parser
+        }
+        return (hdrExpect == 1); //explicit
+    }
+
     std::shared_ptr<TCPConnection> connection;
     std::vector<GBufferHandler> buffers;
     GIstreambuff buff;
@@ -112,6 +124,7 @@ private:
     std::size_t endStreamIndex;
     std::string sessionCookie;
     std::shared_ptr<Session> session;
+    int hdrExpect;
 };
 
 class HttpServerRequestPart : public HttpRequestPart {

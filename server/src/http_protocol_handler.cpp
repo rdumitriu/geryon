@@ -21,13 +21,8 @@ HttpProtocolHandler::HttpProtocolHandler(GMemoryPool * _pMemoryPool, HttpExecuto
                       executor(_executor),
                       request(),
                       response(this),
-                      parser(maximalContentLength),
-                      chunkedDelimiterLine(""),
-                      chunkSize(0L),
-                      totalChunkedSize(0L),
-                      chunkTransferredSz(0L),
-                      chunkedTransfer(false),
-                      chunkedState(0) {
+                      totalBytesProcessed(0L),
+                      maxContentLength(maximalContentLength) {
     LOG(geryon::util::Log::DEBUG) << "Created protocol handler";
 }
 
@@ -35,7 +30,8 @@ void HttpProtocolHandler::init(std::shared_ptr<TCPConnection> _pConnection) {
     LOG(geryon::util::Log::DEBUG) << "About to init the protocol handler";
     TCPProtocolHandler::init(_pConnection);
     request.setConnection(_pConnection);
-    parser.init(&request);
+    pParser = std::make_shared<HttpRequestParser>(maxContentLength, totalBytesProcessed);
+    pParser->init(&request);
     try {
         GBufferHandler readBuff(getMemoryPool());
         requestRead(std::move(readBuff));
@@ -45,59 +41,58 @@ void HttpProtocolHandler::init(std::shared_ptr<TCPConnection> _pConnection) {
     }
 }
 
+///
+/// \brief HttpProtocolHandler::handleRead
+/// \param currentBuffer the buffer to handle
+/// \param nBytes the relevant bytes (read)
+///
+/// Note: the implementation makes effectively from the http_parsers a state machine
+/// into another state machine. Care should be taken because meta-commands of the chunked transfer results in gaps
+/// that must be introduced into the input stream.
+///
 void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_t nBytes) {
+
     try {
         bool done = false;
         geryon::HttpResponse::HttpStatusCode statusCode = geryon::HttpResponse::SC_OK;
         LOG(geryon::util::Log::DEBUG) << "Request build - handle read:" << nBytes;
 
         GBuffer & buff = currentBuffer.get();
-        for(unsigned int i = 0; i < nBytes && !done; ++i) {
+        // process the buffer, char by char
+        unsigned int i = 0;
+        for(; i < nBytes && !done; ++i) {
+            ++totalBytesProcessed;
             char c = buff.buffer()[buff.marker() + i];
-
-            if(chunkedState) {
-                done = parseChunkedTESize(c, statusCode);
-                if(!chunkedState && !done) { //chunkedState might be modified in here!
-                    send100ContinueAnswer();
-                }
-            } else {
-                done = parser.consume(c, statusCode);
-                if(!done) {
-                    if(statusCode == geryon::HttpResponse::SC_CONTINUE) {
-                        chunkTransferredSz = 0L;
-                        send100ContinueAnswer();
-                        statusCode = geryon::HttpResponse::SC_OK;
-                        if("" == request.getHeaderValue("Transfer-Encoding")) {
-                            //not really a chunked transfer
-                            chunkedTransfer = false;
-                            chunkedState = 0;
-                            sendStockAnswer(geryon::HttpResponse::SC_NOT_IMPLEMENTED);
-                            requestClose();
-                            return;
-                        } else {
-                            //a trully one, parser only accept 'chunked' at this stage
-                            chunkedTransfer = true;
-                            chunkedState = 1;
-                        }
-                    } else if(chunkedTransfer) {
-                        chunkTransferredSz++;
-                        if(chunkSize > 0 && chunkTransferredSz == chunkSize) {
-                            chunkedState = 1;
-                            chunkTransferredSz = 0L;
-                        }
-                    }
-                }
+            AbstractHttpRequestParserBase::ParserAction action = pParser->consume(c, statusCode);
+            switch(action) {
+                case AbstractHttpRequestParserBase::PA_DONE:
+                    done = true;
+                    break;
+                case AbstractHttpRequestParserBase::PA_CHECK_HEADERS:
+                    done = switchParsersToTE(statusCode);
+                    break;
+                case AbstractHttpRequestParserBase::PA_CONTINUE:
+                default:
+                    break;
             }
         }
+        //we're done parsing the current chars
+        // in any case, advance the marker now we processed the bytes
+        buff.advanceMarker(nBytes);
+
         if(done) {
             if(statusCode != geryon::HttpResponse::SC_OK) {
-                sendStockAnswer(statusCode);
+                sendStockAnswer(statusCode, "Request cannot be processed, check log");
                 requestClose();
                 return;
             } else {
+                if(i != nBytes) {
+                    sendStockAnswer(geryon::HttpResponse::SC_BAD_REQUEST, "Incompletely parsed request");
+                    requestClose();
+                    return;
+                }
                 LOG(geryon::util::Log::DEBUG) << "Request completed.";
                 //1: add last buffer
-                buff.advanceMarker(nBytes);
                 request.buffers.push_back(std::move(currentBuffer));
                 //2: now, do the dispatch
                 LOG(geryon::util::Log::DEBUG) << "Request about to be dispatched.";
@@ -107,8 +102,7 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
             //read a bit more
             //::TODO:: at this stage, we should know in some cases the amount of bytes to read, so we should be able
             //::TODO:: to request bigger or smaller buffers. In any case, we'll reuse the buffer if we have 2k left
-            buff.advanceMarker(nBytes);
-            LOG(geryon::util::Log::DEBUG) << "Request completed.";
+            LOG(geryon::util::Log::DEBUG) << "Request not completed, reading again (read :" << nBytes << " bytes)";
             if(buff.size() - buff.marker() > 2048) {
                 //reuse the buffer
                 requestRead(std::move(currentBuffer));
@@ -124,42 +118,34 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
         LOG(geryon::util::Log::ERROR) << "Exception while serving resource:"
                                       << request.getURI() << ". Error was:" << e.what();
         try {
-            sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR);
+            sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR, e.what());
         } catch( ... ) {}
         requestClose();
     } catch( ... ) {
         LOG(geryon::util::Log::ERROR) << "Exception while serving resource:"
                                       << request.getURI() << ".";
         try {
-            sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR);
+            sendStockAnswer(geryon::HttpResponse::SC_INTERNAL_SERVER_ERROR, "Uncaught exception, check logs");
         } catch( ... ) {} // just make sure.
         requestClose();
     }
 }
 
-void HttpProtocolHandler::send100ContinueAnswer() {
-    GBufferHandler writeBuff(getMemoryPool());
 
-    std::ostringstream stream;
-    stream << getHttpStatusMessage(HttpResponse::SC_CONTINUE);
-    stream << "\r\n";
-    std::string ref = stream.str();
-    std::strncpy(writeBuff.get().buffer(), ref.c_str(), writeBuff.get().size());
-    writeBuff.get().setMarker(ref.length()); //length of the string
-    requestWrite(std::move(writeBuff));
 
-}
-
-void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code) {
+void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code, const std::string & msg) {
     //::TODO:: instead of these, real stock answers!
     //::TODO:: buffers should be already allocated and shared, such as I will avoid any error
     GBufferHandler writeBuff(getMemoryPool());
 
     std::ostringstream stream;
     stream << getHttpStatusMessage(http_code);
-    stream << "Content-Type: text/plain\r\n";
-    stream << "Connection: close\r\n\r\n\r\nError! Response produced:";
-    stream << geryon::getHttpStatusMessage(http_code);
+    if(geryon::HttpResponse::SC_OK != http_code && geryon::HttpResponse::SC_CONTINUE != http_code) {
+        stream << "Content-Type: text/plain\r\n";
+        stream << "Connection: close\r\n\r\n\r\nError! Response produced:";
+        stream << geryon::getHttpStatusMessage(http_code);
+        stream << "Message:" << msg;
+    }
 
     std::string ref = stream.str();
     std::strncpy(writeBuff.get().buffer(), ref.c_str(), writeBuff.get().size());
@@ -167,31 +153,16 @@ void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code
     requestWrite(std::move(writeBuff));
 }
 
-bool HttpProtocolHandler::parseChunkedTESize(char c, geryon::HttpResponse::HttpStatusCode & statusCode) {
-    //chunked transfer encoding, ignore first \r\n
-    if(c == '\n' && chunkedDelimiterLine.size()) {
-        std::istringstream sdelta(chunkedDelimiterLine);
-        sdelta >> std::hex >> chunkSize;
-        if(chunkSize != 0) {
-            totalChunkedSize += chunkSize;
-            //revalidate the maximal content length
-            if(totalChunkedSize > parser.maximalContentLenght()) {
-                LOG(geryon::util::Log::ERROR) << "Chunked transfer. Request too large; read so far:" << totalChunkedSize;
-                statusCode = geryon::HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE;
-                return true;
-            }
+bool HttpProtocolHandler::switchParsersToTE(HttpResponse::HttpStatusCode & http_code) {
+    //the order of TE header tells us how we should instantiate headers
+    std::vector<std::string> tehdrs = request.getHeaderValues("Transfer-Encoding");
+    for(std::string & hdrv : tehdrs) {
+        if(hdrv == "" || hdrv == "chunked") {
+            // here ::TODO:: change parsers
+            return false;
         } else {
-            request.contentLength = totalChunkedSize;
-            chunkedState = 0;
-            return true; //force end of parsing
+            return true;
         }
-        //and clear this status back:
-        chunkedState = 0;
-        chunkedDelimiterLine.clear();
-        return false;
-    }
-    if(c != '\r' && c != '\n') {
-        chunkedDelimiterLine.push_back(c);
     }
     return false;
 }

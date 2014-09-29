@@ -106,6 +106,9 @@ SET (geryon_SRC
     ../include/http_server_types.hpp
     http_server_types.cpp
 
+    ../include/http_request_parser_base.hpp
+    http_request_parser_base.cpp
+
     ../include/http_request_parser.hpp
     http_request_parser.cpp
 #

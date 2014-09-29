@@ -1,9 +1,9 @@
-/*
- * HTTPProtocolHandler.hpp
- *
- *  Created on: Aug 25, 2011
- *      Author: rdumitriu
- */
+///
+/// http_protocol_handler.hpp
+///
+///  Created on: Aug 25, 2011
+///      Author: rdumitriu
+///
 
 #ifndef GERYON_HTTPPROTOCOL_HANDLER_HPP_
 #define GERYON_HTTPPROTOCOL_HANDLER_HPP_
@@ -11,7 +11,7 @@
 #include "http_executor.hpp"
 #include "tcp_protocol_handler.hpp"
 #include "http_server_types.hpp"
-#include "http_request_parser.hpp"
+#include "http_request_parser_base.hpp"
 
 namespace geryon { namespace server {
 
@@ -43,28 +43,19 @@ public:
 
 private:
 
-    void outputErrorString(const std::string & errorMsg);
+    void sendStockAnswer(HttpResponse::HttpStatusCode http_code, const std::string & msg);
 
-    bool parseChunkedTESize(char c, geryon::HttpResponse::HttpStatusCode & statusCode);
-
-    void sendStockAnswer(HttpResponse::HttpStatusCode http_code);
-
-    void send100ContinueAnswer();
+    bool switchParsersToTE(HttpResponse::HttpStatusCode & http_code);
 
     HttpExecutor & executor;
 
     geryon::server::HttpServerRequest request;
     geryon::server::HttpServerResponse response;
 
-    HttpRequestParser parser; //only deals with the uninterrupted stream (no 100-continue)
+    std::shared_ptr<AbstractHttpRequestParserBase> pParser;
 
-    std::string chunkedDelimiterLine;
-    std::size_t chunkSize;
-    std::size_t totalChunkedSize;
-    std::size_t chunkTransferredSz;
-    std::size_t maximalContentLength;
-    bool chunkedTransfer;
-    unsigned int chunkedState;
+    std::size_t totalBytesProcessed;
+    std::size_t maxContentLength;
 };
 
 } }/* namespace */

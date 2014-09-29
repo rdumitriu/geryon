@@ -1,9 +1,9 @@
-/*
- * HttpRequestParser.hpp
- *
- *  Created on: Aug 25, 2011
- *      Author: rdumitriu
- */
+///
+/// \file http_request_parser.cpp
+///
+///  Created on: Aug 25, 2011
+///      Author: rdumitriu
+///
 #include <iostream>
 #include <sstream>
 
@@ -20,12 +20,10 @@ namespace geryon { namespace server {
 #define MAX_HTTPHEADERNAME_LENGTH 4096
 #define MAX_HTTPHEADERVALUE_LENGTH 8192
 
-HttpRequestParser::HttpRequestParser(std::size_t maximalContentLenght) :
-                                        consumedChars(0),
-                                        maxContentLength(maximalContentLenght),
+HttpRequestParser::HttpRequestParser(std::size_t maximalContentLenght, std::size_t & absoluteIndex) :
+                                        AbstractHttpRequestParserBase(maximalContentLenght, absoluteIndex),
                                         state(START),
                                         uriState(URI_START),
-                                        pRequest(0),
                                         postParamsCharCount(0),
                                         multipartSeparatorIndex(0),
                                         startMultipartIndex(0),
@@ -36,16 +34,11 @@ HttpRequestParser::HttpRequestParser(std::size_t maximalContentLenght) :
 HttpRequestParser::~HttpRequestParser() {
 }
 
-std::size_t HttpRequestParser::maximalContentLenght() const {
-    return maxContentLength;
-}
-
 
 void HttpRequestParser::init(geryon::server::HttpServerRequest *_pRequest) {
     pRequest = _pRequest;
     state = START;
     uriState = URI_START;
-    consumedChars = 0;
     postParamsCharCount = 0;
     multipartSeparatorIndex = 0;
     headerName.clear();
@@ -81,6 +74,10 @@ geryon::HttpResponse::HttpStatusCode HttpRequestParser::validate() {
     geryon::util::decodeURL(pRequest->uriPath, decodedURL);
     pRequest->uriPath = decodedURL;
     //4: The content length or the Transfer-Encoding
+
+    ///::TODO:: SIMPLIFY ME & CORRECT
+
+
     geryon::HttpResponse::HttpStatusCode ret = geryon::HttpResponse::SC_OK;
     bool hasTransferEncondingHeader = pRequest->hasHeader("Transfer-Encoding") || pRequest->hasHeader("Expect");
     bool mustCalculateMissingLength = false;
@@ -137,60 +134,64 @@ geryon::HttpResponse::HttpStatusCode HttpRequestParser::validate() {
     return ret;
 }
 
-bool HttpRequestParser::consumeStart(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeStart(char input, geryon::HttpResponse::HttpStatusCode & error) {
     if(!geryon::util::http::isHTTPChar(input)
        || geryon::util::http::isHTTPCtl(input)
        || geryon::util::http::isHTTPSpecial(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
     state = METHOD;
     pRequest->method.push_back(input);
-    return false;
+    return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumeMethod(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeMethod(char input, geryon::HttpResponse::HttpStatusCode & error) {
     if (input == ' ') {
       state = URI;
-      return false;
+      return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     }
     else if(!geryon::util::http::isHTTPChar(input) || geryon::util::http::isHTTPCtl(input) || geryon::util::http::isHTTPSpecial(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
     //GET,HEAD,POST,PUT,DELETE,TRACE,OPTIONS
     pRequest->method.push_back(input);
     if(pRequest->method.size() > MAX_METHOD_LENGTH) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
-    return false;
+    return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumeURI(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeURI(char input, geryon::HttpResponse::HttpStatusCode & error) {
     consumeURISubstate(input);
     if(input == ' ') {
         state = HTTP_VERSION;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if(input == '\r') {
         state = NEWLINE_1;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
     pRequest->uri.push_back(input);
     if(pRequest->uri.size() > MAX_URI_LENGTH) {
         error = geryon::HttpResponse::SC_REQUEST_URI_TOO_LONG;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
-    return false;
+    return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumeHttpVersion(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeHttpVersion(char input, geryon::HttpResponse::HttpStatusCode & error) {
     if (input == '\r') {
         state = NEWLINE_1;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     }
     else if (input == 'H' || input == 'T' || input == 'P' ||
              input == '/' || input == '.' || geryon::util::http::isHTTPDigit(input)) {
@@ -198,154 +199,174 @@ bool HttpRequestParser::consumeHttpVersion(char input, geryon::HttpResponse::Htt
         //HTTP/1.1 = 8 bytes
         if(pRequest->httpVersion.size() > MAX_HTTPVERSION_LENGTH) {
             error = geryon::HttpResponse::SC_BAD_REQUEST;
-            return true;
+            return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
         }
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     }
     error = geryon::HttpResponse::SC_BAD_REQUEST;
-    return true;
+    return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
 }
 
-bool HttpRequestParser::consumeChar(char expected, char input,
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeChar(char expected, char input,
                                     geryon::HttpResponse::HttpStatusCode & error,
                                     HttpRequestParser::State nextState) {
     if (input == expected) {
         state = nextState;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     }
     error = geryon::HttpResponse::SC_BAD_REQUEST;
-    return true;
+    return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
 }
 
-bool HttpRequestParser::consumeNewline(char input,
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeNewline(char input,
                                        geryon::HttpResponse::HttpStatusCode & error,
                                        HttpRequestParser::State nextState) {
     return consumeChar('\n', input, error, nextState);
 }
 
-bool HttpRequestParser::consumeHeaderName(char input,geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeHeaderName(char input,geryon::HttpResponse::HttpStatusCode & error) {
     if (input == '\r') {
         state = NEWLINE_2;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if(input == ':') {
         state = HEADER_VALUE_START;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if (input == ' ' || input == '\t') {
         state = HEADER_LWS;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if (!geryon::util::http::isHTTPChar(input) || geryon::util::http::isHTTPCtl(input) || geryon::util::http::isHTTPSpecial(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
     headerName.push_back(input);
     if(headerName.size() > MAX_HTTPHEADERNAME_LENGTH) {
         error = geryon::HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
-    return false;
+    return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumeHeaderLWS(char input,geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeHeaderLWS(char input,geryon::HttpResponse::HttpStatusCode & error) {
     if (input == '\r') {
         //named header only
         pRequest->addHeader(headerName, "");
         headerName.clear();
         headerValue.clear();
         state = NEWLINE_1;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if (input == ' ' || input == '\t' || geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
     state = HEADER_VALUE;
     headerValue.push_back(input);
     if(headerValue.size() > MAX_HTTPHEADERVALUE_LENGTH) {
         error = geryon::HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
-    return false;
+    return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumeHeaderValue(char input,geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeHeaderValue(char input,geryon::HttpResponse::HttpStatusCode & error) {
     if (input == '\r') {
         //header is placed here in the message
         pRequest->addHeader(headerName, headerValue);
         headerName.clear();
         headerValue.clear();
         state = NEWLINE_1;
-        return false;
+        return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
     headerValue.push_back(input);
     if(headerValue.size() > MAX_HTTPHEADERVALUE_LENGTH) {
         error = geryon::HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
-    return false;
+    return AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumePostParameters(char input,geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostParameters(char input,geryon::HttpResponse::HttpStatusCode & error) {
     consumeURISubstate(input);
     countPostBytes();
     if(state == END && paramName.length()) {
         //last param, let's not forget about it
         pushRequestParameter();
     }
-    return (state == END);
+    return (state == END)
+                ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumePostMultipartBoundary(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostMultipartBoundary(char input, geryon::HttpResponse::HttpStatusCode & error) {
     countPostBytes();
     if (input == '\r') {
         if(multipartSeparatorIndex == multipartSeparator.length()) {
             state = POST_MULTIPART_EATNEWLINE_1;
         }
         multipartSeparatorIndex = 0;
-        return (state == END);
+        return (state == END)
+                    ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                    : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     } else {
         std::size_t maxNdx = multipartSeparator.length() - 1;
         if(multipartSeparatorIndex > maxNdx ||
            multipartSeparator[multipartSeparatorIndex] != input) {
             error = geryon::HttpResponse::SC_BAD_REQUEST;
-            return true;
+            return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
         }
         multipartSeparatorIndex++;
-        return (state == END);
+        return (state == END)
+                    ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                    : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     }
 }
 
-bool HttpRequestParser::consumePostMultipartNewline(char input, geryon::HttpResponse::HttpStatusCode & error, State nextState) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostMultipartNewline(char input, geryon::HttpResponse::HttpStatusCode & error, State nextState) {
     countPostBytes();
     return consumeNewline(input, error, state == END ? END : nextState);
 }
 
-bool HttpRequestParser::consumePostMultipartHeaderOrContent(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostMultipartHeaderOrContent(char input, geryon::HttpResponse::HttpStatusCode & error) {
     countPostBytes();
     if(input == '\r') {
         //prepare for content, after the next newline
         state = (state == END) ? END : POST_MULTIPART_EATNEWLINE_3;
-        return (state == END);
+        return (state == END)
+                    ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                    : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     } else {
         multipartHeaderLine.push_back(input);
         state = state == END ? END : POST_MULTIPART_HEADER;
-        return (state == END);
+        return (state == END)
+                    ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                    : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     }
 }
 
-bool HttpRequestParser::consumePostMultipartHeaderLine(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostMultipartHeaderLine(char input, geryon::HttpResponse::HttpStatusCode & error) {
     countPostBytes();
     if (input == '\r') {
         if(!processMultipartHeader()) {
             error = geryon::HttpResponse::SC_BAD_REQUEST;
-            return true;
+            return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
         }
         LOG(geryon::util::Log::DEBUG) << "Multipart header line is [[" << multipartHeaderLine
                                       << "]] Param:" << paramName
@@ -355,27 +376,32 @@ bool HttpRequestParser::consumePostMultipartHeaderLine(char input, geryon::HttpR
         state = state == END ? END : POST_MULTIPART_EATNEWLINE_2;
     } else if (geryon::util::http::isHTTPCtl(input)) {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     } else {
         multipartHeaderLine.push_back(input);
     }
-    return (state == END);
+    return (state == END)
+                ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumePostMultipartContent(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostMultipartContent(char input, geryon::HttpResponse::HttpStatusCode & error) {
     countPostBytes();
     multipartContentQueue.push_back(input);
 
     if(multipartContentQueue.size() < multipartSeparator.length() + 3) {
         //do nothing, we're just accumullating chars
-        return (state == END);
+        return (state == END)
+                    ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                    : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     }
     char front = multipartContentQueue.front();
     multipartContentQueue.pop_front();
     if(multipartFileName.length()) {
         //first char pushed into it is the part start
         if(startMultipartIndex == 0) {
-            startMultipartIndex = consumedChars - 1;
+            startMultipartIndex = getAbsoluteIndex() - 1;
             stopMultipartIndex = startMultipartIndex;
         } else {
             ++stopMultipartIndex;
@@ -408,43 +434,57 @@ bool HttpRequestParser::consumePostMultipartContent(char input, geryon::HttpResp
         stopMultipartIndex = 0;
         state = state == END ? END : POST_MULTIPART_NEXT_PART_OR_END;
     }
-    return (state == END);
+    return (state == END)
+                ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
-bool HttpRequestParser::consumePostMultipartNextPartOrEnd(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostMultipartNextPartOrEnd(char input, geryon::HttpResponse::HttpStatusCode & error) {
     countPostBytes();
     if(input == '\r') {
         state = state == END ? END : POST_MULTIPART_EATNEWLINE_1;
-        return (state == END);
+        return (state == END)
+                    ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                    : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else if(input == '-') {
         state = state == END ? END : POST_MULTIPART_END;
-        return (state == END);
+        return (state == END)
+                    ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                    : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
     } else {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
 }
 
-bool HttpRequestParser::consumePostMultipartEnd(char input, geryon::HttpResponse::HttpStatusCode & error) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumePostMultipartEnd(char input, geryon::HttpResponse::HttpStatusCode & error) {
     countPostBytes();
     if(input != '-') {
         error = geryon::HttpResponse::SC_BAD_REQUEST;
-        return true;
+        return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
     }
     state = END; /* we can ignore everything from now on */
-    return true;
+    return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
 }
 
-bool HttpRequestParser::consumeUninterpretedRemainder(char input) {
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consumeUninterpretedRemainder(char input) {
     countPostBytes();
-    return (state == END); //if true, it will end processing
+    return (state == END)
+                ? AbstractHttpRequestParserBase::ParserAction::PA_DONE
+                : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUE;
 }
 
 const char * const WWWFORMURLENCODED = "application/x-www-form-urlencoded";
 const char * const MULTIPARTFORMDATA = "multipart/form-data";
 
-bool HttpRequestParser::consume(char c, geryon::HttpResponse::HttpStatusCode & error) {
-    ++consumedChars;
+AbstractHttpRequestParserBase::ParserAction
+HttpRequestParser::consume(char c, geryon::HttpResponse::HttpStatusCode & error) {
+    if(AbstractHttpRequestParserBase::ParserAction::PA_DONE == AbstractHttpRequestParserBase::consume(c, error)) {
+        return AbstractHttpRequestParserBase::PA_DONE;
+    }
     //LOG(geryon::util::Log::DEBUG) << "Consume char [" << c << "] State:" << state;
     switch(state) {
         case START:
@@ -468,37 +508,42 @@ bool HttpRequestParser::consume(char c, geryon::HttpResponse::HttpStatusCode & e
         case NEWLINE_2:
             consumeNewline(c, error, END);
             error = validate();
-            pRequest->setStreamStartIndex(consumedChars); //here is where the raw stream begins
-            LOG(geryon::util::Log::DEBUG) << "Resetting initial stream to index:" << consumedChars;
+            pRequest->setStreamStartIndex(getAbsoluteIndex()); //here is where the raw stream begins
+            LOG(geryon::util::Log::DEBUG) << "Resetting initial stream to index:" << getAbsoluteIndex();
 
-            if((error == geryon::HttpResponse::SC_OK || error == geryon::HttpResponse::SC_CONTINUE) &&
-               (pRequest->getMethodCode() == geryon::HttpRequest::POST || pRequest->getMethodCode() == geryon::HttpRequest::PUT)) {
-                paramName.clear();
-                paramValue.clear();
+            if((error == geryon::HttpResponse::SC_OK || error == geryon::HttpResponse::SC_CONTINUE)) {
+                if((pRequest->getMethodCode() == geryon::HttpRequest::POST || pRequest->getMethodCode() == geryon::HttpRequest::PUT)) {
+                    paramName.clear();
+                    paramValue.clear();
 
-                if(geryon::util::startsWith(pRequest->contentType, WWWFORMURLENCODED)) {
-                    //we have to read params from the body, so:
-                    pRequest->queryString.push_back('&');
-                    state = POST_PARAMS;
-                    uriState = URI_PARAM_NAME;
-                    return false;
-                } else if(geryon::util::startsWith(pRequest->contentType, MULTIPARTFORMDATA)) {
-                    //this is a multipart/form-data
-                    //first extract the multipart separator from the header
-                    if(!extractMultipartSeparator()) {
-                        error = geryon::HttpResponse::SC_BAD_REQUEST;
-                        return true;
+                    if(geryon::util::startsWith(pRequest->contentType, WWWFORMURLENCODED)) {
+                        //we have to read params from the body, so:
+                        pRequest->queryString.push_back('&');
+                        state = POST_PARAMS;
+                        uriState = URI_PARAM_NAME;
+                        return AbstractHttpRequestParserBase::ParserAction::PA_CHECK_HEADERS;
+                    } else if(geryon::util::startsWith(pRequest->contentType, MULTIPARTFORMDATA)) {
+                        //this is a multipart/form-data
+                        //first extract the multipart separator from the header
+                        if(!extractMultipartSeparator()) {
+                            error = geryon::HttpResponse::SC_BAD_REQUEST;
+                            return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
+                        }
+                        //next, advance to the multipart boundary:
+                        state = POST_MULTIPART_BOUNDARY;
+                        return AbstractHttpRequestParserBase::ParserAction::PA_CHECK_HEADERS;
+                    } else {
+                        //otherwise, leave it uninterpreted
+                        state = REMAINDER;
+                        return AbstractHttpRequestParserBase::ParserAction::PA_CHECK_HEADERS;
                     }
-                    //next, advance to the multipart boundary:
-                    state = POST_MULTIPART_BOUNDARY;
-                    return false;
-                } else {
-                    //otherwise, leave it uninterpreted
+                } else if(pRequest->getMethodCode() == geryon::HttpRequest::OPTIONS) {
+                    //leave it uninterpreted for options
                     state = REMAINDER;
-                    return false;
+                    return AbstractHttpRequestParserBase::ParserAction::PA_CHECK_HEADERS;
                 }
             }
-            return true;
+            return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
         case POST_PARAMS:
             return consumePostParameters(c, error);
         case POST_MULTIPART_BOUNDARY:
@@ -522,12 +567,12 @@ bool HttpRequestParser::consume(char c, geryon::HttpResponse::HttpStatusCode & e
         case REMAINDER:
             return consumeUninterpretedRemainder(c);
         case END:
-            return true;
+            return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
         default:
             break;
     }
     error = geryon::HttpResponse::SC_BAD_REQUEST;
-    return true;
+    return AbstractHttpRequestParserBase::ParserAction::PA_DONE;
 }
 
 bool HttpRequestParser::validateMethod() {
