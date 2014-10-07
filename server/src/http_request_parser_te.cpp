@@ -15,7 +15,8 @@ HttpRequestParserChunkedTE::HttpRequestParserChunkedTE(std::shared_ptr<AbstractH
                                           pRealParser(_pRealParser),
                                           chunkSize(0),
                                           chunkTransferredSz(0),
-                                          chunkedState(1) {
+                                          chunkedState(1),
+                                          gapStart(0) {
 }
 
 HttpRequestParserChunkedTE::~HttpRequestParserChunkedTE() {
@@ -37,6 +38,9 @@ HttpRequestParserChunkedTE::consume(char c, geryon::HttpResponse::HttpStatusCode
 
 AbstractHttpRequestParserBase::ParserAction
 HttpRequestParserChunkedTE::parseChunkedTESize(char c, geryon::HttpResponse::HttpStatusCode & error) {
+    if(gapStart == 0) {
+        gapStart = getAbsoluteIndex();
+    }
     //chunked transfer encoding, ignore first \r\n
     if(c == '\n' && chunkedDelimiterLine.size()) {
         std::istringstream sdelta(chunkedDelimiterLine);
@@ -49,6 +53,8 @@ HttpRequestParserChunkedTE::parseChunkedTESize(char c, geryon::HttpResponse::Htt
         //and clear this status back:
         chunkedState = 0;
         chunkedDelimiterLine.clear();
+        pRequest->addInputStreamGap(gapStart, getAbsoluteIndex());
+        gapStart = 0;
         return chunkSize == 0 ? AbstractHttpRequestParserBase::ParserAction::PA_DONE \
                               : AbstractHttpRequestParserBase::ParserAction::PA_CONTINUEACTION;
     } else if(c != '\r' && c != '\n') {

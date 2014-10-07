@@ -10,7 +10,7 @@ GIstreambuff::GIstreambuff(std::vector<GBufferHandler> & _buffers,
                                         : std::streambuf(), buffers(_buffers),
                                           absoluteStartIndex(_begin), absoluteEndIndex(_end),
                                           absoluteCurrentIndex(_begin), currentBuffer(0), currentIndex(0),
-                                          currentGapIndex(-1), currentGap(NULL) {
+                                          currentGapIndex(-1), currentGap(0) {
     adjustIndexes();
 }
 
@@ -20,7 +20,7 @@ void GIstreambuff::setup(std::size_t _start, std::size_t _end) {
     absoluteEndIndex = _end,
     absoluteCurrentIndex = _start;
     currentGapIndex = -1;
-    currentGap = NULL;
+    currentGap = 0;
     gaps.clear();
     adjustIndexes();
     LOG(geryon::util::Log::DEBUG) << "Input stream starts at:" << absoluteStartIndex
@@ -110,7 +110,7 @@ void GIstreambuff::advanceIndex() {
             if( currentGapIndex < gaps.size() ) { 
                 currentGap = &gaps.at(currentGapIndex);
             } else {
-                currentGap = NULL;
+                currentGap = 0;
             }
         }   
         // increment indexes
@@ -137,7 +137,7 @@ void GIstreambuff::rollbackIndex() {
             if(currentGapIndex >= 0) {
                 currentGap = &gaps.at(currentGapIndex);
             } else {
-                currentGap = NULL;
+                currentGap = 0;
             }
         }   
         // increment indexes
@@ -153,9 +153,6 @@ void GIstreambuff::rollbackIndex() {
     // unless there's a gap before the absoluteStartIndex, this will not move the index before the start
     } while(currentGap && absoluteCurrentIndex < currentGap->stop);
 }
-
-
-
 
 
 } }
