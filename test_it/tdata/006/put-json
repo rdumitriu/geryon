@@ -1,0 +1,5 @@
+{
+  "msg" : "msgTest", 
+  "other_msgs" : [], 
+  "do_something" : true
+}

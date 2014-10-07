@@ -36,7 +36,10 @@ HttpRequestParser::~HttpRequestParser() {
 
 
 void HttpRequestParser::init(geryon::server::HttpServerRequest *_pRequest) {
-    pRequest = _pRequest;
+    AbstractHttpRequestParserBase::init(_pRequest);
+    //if(pRequest) {
+        //pRequest->clear(); //implement this
+    //}
     state = START;
     uriState = URI_START;
     postParamsCharCount = 0;
@@ -73,64 +76,66 @@ geryon::HttpResponse::HttpStatusCode HttpRequestParser::validate() {
     decodedURL.clear();
     geryon::util::decodeURL(pRequest->uriPath, decodedURL);
     pRequest->uriPath = decodedURL;
-    //4: The content length or the Transfer-Encoding
-
-    ///::TODO:: SIMPLIFY ME & CORRECT
-
+    //4: The content type
+    if(pRequest->hasHeader("Content-Type")) {
+        pRequest->contentType = pRequest->getHeaderValue("Content-Type");
+    }
+    //5: The content length, the Transfer-Encoding and Expect headers
 
     geryon::HttpResponse::HttpStatusCode ret = geryon::HttpResponse::SC_OK;
-    bool hasTransferEncondingHeader = pRequest->hasHeader("Transfer-Encoding") || pRequest->hasHeader("Expect");
-    bool mustCalculateMissingLength = false;
+    bool hasTransferEncondingHeader = pRequest->hasHeader("Transfer-Encoding");
+    bool hasExpectHeader = pRequest->hasHeader("Expect");
+    bool hasContentLengthHeader = pRequest->hasHeader("Content-Length");
 
-    if(hasTransferEncondingHeader) {
-        //content length will be dynamically determined
-        std::string tehstr = pRequest->getHeaderValue("Transfer-Encoding");
-        if(tehstr != "" && tehstr != "chunked") {
-            LOG(geryon::util::Log::ERROR) << "Not implemented, transfer encoding requested with:" << tehstr;
-            return geryon::HttpResponse::SC_NOT_IMPLEMENTED;
-        } else if(tehstr == "") {
-            //TE is empty, we will have an 100-continue then we'll proceed as usual
-            //so we must calculate Content-Length header
-            mustCalculateMissingLength = true;
+    //5.0: for now, we'll trust Content-Length header
+    if(hasContentLengthHeader) {
+        std::string ctstr = pRequest->getHeaderValue("Content-Length");
+        try {
+            pRequest->contentLength = geryon::util::convertTo(ctstr, 0L);
+            if(pRequest->contentLength > maxContentLength) {
+                LOG(geryon::util::Log::ERROR) << "Request too large :" << ctstr;
+                return geryon::HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE;
+            }
+        } catch (...) {
+            LOG(geryon::util::Log::ERROR) << "Invalid content length on the request :" << ctstr;
+            return geryon::HttpResponse::SC_BAD_REQUEST;
         }
+    } else {
+        pRequest->contentLength = 0;
+    }
+    //5.1: normal case, we have Expect and TE
+    if(hasTransferEncondingHeader && hasExpectHeader) {
+        std::vector<std::string> tehdrs = pRequest->getHeaderValues("Transfer-Encoding");
+        for(std::string & hdrv : tehdrs) {
+            if(hdrv == "") {
+                //means that we will issue an 100-continue, then proceed as usual
+                if(pRequest->contentLength == 0) {
+                    pRequest->contentLength = maxContentLength;
+                }
+                ret = geryon::HttpResponse::SC_CONTINUE;
+            } else if(hdrv == "chunked") {
+                //normal TE, we assume max possible, ignoring what the request said
+                pRequest->contentLength = maxContentLength;
+                ret = geryon::HttpResponse::SC_CONTINUE;
+            } else {
+                LOG(geryon::util::Log::ERROR) << "Not implemented, transfer encoding requested with:" << hdrv;
+                return geryon::HttpResponse::SC_NOT_IMPLEMENTED;
+            }
+        }
+    }
+    //5.2: Check the expect header, we only support 100-continue
+    if(hasExpectHeader) {
         std::string expecthdr = pRequest->getHeaderValue("Expect");
         if(expecthdr != "100-continue") {
             LOG(geryon::util::Log::ERROR) << "Transfer encoding requested with invalid expect header:" << expecthdr;
             return geryon::HttpResponse::SC_BAD_REQUEST;
         }
-        //signal that we have to send the 100 header, set the cnt-len to max
-        LOG(geryon::util::Log::DEBUG) << "Should initiate chunked transfer encoding";
-        pRequest->contentLength = maxContentLength;
-        ret = geryon::HttpResponse::SC_CONTINUE;
     }
-    //even if TE header is present, browsers should sent this also.
-    //this is to be fully compliant with HTTP 1.1; however, we cannot rely on it
-    bool hasContentLengthHeader = false;
-    if(!hasTransferEncondingHeader || mustCalculateMissingLength) {
-        hasContentLengthHeader = pRequest->hasHeader("Content-Length");
-        if(hasContentLengthHeader) {
-            std::string ctstr = pRequest->getHeaderValue("Content-Length");
-            try {
-                pRequest->contentLength = geryon::util::convertTo(ctstr, 0L);
-                if(pRequest->contentLength > maxContentLength) {
-                    LOG(geryon::util::Log::ERROR) << "Request too large :" << ctstr;
-                    return geryon::HttpResponse::SC_REQUEST_ENTITY_TOO_LARGE;
-                }
-            } catch (...) {
-                LOG(geryon::util::Log::ERROR) << "Invalid content length on the request :" << ctstr;
-                return geryon::HttpResponse::SC_BAD_REQUEST;
-            }
-        }
-    }
+    //5.3: Check if we have a trace with a body
     if((hasContentLengthHeader || hasTransferEncondingHeader) && pRequest->getMethodCode() == HttpRequest::TRACE) {
         LOG(geryon::util::Log::ERROR) << "Malformed request: TRACE request with a body.";
         return geryon::HttpResponse::SC_BAD_REQUEST;
     }
-    //5: The content type
-    if(pRequest->hasHeader("Content-Type")) {
-        pRequest->contentType = pRequest->getHeaderValue("Content-Type");
-    }
-    //::TODO:: other checks
     return ret;
 }
 

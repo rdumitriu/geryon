@@ -11,6 +11,7 @@
 
 namespace geryon { namespace server {
 
+/// Never instantiate me
 class AbstractHttpRequestParserBase {
 public:
     AbstractHttpRequestParserBase(std::size_t maximalContentLenght, std::size_t & absoluteIndex);
@@ -20,7 +21,8 @@ public:
     enum ParserAction {
         PA_DONE,
         PA_CONTINUE,
-        PA_CHECK_HEADERS
+        PA_CHECK_HEADERS,
+        PA_CONTINUEACTION
     };
 
     /// Reset to initial parser state.

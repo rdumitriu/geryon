@@ -15,9 +15,11 @@ while [ -h "$PRG" ]; do
 done
 
 TESTHOMEDIR=`dirname "$PRG"`
-if [ "$TESTHOMEDIR" == "." ]; then
+if [ "$TESTHOMEDIR" == "." ]
+then
   TESTHOMEDIR=`pwd`
 fi
+
 
 test() {
   testdir=$1
@@ -28,13 +30,18 @@ test() {
   if [ -f $testdir/post-params ]
   then
     prms=`cat $testdir/post-params`
-    v=`$CURL -X POST -d "$prms" "$url"`
+    v=`$CURL $hdrs -X POST -d "$prms" "$url"`
   else
     if [ -f $testdir/json ]
     then
-      v=`$CURL -H 'Accept: application/json' -H 'Content-type: application/json' -X POST --data @$testdir/json "$url"`
+      v=`$CURL -H 'Accept: application/json' -H 'Content-type: application/json' -H 'Transfer-Encoding: chunked' -H 'Expect: 100-continue' -X POST --data @$testdir/json "$url"`
     else
-      v=`$CURL "$url"`
+      if [ -f $testdir/put-json ]
+      then
+        v=`$CURL -H 'Accept: application/json' -H 'Content-type: application/json' -H 'Transfer-Encoding: chunked' -H 'Expect: 100-continue' -X PUT --data @$testdir/put-json "$url"`
+      else
+        v=`$CURL "$url"`
+      fi
     fi
   fi  
   
@@ -45,10 +52,8 @@ test() {
 }
 
 
-
 for dir in $TESTHOMEDIR/tdata/*
 do
   test $dir
 done
-
 

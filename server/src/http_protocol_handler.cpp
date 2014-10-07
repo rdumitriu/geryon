@@ -10,6 +10,7 @@
 
 #include "http_protocol_handler.hpp"
 #include "http_request_parser.hpp"
+#include "http_request_parser_te.hpp"
 
 #include "log.hpp"
 
@@ -70,6 +71,10 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
                     break;
                 case AbstractHttpRequestParserBase::PA_CHECK_HEADERS:
                     done = switchParsersToTE(statusCode);
+                    acceptRequest();
+                    break;
+                case AbstractHttpRequestParserBase::PA_CONTINUEACTION:
+                    acceptRequest();
                     break;
                 case AbstractHttpRequestParserBase::PA_CONTINUE:
                 default:
@@ -156,15 +161,30 @@ void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code
 bool HttpProtocolHandler::switchParsersToTE(HttpResponse::HttpStatusCode & http_code) {
     //the order of TE header tells us how we should instantiate headers
     std::vector<std::string> tehdrs = request.getHeaderValues("Transfer-Encoding");
+    bool chunkedFound = false;
     for(std::string & hdrv : tehdrs) {
-        if(hdrv == "" || hdrv == "chunked") {
-            // here ::TODO:: change parsers
-            return false;
+        if(hdrv == "chunked") {
+            if(!chunkedFound) { //ignore multiple TE headers values
+                std::shared_ptr<AbstractHttpRequestParserBase> nprs;
+                nprs = std::make_shared<HttpRequestParserChunkedTE>(pParser, maxContentLength, totalBytesProcessed);
+                nprs->init(&request);
+                pParser = nprs;
+                chunkedFound = true;
+            }
+        } else if(hdrv == "") {
+            //nothing to do.
         } else {
+            http_code = geryon::HttpResponse::SC_NOT_IMPLEMENTED;
             return true;
         }
     }
     return false;
+}
+
+void HttpProtocolHandler::acceptRequest() {
+    if(request.hasExpectHeader()) {
+        sendStockAnswer(HttpResponse::SC_CONTINUE);
+    }
 }
 
 } } /*namespace*/

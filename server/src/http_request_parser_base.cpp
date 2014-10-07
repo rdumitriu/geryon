@@ -18,9 +18,6 @@ AbstractHttpRequestParserBase::~AbstractHttpRequestParserBase() {}
 
 void AbstractHttpRequestParserBase::init(geryon::server::HttpServerRequest *_pRequest) {
     pRequest = _pRequest;
-    //if(pRequest) {
-        //pRequest->clear(); //implement this
-    //}
 }
 
 AbstractHttpRequestParserBase::ParserAction

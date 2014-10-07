@@ -100,6 +100,7 @@ public:
 
     friend class HttpProtocolHandler;
     friend class HttpRequestParser;
+    friend class HttpRequestParserChunkedTE;
     friend class HttpServerRequestPart;
 private:
     inline void setStreamStartIndex(std::size_t n) { startStreamIndex = n; }

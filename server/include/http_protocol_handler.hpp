@@ -43,7 +43,9 @@ public:
 
 private:
 
-    void sendStockAnswer(HttpResponse::HttpStatusCode http_code, const std::string & msg);
+    void sendStockAnswer(HttpResponse::HttpStatusCode http_code, const std::string & msg = "");
+
+    void acceptRequest();
 
     bool switchParsersToTE(HttpResponse::HttpStatusCode & http_code);
 

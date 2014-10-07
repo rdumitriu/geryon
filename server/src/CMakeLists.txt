@@ -111,6 +111,9 @@ SET (geryon_SRC
 
     ../include/http_request_parser.hpp
     http_request_parser.cpp
+
+    ../include/http_request_parser_te.hpp
+    http_request_parser_te.cpp
 #
 # MAIN
 #
