@@ -114,8 +114,8 @@ geryon::HttpResponse::HttpStatusCode HttpRequestParser::validate() {
                 }
                 ret = geryon::HttpResponse::SC_CONTINUE;
             } else if(hdrv == "chunked") {
-                //normal TE, we assume max possible, ignoring what the request said
-                pRequest->contentLength = maxContentLength;
+                //normal TE, we assume max possible, ignoring what the request said, but we'll calculate it on the fly
+                pRequest->contentLength = 0;
                 ret = geryon::HttpResponse::SC_CONTINUE;
             } else {
                 LOG(geryon::util::Log::ERROR) << "Not implemented, transfer encoding requested with:" << hdrv;

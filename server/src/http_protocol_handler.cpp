@@ -64,6 +64,7 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
         for(; i < nBytes && !done; ++i) {
             ++totalBytesProcessed;
             char c = buff.buffer()[buff.marker() + i];
+            LOG(geryon::util::Log::DEBUG) << "Process [" << totalBytesProcessed << "] char =" << c;
             AbstractHttpRequestParserBase::ParserAction action = pParser->consume(c, statusCode);
             switch(action) {
                 case AbstractHttpRequestParserBase::PA_DONE:
@@ -91,11 +92,12 @@ void HttpProtocolHandler::handleRead(GBufferHandler && currentBuffer, std::size_
                 requestClose();
                 return;
             } else {
-                if(i != nBytes) {
-                    sendStockAnswer(geryon::HttpResponse::SC_BAD_REQUEST, "Incompletely parsed request");
-                    requestClose();
-                    return;
-                }
+//                LOG(geryon::util::Log::DEBUG) << "Start processing request i= " << i << " nBytes was =" << nBytes;
+//                if(i != nBytes) {
+//                    sendStockAnswer(geryon::HttpResponse::SC_BAD_REQUEST, "Incompletely parsed request");
+//                    requestClose();
+//                    return;
+//                }
                 LOG(geryon::util::Log::DEBUG) << "Request completed.";
                 //1: add last buffer
                 request.buffers.push_back(std::move(currentBuffer));
@@ -155,6 +157,7 @@ void HttpProtocolHandler::sendStockAnswer(HttpResponse::HttpStatusCode http_code
     std::string ref = stream.str();
     std::strncpy(writeBuff.get().buffer(), ref.c_str(), writeBuff.get().size());
     writeBuff.get().setMarker(ref.length()); //length of the string
+    LOG(geryon::util::Log::DEBUG) << "Sending stock answer:\n" << ref;
     requestWrite(std::move(writeBuff));
 }
 

@@ -8,6 +8,7 @@
 #ifndef GERYON_MEMBUFINPUTSTREAM_HPP_
 #define GERYON_MEMBUFINPUTSTREAM_HPP_
 
+#include<list>
 #include <vector>
 #include <algorithm>
 #include <cstring>
@@ -46,7 +47,7 @@ protected:
 private:
     void adjustIndexes();
     std::vector<GBufferHandler> & buffers;
-    std::vector<detail::GISBuffGap> gaps;
+    std::list<detail::GISBuffGap> gaps;
     std::size_t absoluteStartIndex;
     std::size_t absoluteEndIndex;
 
@@ -54,11 +55,7 @@ private:
     std::size_t currentBuffer; //the current buffer
     std::size_t currentIndex; // the current index in the current buffer
     
-    std::size_t currentGapIndex;
-    detail::GISBuffGap * currentGap;
-    
-    virtual void advanceIndex();
-    virtual void rollbackIndex();
+    std::list<detail::GISBuffGap>::iterator gapPointer;
 };
 
 

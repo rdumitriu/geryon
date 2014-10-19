@@ -4,24 +4,18 @@
 
 namespace geryon { namespace server {
 
-
 GIstreambuff::GIstreambuff(std::vector<GBufferHandler> & _buffers,
                            std::size_t _begin, std::size_t _end)
                                         : std::streambuf(), buffers(_buffers),
                                           absoluteStartIndex(_begin), absoluteEndIndex(_end),
-                                          absoluteCurrentIndex(_begin), currentBuffer(0), currentIndex(0),
-                                          currentGapIndex(-1), currentGap(0) {
+                                          absoluteCurrentIndex(_begin), currentBuffer(0), currentIndex(0) {
     adjustIndexes();
 }
 
 void GIstreambuff::setup(std::size_t _start, std::size_t _end) {
-    // assuming gaps are added after setup
     absoluteStartIndex = _start;
     absoluteEndIndex = _end,
     absoluteCurrentIndex = _start;
-    currentGapIndex = -1;
-    currentGap = 0;
-    gaps.clear();
     adjustIndexes();
     LOG(geryon::util::Log::DEBUG) << "Input stream starts at:" << absoluteStartIndex
                                   << " and ends at:" << absoluteEndIndex;
@@ -32,17 +26,31 @@ void GIstreambuff::addGap(std::size_t start, std::size_t end) {
     gap.start = start;
     gap.stop = end;
     gaps.push_back(std::move(gap));
-    if(!currentGap) {
-        currentGapIndex++;
-        currentGap = &gaps.at(currentGapIndex);
-    }
-    if(absoluteCurrentIndex >= start && absoluteCurrentIndex < end) {
-        advanceIndex(); // this will increment currentGapIndex just over the edge of gaps
-        currentGapIndex--;
-    }
 }
 
+
 void GIstreambuff::adjustIndexes() {
+    //1: check the gaps
+    gapPointer = gaps.begin();
+
+    //skip over gaps upfront
+    while(gapPointer != gaps.end() && gapPointer->stop < absoluteCurrentIndex) {
+        ++gapPointer;
+    }
+    //special case: absoluteCurrentIndex (and start) is in the current gap
+    if(gapPointer != gaps.end() &&
+       gapPointer->start <= absoluteCurrentIndex &&
+       absoluteCurrentIndex < gapPointer->stop) {
+        absoluteCurrentIndex = gapPointer->stop;
+        absoluteStartIndex = gapPointer->stop;
+        ++gapPointer; //point to next
+    }
+    //special case: absolute end index is in the last gap (gaps cannot extend over end!)
+    if(!gaps.empty() && gaps.back().start < absoluteEndIndex && absoluteEndIndex <= gaps.back().stop) {
+        absoluteEndIndex = gaps.back().start;
+    }
+
+    //2: calculate indexes
     currentBuffer = 0;
     currentIndex = 0;
     //calculate the buffer and index
@@ -64,94 +72,54 @@ void GIstreambuff::adjustIndexes() {
     }
 }
 
-
 GIstreambuff::int_type GIstreambuff::underflow() {
-    if (absoluteCurrentIndex >= absoluteEndIndex) {
+    if (absoluteCurrentIndex == absoluteEndIndex) {
         return traits_type::eof();
     }
-
     GBuffer b = buffers.at(currentBuffer).get();
-
     return traits_type::to_int_type(b.buffer()[currentIndex]);
 }
 
 
 GIstreambuff::int_type GIstreambuff::uflow() {
-    int_type ret = underflow();
-    advanceIndex();
+    if (absoluteCurrentIndex == absoluteEndIndex) {
+        return traits_type::eof();
+    }
+    GBuffer b = buffers.at(currentBuffer).get();
+    int_type ret = traits_type::to_int_type(b.buffer()[currentIndex]);
+    //now increment me
+    //::TODO:: care about the gap
+    ++absoluteCurrentIndex;
+    ++currentIndex;
+    if(currentIndex == b.marker() && currentBuffer < buffers.size() - 1) {
+        ++currentBuffer;
+        currentIndex = 0;
+    }
     return ret;
 }
 
 
 GIstreambuff::int_type GIstreambuff::pbackfail(int_type ch) {
-    rollbackIndex();
-    if (absoluteCurrentIndex <= absoluteStartIndex) { 
-        //absolute start may be in a gap
+    if (absoluteCurrentIndex == absoluteStartIndex) {
         return traits_type::eof();
     }
+    //now decrement me
+    //::TODO:: care about the gap
     GBuffer b = buffers.at(currentBuffer).get();
+    --absoluteCurrentIndex;
+    if(currentIndex > 0) {
+        --currentIndex;
+    } else if(currentBuffer > 0){
+        --currentBuffer;
+        b = buffers.at(currentBuffer).get();
+        currentIndex = b.marker() - 1;
+    }
     return traits_type::to_int_type(b.buffer()[currentIndex]);
 }
 
 
 std::streamsize GIstreambuff::showmanyc() {
     return absoluteEndIndex - absoluteCurrentIndex; //::TODO:: care about the gaps starting from current index
-}
-
-void GIstreambuff::advanceIndex() {
-    if(absoluteCurrentIndex >= absoluteEndIndex) {
-        return;
-    }
-    GBuffer b;
-    do {
-        // move current gap pointer to next gap if we're at the end of the gap
-        if(currentGap && absoluteCurrentIndex == currentGap->stop - 1) {
-            ++currentGapIndex;
-            if( currentGapIndex < gaps.size() ) { 
-                currentGap = &gaps.at(currentGapIndex);
-            } else {
-                currentGap = 0;
-            }
-        }   
-        // increment indexes
-        ++absoluteCurrentIndex;
-        ++currentIndex;
-        b = buffers.at(currentBuffer).get();
-        if(currentIndex == b.marker() && currentBuffer < buffers.size() - 1) {
-            ++currentBuffer;
-            currentIndex = 0;
-        }
-    // repeat while we're inside a gap
-    // unless there's a gap after the absoluteEndIndex, this will not move the index after eof
-    } while(currentGap && absoluteCurrentIndex >= currentGap->start);
-}
-
-void GIstreambuff::rollbackIndex() {
-    if(absoluteCurrentIndex <= absoluteStartIndex) {
-        return;
-    }
-    do {
-        // move current gap pointer to previous gap if we're at the start of the gap
-        if(currentGap && absoluteCurrentIndex == currentGap->start) {
-            --currentGapIndex;
-            if(currentGapIndex >= 0) {
-                currentGap = &gaps.at(currentGapIndex);
-            } else {
-                currentGap = 0;
-            }
-        }   
-        // increment indexes
-        --absoluteCurrentIndex;
-        if(currentIndex > 0) {
-            --currentIndex;
-        } else if(currentBuffer > 0) {
-            --currentBuffer;
-            GBuffer b = buffers.at(currentBuffer).get();
-            currentIndex = b.marker() - 1;
-        }
-    // repeat while we're inside a gap
-    // unless there's a gap before the absoluteStartIndex, this will not move the index before the start
-    } while(currentGap && absoluteCurrentIndex < currentGap->stop);
 }
 
 

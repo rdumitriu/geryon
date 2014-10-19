@@ -31,6 +31,7 @@ private:
     std::size_t chunkTransferredSz;
     unsigned int chunkedState;
     std::size_t gapStart;
+    std::size_t calculatedContentLength;
 
 };
 
