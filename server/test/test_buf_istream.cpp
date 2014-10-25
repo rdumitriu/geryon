@@ -130,8 +130,9 @@ void test1Gaps() {
     buffers.at(5).get().setMarker(1);
     
     //1st test : abb
-    geryon::server::GIstreambuff buff1(buffers, 1, 5);
+    geryon::server::GIstreambuff buff1(buffers);
     buff1.addGap(1, 2);
+    buff1.setup(1, 5);
     std::istream iss1(&buff1);
     std::string s;
     iss1 >> s; //our stream
@@ -141,12 +142,13 @@ void test1Gaps() {
     std::cout << "String 1 is >>" << s << "<<" << std::endl;
     
     //2nd test: all abbbcccddee
-    geryon::server::GIstreambuff buff2(buffers, 1, 20);
+    geryon::server::GIstreambuff buff2(buffers);
     buff2.addGap(1, 2);
     buff2.addGap(5, 7);
     buff2.addGap(11, 13);
     buff2.addGap(15, 17);
     buff2.addGap(19, 20);
+    buff2.setup(1, 20);
     std::istream iss2(&buff2);
     iss2 >> s; //our stream
     if("abbbcccddee" != s) {
@@ -162,9 +164,9 @@ void test1Gaps() {
         LOG(geryon::util::Log::ERROR) << "ERROR: Failed test1Gaps (3.1)";
     }
     std::cout << "String 3.1 is >>" << s << "<<" << std::endl;
-    buff2.setup(11,18);
     buff2.addGap(11, 13);
     buff2.addGap(15, 17);
+    buff2.setup(11,18);
     iss2.rdbuf(&buff2);
     iss2 >> s;
     if("dde" != s) {
@@ -174,8 +176,9 @@ void test1Gaps() {
     
     
     //4th test: empty (EOF)
-    geryon::server::GIstreambuff buff3(buffers, 11, 13);
+    geryon::server::GIstreambuff buff3(buffers);
     buff3.addGap(11, 13);
+    buff2.setup(11,13);
     std::istream iss3(&buff3);
     if(iss3 >> s) { //yeap, this should return false
         LOG(geryon::util::Log::ERROR) << "ERROR: Failed test1Gaps (4)";
@@ -183,9 +186,107 @@ void test1Gaps() {
     std::cout << "String 4 is >>" << s << "<<" << std::endl; //unchanged
 }
 
+void test2Gaps() {
+    geryon::server::GUniformMemoryPool pool(BUF_SZ, 1, 0);
+    std::vector<geryon::server::GBufferHandler> buffers;
+
+    buffers.push_back(std::move(geryon::server::GBufferHandler(&pool)));
+    buffers.at(0).get().buffer()[0] = 'a'; //0
+    buffers.at(0).get().buffer()[1] = 'X'; //1
+    buffers.at(0).get().buffer()[2] = 'a'; //2
+    buffers.at(0).get().setMarker(3);
+
+    buffers.push_back(std::move(geryon::server::GBufferHandler(&pool)));
+    buffers.at(1).get().buffer()[0] = 'b'; //3
+    buffers.at(1).get().buffer()[1] = 'b'; //4
+    buffers.at(1).get().buffer()[2] = 'X'; //5
+    buffers.at(1).get().buffer()[3] = 'X'; //6
+    buffers.at(1).get().buffer()[4] = 'b'; //7
+    buffers.at(1).get().setMarker(5);
+
+    buffers.push_back(std::move(geryon::server::GBufferHandler(&pool)));
+    buffers.at(2).get().buffer()[0] = 'c'; //8
+    buffers.at(2).get().buffer()[1] = 'c'; //9
+    buffers.at(2).get().buffer()[2] = 'c'; //10
+    buffers.at(2).get().buffer()[3] = 'X'; //11
+    buffers.at(2).get().setMarker(4);
+
+    buffers.push_back(std::move(geryon::server::GBufferHandler(&pool)));
+    buffers.at(3).get().buffer()[0] = 'X'; //12
+    buffers.at(3).get().buffer()[1] = 'd'; //13
+    buffers.at(3).get().buffer()[2] = 'd'; //14
+    buffers.at(3).get().buffer()[3] = 'X'; //15
+    buffers.at(3).get().setMarker(4);
+
+    //1st test : aabbbcccdd
+    geryon::server::GIstreambuff buff1(buffers);
+    buff1.addGap(1, 2);
+    buff1.addGap(5, 7);
+    buff1.addGap(11, 13);
+    buff1.addGap(15, 16);
+    buff1.setup(0, 16);
+    std::istream iss1(&buff1);
+    std::string s;
+    iss1 >> s; //our stream
+    if("aabbbcccdd" != s) {
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (1)";
+    }
+    std::cout << "String 1 is >>" << s << "<<" << std::endl;
+
+    //2nd test: putback stuff
+    geryon::server::GIstreambuff buff2(buffers);
+    buff2.addGap(1, 2);
+    buff2.addGap(5, 7);
+    buff2.addGap(11, 13);
+    buff2.addGap(15, 16);
+    buff2.setup(0, 16);
+
+    std::istream iss2(&buff2);
+    char c;
+    iss2 >> c; //a 0
+    if(c != 'a'){
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (2.0) found:" << c;
+    }
+    iss2.putback(c); //0
+    iss2 >> c; //a 0
+    if(c != 'a'){
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (2.1) found:" << c;
+    }
+    iss2 >> c; //a 2
+    if(c != 'a'){
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (2.2) found:" << c;
+    }
+    iss2.putback(c); //2
+    iss2 >> c; //a 2
+    if(c != 'a'){
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (2.3) found:" << c;
+    }
+    iss2 >> c; //b 3
+    if(c != 'b'){
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (2.4) found:" << c;
+    }
+    iss2 >> c; //b 4
+    iss2.putback(c); //4
+    iss2 >> c; //b 4
+    if(c != 'b'){
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (2.5) found:" << c;
+    }
+    iss2 >> c; //b 7
+    if(c != 'b'){
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (2.6) found:" << c;
+    }
+    iss2 >> s;
+
+    if("cccdd" != s) {
+        LOG(geryon::util::Log::ERROR) << "ERROR: Failed test2Gaps (3)";
+    }
+    std::cout << "String 2 is >>" << s << "<<" << std::endl;
+}
+
 int main(int argn, const char * argv []) {
     test1();
     test2();
     test1Gaps();
+    test2Gaps();
     return 0;
 }

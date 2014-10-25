@@ -67,11 +67,11 @@ IF(UNIX)
   IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
     LINK_DIRECTORIES("/usr/lib64"
                      "/usr/local/lib64")
-    SET( AGRADE_GLOBAL_CXX_FLAGS "${AGRADE_GLOBAL_CXX_FLAGS} -pthread -m64 -fPIC")
+    SET( AGRADE_GLOBAL_CXX_FLAGS "${AGRADE_GLOBAL_CXX_FLAGS} -pthread -m64 -fPIC -Wl,--no-as-needed")
   ELSE()
     LINK_DIRECTORIES("/usr/lib"
                      "/usr/local/lib")
-    SET( AGRADE_GLOBAL_CXX_FLAGS "${AGRADE_GLOBAL_CXX_FLAGS} -pthread -m32 -fPIC")
+    SET( AGRADE_GLOBAL_CXX_FLAGS "${AGRADE_GLOBAL_CXX_FLAGS} -pthread -m32 -fPIC -Wl,--no-as-needed")
   ENDIF()
 ELSE(NOT UNIX)
   message(FATAL_ERROR " I was only tested on LINUX. You really need to work to build me.")

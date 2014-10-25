@@ -88,12 +88,23 @@ GIstreambuff::int_type GIstreambuff::uflow() {
     GBuffer b = buffers.at(currentBuffer).get();
     int_type ret = traits_type::to_int_type(b.buffer()[currentIndex]);
     //now increment me
-    //::TODO:: care about the gap
+
+    std::size_t lastKnownPos = absoluteCurrentIndex;
     ++absoluteCurrentIndex;
-    ++currentIndex;
-    if(currentIndex == b.marker() && currentBuffer < buffers.size() - 1) {
+    while(!gaps.empty() && gapPointer != gaps.end() && gapPointer->start == absoluteCurrentIndex) {
+        absoluteCurrentIndex = gapPointer->stop;
+        gapPointer++;
+        if(absoluteCurrentIndex > absoluteEndIndex) {
+            absoluteCurrentIndex = absoluteEndIndex;
+            break;
+        }
+    }
+    std::size_t diff = absoluteCurrentIndex - lastKnownPos;
+    currentIndex += diff;
+    while(currentIndex >= b.marker() && currentBuffer < buffers.size() - 1) {
         ++currentBuffer;
-        currentIndex = 0;
+        currentIndex = currentIndex - b.marker();
+        b = buffers.at(currentBuffer).get();
     }
     return ret;
 }
@@ -104,22 +115,48 @@ GIstreambuff::int_type GIstreambuff::pbackfail(int_type ch) {
         return traits_type::eof();
     }
     //now decrement me
-    //::TODO:: care about the gap
     GBuffer b = buffers.at(currentBuffer).get();
-    --absoluteCurrentIndex;
-    if(currentIndex > 0) {
-        --currentIndex;
-    } else if(currentBuffer > 0){
-        --currentBuffer;
-        b = buffers.at(currentBuffer).get();
-        currentIndex = b.marker() - 1;
+
+    //The following code is pretty much inneficient, since it goes by -1 steps.
+    auto prevGapPointer = gapPointer;
+    if(!gaps.empty() && prevGapPointer != gaps.end() && prevGapPointer != gaps.begin()) {
+        prevGapPointer--;
     }
+    do {
+        --absoluteCurrentIndex;
+        if(currentIndex > 0) {
+            --currentIndex;
+        } else if(currentBuffer > 0){
+            --currentBuffer;
+            b = buffers.at(currentBuffer).get();
+            currentIndex = b.marker() - 1;
+        }
+        if(!gaps.empty() && absoluteCurrentIndex >= absoluteStartIndex) {
+            if(prevGapPointer != gaps.end() && prevGapPointer->start >= absoluteCurrentIndex) {
+                gapPointer = prevGapPointer;
+                if(gaps.begin() != prevGapPointer) {
+                    --prevGapPointer;
+                }
+            } else if(prevGapPointer != gaps.end() && prevGapPointer->stop <= absoluteCurrentIndex) {
+                break; //glorified goto
+            }
+        } else {
+            break; //glorified goto
+        }
+    } while(absoluteCurrentIndex > absoluteStartIndex);
+
     return traits_type::to_int_type(b.buffer()[currentIndex]);
 }
 
 
 std::streamsize GIstreambuff::showmanyc() {
-    return absoluteEndIndex - absoluteCurrentIndex; //::TODO:: care about the gaps starting from current index
+    std::size_t nch = 0;
+    if(gapPointer != gaps.end()) {
+        for(auto g = gapPointer; g != gaps.end() && g->start < absoluteEndIndex; ++g) {
+            nch += (g->stop - g->start);
+        }
+    }
+    return absoluteEndIndex - absoluteCurrentIndex - nch;
 }
 
 
