@@ -99,6 +99,7 @@ bool GAdmTCPProtocolHandler::handleCommand(const std::string & cmd) {
         return true;
     } else if(geryon::util::startsWith(command, "sess ")) {
         showApplicationSessions(command);
+        return true;
     } else if("sqlpools" == command) {
         showSQLPools();
         return true;
