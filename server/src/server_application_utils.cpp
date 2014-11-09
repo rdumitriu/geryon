@@ -59,4 +59,65 @@ std::string createRegexFromPath(const std::string & path) {
     return ret;
 }
 
+unsigned int countStars(const std::string & path) {
+    unsigned int ret = 0;
+    char * pc = const_cast<char *>(path.c_str());
+    while(*pc) {
+        if(*pc == '*') {
+            ++ret;
+        }
+        pc++;
+    }
+    return ret;
+}
+
+MatchingEntry createMatchingEntry(const std::string & path) {
+    MatchingEntry ret;
+    ret.mappedPath = path;
+    ret.noStars = countStars(path);
+    switch(ret.noStars) {
+        case 0:
+            //direct match
+            break;
+        case 1:
+            //split the string around the star
+            {
+                auto ndx = path.find("*");
+                ret.beginOfPath = path.substr(0, ndx);
+                if(ndx < path.length() - 1) {
+                    ret.endOfPath = path.substr(ndx+1);
+                }
+            }
+            break;
+        default:
+            //slow, regex
+            ret.regex = std::regex(detail::createRegexFromPath(path));
+            break;
+    }
+    return ret;
+}
+
+bool isMatchingEntry(const std::string & path, const MatchingEntry & mentry) {
+    switch(mentry.noStars) {
+        case 0:
+            return path == mentry.mappedPath;
+        case 1:
+            {
+                if(!mentry.beginOfPath.empty() && !mentry.endOfPath.empty()) {
+                    return geryon::util::startsWith(path, mentry.beginOfPath) &&
+                           geryon::util::endsWith(path, mentry.endOfPath);
+                } else if(!mentry.beginOfPath.empty()) {
+                    return geryon::util::startsWith(path, mentry.beginOfPath);
+                } else if(!mentry.endOfPath.empty()) {
+                    return geryon::util::endsWith(path, mentry.endOfPath);
+                }
+                return true; //both are empty, '*' matches everything!
+            }
+            break;
+        default:
+            return std::regex_match(path, mentry.regex);
+    }
+    return false;
+}
+
 } } }

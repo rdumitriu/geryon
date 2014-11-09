@@ -33,6 +33,10 @@ ADD_EXECUTABLE(test_path_tree test_path_tree.cpp)
 INCLUDE_DIRECTORIES ("../include" "../../commons/include")
 TARGET_LINK_LIBRARIES (test_path_tree ${MLIB})
 
+ADD_EXECUTABLE(test_matching_entry test_matching_entry.cpp ../src/server_application_utils.cpp)
+INCLUDE_DIRECTORIES ("../include" "../../commons/include")
+TARGET_LINK_LIBRARIES (test_matching_entry ${MLIB})
+
 ADD_TEST(test_mem_buf_ump1 test_mem_buf_ump)
 SET_TESTS_PROPERTIES (test_mem_buf_ump1
                       PROPERTIES

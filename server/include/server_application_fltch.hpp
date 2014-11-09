@@ -13,6 +13,7 @@
 #include "application.hpp"
 #include "http_server_types.hpp"
 #include "path_tree.hpp"
+#include "server_application_utils.hpp"
 
 namespace geryon { namespace server {
 
@@ -20,9 +21,7 @@ namespace detail {
 
     struct WrappedFilter {
         std::shared_ptr<Filter> filter;
-        std::string mappedPath;
-        bool isRegex;
-        std::regex regex;
+        MatchingEntry matchEntry;
     };
 }
 
@@ -43,8 +42,6 @@ private:
 
     bool doFilter(const detail::WrappedFilter & flt,
                   HttpServerRequest & request, HttpServerResponse & response);
-
-    bool requestMatches(const detail::WrappedFilter & flt, const HttpServerRequest & request);
 };
 
 } }

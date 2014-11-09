@@ -17,14 +17,13 @@ void ServerApplicationServletDispatcher::init(std::shared_ptr<geryon::Applicatio
             //regex, needs scan
             detail::WrappedServlet srvt;
             srvt.servlet = *p;
-            srvt.mappedPath = path;
-            srvt.regex = std::regex(detail::createRegexFromPath(path));
+            srvt.matchEntry = detail::createMatchingEntry(path);
             regexMappedServlets.push_back(std::move(srvt));
         }
     }
     for(unsigned int i = 0; i < regexMappedServlets.size(); ++i) {
         detail::WrappedServlet & rws = regexMappedServlets.at(i);
-        regexMappedIndex.addNode(rws.mappedPath, i);
+        regexMappedIndex.addNode(rws.matchEntry.mappedPath, i);
     }
 }
 
@@ -53,16 +52,11 @@ std::shared_ptr<Servlet> ServerApplicationServletDispatcher::findServlet(HttpSer
     std::vector<unsigned int> possMatches = regexMappedIndex.getDataForPath(request.getURIPath());
     for(std::vector<unsigned int>::reverse_iterator ndx = possMatches.rbegin(); ndx != possMatches.rend(); ++ndx) {
         detail::WrappedServlet & regsrv = regexMappedServlets.at(*ndx);
-        if(requestMatches(regsrv, request)) {
+        if(detail::isMatchingEntry(request.getURIPath(), regsrv.matchEntry)) {
             return regsrv.servlet;
         }
     }
     return std::shared_ptr<Servlet>(0);
-}
-
-bool ServerApplicationServletDispatcher::requestMatches(const detail::WrappedServlet & srv,
-                                                        const HttpServerRequest & request) {
-    return std::regex_match(request.getURIPath(), srv.regex);
 }
 
 

@@ -54,4 +54,5 @@ void test1() {
 
 int main(int argn, const char * argv []) {
     test1();
+    return 0;
 }

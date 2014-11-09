@@ -14,6 +14,7 @@
 #include "application.hpp"
 #include "http_server_types.hpp"
 #include "path_tree.hpp"
+#include "server_application_utils.hpp"
 
 namespace geryon { namespace server {
 
@@ -21,8 +22,7 @@ namespace detail {
 
     struct WrappedServlet {
         std::shared_ptr<Servlet> servlet;
-        std::string mappedPath;
-        std::regex regex;
+        MatchingEntry matchEntry;
     };
 }
 
@@ -43,7 +43,6 @@ private:
     PathTree<unsigned int> regexMappedIndex;
 
     std::shared_ptr<Servlet> findServlet(HttpServerRequest & request);
-    bool requestMatches(const detail::WrappedServlet & srv, const HttpServerRequest & request);
 };
 
 } }
