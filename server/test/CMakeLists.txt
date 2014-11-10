@@ -71,3 +71,8 @@ ADD_TEST(test_path_tree1 test_path_tree)
 SET_TESTS_PROPERTIES (test_path_tree1
                       PROPERTIES
                       FAIL_REGULAR_EXPRESSION "FAILED.*")
+
+ADD_TEST(test_matching_entry1 test_matching_entry)
+SET_TESTS_PROPERTIES (test_matching_entry1
+                      PROPERTIES
+                      FAIL_REGULAR_EXPRESSION "FAILED.*")
