@@ -1,2 +1,14 @@
 
-Geryon is not a monster.
+Geryon is not a monster. It is a small C++ server with a Java-like programming interface.
+
+It offers:
+1/ A SQL connection pool (support for PostgreSQL, for now)
+2/ Multiple threading paradigms based on the reactor I/O
+3/ A minimal management interface
+
+From the programming point of view:
+1/ Familiar Java notions like Servlet, Filter, Application, Session
+2/ Each application can 'mount' additional modules (via configuration). These modules are hierarchical.
+3/ We intend to use it behind Apache httpd / nginx to create some backbone.js apps
+
+You have some examples in the test_it and examples directory.
