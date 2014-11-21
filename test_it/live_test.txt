@@ -1,0 +1,10 @@
+# Use ll1gen utility to generate this bean
+
+namespace geryon
+namespace test
+
+class TProgrammer
+  id long
+  name string
+  mentalAge unsigned int
+  lang string

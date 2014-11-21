@@ -7,6 +7,8 @@
 #ifndef GERYON_SERVLET_HPP_
 #define GERYON_SERVLET_HPP_
 
+#include "string_utils.hpp"
+
 #include "http_types.hpp"
 #include "appconfig_aware.hpp"
 
@@ -147,6 +149,17 @@ private:
     ///The path, in the form '/the/path/name' or '/the/path/*'
     std::string path;
 };
+
+template <typename T>
+G_FUNCTION_EXPORT inline T getLastPathParam(const HttpRequest & request, T defaultValue) {
+    std::string uriPath = request.getURIPath();
+    auto li = uriPath.find_last_of('/');
+    if(li == std::string::npos || li >= uriPath.length() - 1) {
+        return defaultValue;
+    }
+    std::string endOfPath = uriPath.substr(li+1);
+    return geryon::util::convertTo(endOfPath, defaultValue);
+}
 
 }  /*namespace*/
 #endif

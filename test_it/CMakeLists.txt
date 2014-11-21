@@ -10,6 +10,10 @@ SET (livetest_SRC
     test_servlet.hpp
     test_servlet.cpp
 
+    tprogrammer.hpp
+    tprogrammer_servlet.hpp
+    tprogrammer_servlet.cpp
+
     livetest.cpp
 	)
 
