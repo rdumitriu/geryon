@@ -227,7 +227,7 @@ public:
 
     ///Constructor.
     explicit
-    SQLPool(unsigned int _minSz, unsigned int _maxSz,
+    SQLPool(std::size_t _minSz, std::size_t _maxSz,
             unsigned int _connTTL, unsigned int _checkInterval,
             bool _testOnBorrow, bool _testOnReturn,
             std::shared_ptr<configuration::SQLConnectionOpsImpl<T>> _rOpsImpl)
@@ -250,23 +250,23 @@ public:
     }
 
     ///Gets the max size
-    inline unsigned int maxSize() {
+    inline std::size_t maxSize() {
         return maxSz;
     }
 
     ///Gets the min size
-    inline unsigned int minSize() {
+    inline std::size_t minSize() {
         return minSz;
     }
 
     ///Returns the number of conns created
-    unsigned int currentSize() {
+    std::size_t currentSize() {
         std::unique_lock<std::mutex> _(mutex);
         return queue.size() + noBorrowed;
     }
 
     ///Returns the number of conns created
-    unsigned int inUseSize() {
+    std::size_t inUseSize() {
         std::unique_lock<std::mutex> _(mutex);
         return noBorrowed;
     }
@@ -366,8 +366,8 @@ private:
 
     std::condition_variable cond; /*condition */
     std::mutex mutex; /* the mutex */
-    unsigned int minSz;
-    unsigned int maxSz;
+    std::size_t minSz;
+    std::size_t maxSz;
     unsigned int connTTL;
     bool testOnBorrow;
     bool testOnReturn;

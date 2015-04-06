@@ -119,9 +119,6 @@ Log::LogLevel Log::fromString(const std::string & level) {
 }
 
 std::string Log::currentTimestampAsString() {
-	//use microseconds clock
-	std::ostringstream ss;
-	//serialize it
     std::chrono::time_point<std::chrono::system_clock> curr = std::chrono::system_clock::now();
     std::time_t curr_t = std::chrono::system_clock::to_time_t(curr);
     return formatISODateTime(curr_t);

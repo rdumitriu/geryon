@@ -27,7 +27,7 @@ public:
 
 private:
     bool handleCommand(const std::string & command);
-    void sendClose();
+
     void writeHelp();
     void showBuffers();
     void showApplications();

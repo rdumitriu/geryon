@@ -37,7 +37,7 @@ protected:
     GeryonAppBaseConfigurator(const boost::filesystem::path & modulesBasePath, const std::string & module);
     virtual ~GeryonAppBaseConfigurator();
 public:
-    bool isConfigurationValid();
+    virtual bool isConfigurationValid();
     void * getModuleDLL();
 protected:
     void * moduleDLL;
@@ -48,7 +48,7 @@ public:
     GeryonApplicationConfigurator(const boost::filesystem::path & modulesBasePath,
                                   GeryonApplicationConfig & cfg);
     ~GeryonApplicationConfigurator();
-    bool isConfigurationValid();
+    virtual bool isConfigurationValid();
     std::shared_ptr<ServerApplication> application();
 
     void addModule(std::shared_ptr<ApplicationModule> module_ptr);
@@ -62,7 +62,7 @@ public:
     GeryonApplicationModuleConfigurator(const boost::filesystem::path & modulesBasePath,
                                         GeryonApplicationModuleConfig & cfg);
     ~GeryonApplicationModuleConfigurator();
-    bool isConfigurationValid();
+    virtual bool isConfigurationValid();
     std::shared_ptr<ApplicationModule> module();
 
 private:
